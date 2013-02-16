@@ -15,11 +15,11 @@ Register    idtR;
 char char_map[] =
 {
   '\0','\0','1','2','3','4','5','6',
-  '7','8','9','0','\'','ก','\0','\0',
+  '7','8','9','0','\'','ยก','\0','\0',
   'q','w','e','r','t','y','u','i',
   'o','p','`','+','\0','\0','a','s',
-  'd','f','g','h','j','k','l','๑',
-  '\0','บ','\0','็','z','x','c','v',
+  'd','f','g','h','j','k','l','รฑ',
+  '\0','ยบ','\0','รง','z','x','c','v',
   'b','n','m',',','.','-','\0','*',
   '\0','\0','\0','\0','\0','\0','\0','\0',
   '\0','\0','\0','\0','\0','\0','\0','7',
@@ -86,3 +86,23 @@ void setIdt()
   set_idt_reg(&idtR);
 }
 
+void keyboard_routine()
+{
+  // We read the data register port   
+  unsigned char input = inb(0x60);
+  unsigned char is_break = input >> 7;
+  unsigned char scan_code = input & 0x7F;
+  // Checking bit 7. It's a make (0) or a break (1)?
+  if (is_break)
+  {
+    // Do nothing  
+  }
+  else
+  {
+    unsigned char key_char = 'C';
+      if (scan_code < 128) {
+        key_char = char_map[scan_code];
+      }
+      printc_xy(15, 15, key_char);
+  }
+}
