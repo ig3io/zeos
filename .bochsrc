@@ -36,7 +36,7 @@
 #   beos           use native BeOS libraries
 #   macintosh      use MacOS pre-10
 #   amigaos        use native AmigaOS libraries
-#   sdl            use SDL library, cross platform
+    sdl            use SDL library, cross platform
 #   svga           use SVGALIB library for Linux, allows graphics without X11
 #   term           text only, uses curses/ncurses library, cross platform
 #   rfb            provides an interface to AT&T's VNC viewer, cross platform
@@ -105,8 +105,8 @@ megs: 16
 # VGAROMIMAGE
 # You now need to load a VGA ROM BIOS into C0000.
 #=======================================================================
-#vgaromimage: file=$BXSHARE/VGABIOS-lgpl-latest
-vgaromimage: $BXSHARE/VGABIOS-elpin-2.40
+vgaromimage: file=$BXSHARE/VGABIOS-lgpl-latest
+#vgaromimage: $BXSHARE/VGABIOS-elpin-2.40
 #vgaromimage: file=/usr/share/vgabios/vgabios.bin 
 
 #=======================================================================
