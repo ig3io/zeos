@@ -81,6 +81,7 @@ void setIdt()
   idtR.limit = IDT_ENTRIES * sizeof(Gate) - 1;
   /* ADD INITIALIZATION CODE FOR INTERRUPT VECTOR */
   setInterruptHandler(33, keyboard_handler, 0); 
+  setInterruptHandler(32, clock_handler, 0); 
 
   set_handlers();
 
@@ -106,4 +107,8 @@ void keyboard_routine()
       }
       printc_xy(15, 15, key_char);
   }
+}
+
+void clock_routine(){
+  zeos_show_clock();
 }
