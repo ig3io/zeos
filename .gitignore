@@ -1,0 +1,9 @@
+bochsout.txt
+bootsect
+build
+system
+user
+*.o
+*.s
+*.out
+*.bin
