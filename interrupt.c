@@ -12,7 +12,7 @@
 Gate idt[IDT_ENTRIES];
 Register    idtR;
 
-// Global ticks variable
+// Clock ticks global variables TODO may not be necessary here
 unsigned int zeos_ticks = 0;
 
 char char_map[] =
@@ -85,7 +85,9 @@ void setIdt()
   /* ADD INITIALIZATION CODE FOR INTERRUPT VECTOR */
   setInterruptHandler(33, keyboard_handler, 0); 
   setInterruptHandler(32, clock_handler, 0); 
-  
+
+  setTrapHandler(0x80, system_call_handler, 3);
+
   set_handlers();
 
   set_idt_reg(&idtR);
@@ -113,6 +115,6 @@ void keyboard_routine()
 }
 
 void clock_routine(){
-  zeos_ticks++;
   zeos_show_clock();
+  ++zeos_ticks;
 }
