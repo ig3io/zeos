@@ -45,3 +45,27 @@ int sys_fork()
 void sys_exit()
 {  
 }
+
+int sys_write(int fd, char * buffer, int size)
+{
+  int ch_fd = check_fd(fd, ESCRIPTURA);
+  if (ch_fd < 0)
+  {
+    // ERROR HANDLING
+  }
+  if (buffer == NULL)
+  {
+    // ERROR HANDLING
+  }
+  if (size < 0)
+  {
+    // ERROR HANDLING
+  }
+  // copy data..
+  //
+  int res = sys_write_console(buffer, size);
+  if (res < 0) {
+    // error handling
+  }
+  return res;
+}
