@@ -62,10 +62,16 @@ int sys_write(int fd, char * buffer, int size)
     // ERROR HANDLING
   }
   // copy data..
-  //
-  int res = sys_write_console(buffer, size);
-  if (res < 0) {
-    // error handling
+  char buffer_kernel[4];
+  int pending = size;
+  int res = 0;
+  while (pending > 0)
+  {
+    int res_cp = copy_from_user(buffer, buffer_kernel, 4);
+    if (res_cp < 0)
+    {
+      // error handling
+    }
   }
   return res;
 }
