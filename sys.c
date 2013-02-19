@@ -49,6 +49,7 @@ void sys_exit()
 int sys_write(int fd, char * buffer, int size)
 {
   int ch_fd = check_fd(fd, ESCRIPTURA);
+
   if (ch_fd < 0)
   {
     // ERROR HANDLING
