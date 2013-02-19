@@ -46,6 +46,7 @@ int strlen(char *a)
 int write(int fd, char * buffer, int size)
 {
   int rvalue = 0;
+
   __asm__ __volatile__ (
     "movl %1, %%ebx\n\t"
     "movl %2, %%ecx\n\t"
