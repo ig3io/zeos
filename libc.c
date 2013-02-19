@@ -43,26 +43,21 @@ int strlen(char *a)
   return i;
 }
 
+
 int write(int fd, char * buffer, int size)
 {
   int rvalue = 0;
 
   __asm__ __volatile__ (
-    "movl %1, %%ebx\n\t"
-    "movl %2, %%ecx\n\t"
-    "movl %3, %%edx\n\t"
-    "movl %4, %%eax\n\t"
     "int $0x80\n\t"
-    "movl %%eax, %0\n\t"
-    : "=r" (rvalue)
-    : "g" (fd), "g" (buffer), "g" (size), "g" (0x80)
-    : "eax", "ebx", "ecx", "edx" // Is this necessary?
+    : "=a" (rvalue)
+    : "b" (fd), "c" (buffer), "d" (size), "a" (0x04)
   );
 
   // Return processing...
   if (rvalue < 0)
   {
-    // Move code to errno
+    // Move code to errno TODO
     rvalue = -1;
   }
   return rvalue;
