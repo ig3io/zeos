@@ -86,15 +86,16 @@ ENTRY(system_call_handler)
       SAVE_ALL
       cmpl $0, %eax
       jl err
-      cmpl $255, %eax
+      cmpl $0x28, %eax
       jg err
       call *sys_call_table(, %eax, 0x04)
       jmp end
       err:
-      call sys_ni_syscall
-      negl %eax
+      ;//call sys_ni_syscall
+      ;//negl %eax
+      movl $0xffffffda, %eax
       end:
-      movl %eax, 18(%esp)
+      movl %eax, 0x18(%esp)
       RESTORE_ALL
       iret
        
