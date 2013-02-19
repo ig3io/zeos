@@ -91,28 +91,9 @@ ENTRY(system_call_handler)
       call *sys_call_table(, %eax, 0x04)
       jmp end
       err:
-      ;//call sys_ni_syscall
-      ;//negl %eax
-      movl $0xffffffda, %eax
+      call sys_ni_syscall
+      negl %eax
       end:
       movl %eax, 0x18(%esp)
       RESTORE_ALL
       iret
-       
-
-;//ENTRY(system_call_handler)
-;//      SAVE_ALL
-;//      cmpl $0, %eax
-;//      jl err
-;//      cmpl $MAX_SYSCALL, %eax
-;//      jg err
-;//      call *sys_call_table(, %eax, 0x04)
-;//      jmp fin
-;//      err:
-;//      ; //movl $-ENOSYS, %eax
-;//      movl $38, %eax
-;//      fin:
-;//      RESTORE_ALL
-;//      movl %eax, 18(%esp) // After RESTORE_ALL so we overwrite %eax
-;//      iret
-
