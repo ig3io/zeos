@@ -62,3 +62,19 @@ int write(int fd, char * buffer, int size)
   }
   return rvalue;
 }
+
+int gettime(){
+	
+	int rvalue = 0;
+	__asm__ __volatile__ (
+		"int $0x80\n\t"
+		: "=a" (rvalue)
+		: "a" (0x0A)
+	);
+
+	if(rvalue < 0) {
+		// Move code to errno
+		rvalue=-1;
+	}
+	return rvalue;
+}

@@ -13,7 +13,7 @@ Gate idt[IDT_ENTRIES];
 Register    idtR;
 
 // Clock ticks global variables TODO may not be necessary here
-unsigned int zeos_ticks = 0;
+extern unsigned int zeos_ticks = 0;
 
 char char_map[] =
 {
