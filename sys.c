@@ -65,21 +65,24 @@ int sys_write(int fd, char * buffer, int size)
   // copy data..
   char buffer_kernel[4];
   int pending = size;
+  int done = 0;
   int res = 0;
   while (pending > 4)
   {
-    int res_cp = copy_from_user(buffer, buffer_kernel, 4);
+    int res_cp = copy_from_user(buffer + done, buffer_kernel, 4);
+    sys_write_console(buffer_kernel, 4);
     if (res_cp < 0)
     {
       // error handling
     }
-    pending -= 4;
+    pending -= sizeof(char) * 4;
+    done += sizeof(char) * 4;
   }
-  int res_cp = copy_from_user(buffer, buffer_kernel, pending);
+  int res_cp = copy_from_user(buffer + done, buffer_kernel, pending);
+  sys_write_console(buffer_kernel, pending);
   if (res_cp < 0)
   {
     // error handling
   }
-  sys_write_console(buffer_kernel, size);
   return res;
 }
