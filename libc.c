@@ -99,6 +99,7 @@ int perror(char * msg){
 	if (errno != 0)
 	{
 		write(1, errno_list[errno], strlen(errno_list[errno]));
+    write(1, "\n", strlen("\n"));
 	}
 	
 	return 0;
