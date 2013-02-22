@@ -97,20 +97,20 @@ void return_gate(Word ds, Word ss, DWord esp, Word cs, DWord eip)
 
 void enable_int(void)
 {
-__asm__ __volatile__(
-  "movb %0,%%al\n\t"
-  "outb %%al,$0x21\n\t"
-  "call delay\n\t"
-  "sti"
-  : /*no output*/
-  : "i" (0xfc)       /* 0xFC = 11111100 -> all bits disabled but Kb & Timer */
-  : "%al" );
+  __asm__ __volatile__(
+    "movb %0,%%al\n\t"
+    "outb %%al,$0x21\n\t"
+    "call delay\n\t"
+    "sti"
+    : /*no output*/
+    : "i" (0xfc)       /* 0xFC = 11111100 -> all bits disabled but Kb & Timer */
+    : "%al" );
 }
 
 void delay(void)
 {
-__asm__ __volatile__(
-  "jmp a\na:\t"
-  : : );
+  __asm__ __volatile__(
+    "jmp a\na:\t"
+    : : );
 }
 
