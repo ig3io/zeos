@@ -110,7 +110,11 @@ void keyboard_routine()
       if (scan_code < 128) {
         key_char = char_map[scan_code];
       }
-      printc_xy(15, 15, key_char);
+      printc_xy(0, 0, 'K');
+      printc_xy(1, 0, 'e');
+      printc_xy(2, 0, 'y');
+      printc_xy(3, 0, ':');
+      printc_xy(4, 0, key_char);
   }
 }
 
