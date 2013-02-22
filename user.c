@@ -15,15 +15,33 @@ int __attribute__ ((__section__(".text.main")))
   test[1] = 'B';
   test[2] = '\0';
   write(1, test, 3);*/
-  char ticks[5];
-  ticks[4] = '\n';
-  int counter =0;  
-  write(0, "hola", strlen("hola"));
-  perror("hola");
-  while(1);
-  /*while(1) {
-	itoa(gettime(),ticks);
-	if(counter%100000==0)write(1, ticks,5);
-	++counter;
- }*/
+  //int counter =0;
+  char *msg = "Hi! Welcome User!\n";
+  write(1, msg, strlen(msg));
+
+  msg = "We're going to generate a bad descriptor file error... watch out\n";
+  write(1, msg, strlen(msg));
+
+
+  write(3, "error", strlen("error"));
+  msg = "Done! What does perror say?\n";
+  write(1, msg, strlen(msg));
+
+  perror("This is Perror, reporting in:");
+  msg = "\n\nNumber of clock ticks:\n";
+  write(1, msg, strlen(msg));
+
+  char ticks[5] = {[0 ... 3] = ' ', [4] = '\n'};
+  itoa(gettime(), ticks);
+  long counter = 0;
+  while(1) {
+	  if(counter > 10000000)
+    {
+      counter = 0;
+      itoa(gettime(), ticks);
+      write(1, ticks, strlen(ticks));
+      write(1, " ", strlen(" "));
+    }
+	  ++counter;
+ }
 }
