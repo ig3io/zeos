@@ -10,12 +10,14 @@
 
 int errno = 0;
 
-char *errno_list[42] =  {[0 ... 41] = "General error",
-			[EIO] = "Input output/error",
-			[EINVAL] = "Invalid argument",
-			[ENOSYS] = "Function not implemented",
-			[EBADF] = "Bad file descriptor",
-			[EACCES] = "Permission denied"};
+char *errno_list[42] =  {
+      [0 ... 41] = "General error",
+      [EIO] = "Input output/error",
+      [EINVAL] = "Invalid argument",
+      [ENOSYS] = "Function not implemented",
+      [EBADF] = "Bad file descriptor",
+      [EACCES] = "Permission denied"
+};
 
 
 void itoa(int a, char *b)
@@ -23,7 +25,11 @@ void itoa(int a, char *b)
   int i, i1;
   char c;
   
-  if (a==0) { b[0]='0'; b[1]=0; return ;}
+  if (a==0) {
+    b[0]='0';
+    b[1]=0;
+    return;
+  }
   
   i=0;
   while (a>0)
@@ -48,7 +54,10 @@ int strlen(char *a)
   
   i=0;
   
-  while (a[i]!=0) i++;
+  while (a[i]!=0)
+  {
+    i++;
+  }
   
   return i;
 }
@@ -64,7 +73,6 @@ int write(int fd, char * buffer, int size)
     : "b" (fd), "c" (buffer), "d" (size), "a" (0x04)
   );
 
-  // Return processing...
   if (rvalue < 0)
   {
     errno = rvalue * -1;
@@ -74,33 +82,33 @@ int write(int fd, char * buffer, int size)
 }
 
 int gettime(){
-	
-	int rvalue = 0;
-	__asm__ __volatile__ (
-		"int $0x80\n\t"
-		: "=a" (rvalue)
-		: "a" (0x0A)
-	);
+  
+  int rvalue = 0;
+  __asm__ __volatile__ (
+    "int $0x80\n\t"
+    : "=a" (rvalue)
+    : "a" (0x0A)
+  );
 
-	if(rvalue < 0) {
-    		errno = errno * -1;
-		rvalue=-1;
-	}
-	return rvalue;
+  if(rvalue < 0) {
+    errno = errno * -1;
+    rvalue=-1;
+  }
+  return rvalue;
 }
 
 int perror(char * msg){
-	if (msg != NULL)
-	{
-		//if (*msg != "\0");
-		write(1, msg, strlen(msg));
-		write(1, "\n", strlen("\n"));
-	}
-	if (errno != 0)
-	{
-		write(1, errno_list[errno], strlen(errno_list[errno]));
+  if (msg != NULL)
+  {
+    write(1, msg, strlen(msg));
     write(1, "\n", strlen("\n"));
-	}
-	
-	return 0;
+  }
+  
+  if (errno != 0)
+  {
+    write(1, errno_list[errno], strlen(errno_list[errno]));
+    write(1, "\n", strlen("\n"));
+  }
+
+  return 0;
 }
