@@ -15,19 +15,21 @@
 
 #include <interrupt.h>
 
+#include <errno.h>
+
 #define LECTURA 0
 #define ESCRIPTURA 1
 
 int check_fd(int fd, int permissions)
 {
-  if (fd!=1) return -9; /*EBADF*/
-  if (permissions!=ESCRIPTURA) return -13; /*EACCES*/
+  if (fd!=1) return -EBADF; /*EBADF*/
+  if (permissions!=ESCRIPTURA) return -EACCES; /*EACCES*/
   return 0;
 }
 
 int sys_ni_syscall()
 {
-	return -38; /*ENOSYS*/
+	return -ENOSYS; /*ENOSYS*/
 }
 
 int sys_getpid()
@@ -54,37 +56,37 @@ int sys_write(int fd, char * buffer, int size)
 
   if (ch_fd < 0)
   {
-    // ERROR HANDLING
+  	return ch_fd;
   }
   if (buffer == NULL)
   {
-    // ERROR HANDLING
+    return -EINVAL;
   }
   if (size < 0)
   {
-    // ERROR HANDLING
+    return -EINVAL;
   }
   // copy data..
-  char buffer_kernel[4];
+  char buffer_kernel[20];
   int pending = size;
   int done = 0;
   int res = 0;
-  while (pending > 4)
+  while (pending > 20)
   {
-    int res_cp = copy_from_user(buffer + done, buffer_kernel, 4);
-    sys_write_console(buffer_kernel, 4);
+    int res_cp = copy_from_user(buffer + done, buffer_kernel, 20);
+    sys_write_console(buffer_kernel, 20);
     if (res_cp < 0)
     {
-      // error handling
+      return res_cp;
     }
-    pending -= sizeof(char) * 4;
-    done += sizeof(char) * 4;
+    pending -= sizeof(char) * 20;
+    done += sizeof(char) * 20;
   }
   int res_cp = copy_from_user(buffer + done, buffer_kernel, pending);
   sys_write_console(buffer_kernel, pending);
   if (res_cp < 0)
   {
-    // error handling
+    return -EIO;
   }
   return res;
 }

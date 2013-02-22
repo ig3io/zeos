@@ -22,4 +22,6 @@ int fork();
 
 void exit();
 
+int perror(char * msg);
+
 #endif  /* __LIBC_H__ */

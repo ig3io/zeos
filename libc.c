@@ -6,7 +6,17 @@
 
 #include <types.h>
 
-int errno;
+#include <errno.h>
+
+int errno = 0;
+
+char *errno_list[42] =  {[0 ... 41] = "General error",
+			[EIO] = "Input output/error",
+			[EINVAL] = "Invalid argument",
+			[ENOSYS] = "Function not implemented",
+			[EBADF] = "Bad file descriptor",
+			[EACCES] = "Permission denied"};
+
 
 void itoa(int a, char *b)
 {
@@ -57,7 +67,7 @@ int write(int fd, char * buffer, int size)
   // Return processing...
   if (rvalue < 0)
   {
-    // Move code to errno TODO
+    errno = rvalue * -1;
     rvalue = -1;
   }
   return rvalue;
@@ -73,8 +83,23 @@ int gettime(){
 	);
 
 	if(rvalue < 0) {
-		// Move code to errno
+    		errno = errno * -1;
 		rvalue=-1;
 	}
 	return rvalue;
+}
+
+int perror(char * msg){
+	if (msg != NULL)
+	{
+		//if (*msg != "\0");
+		write(1, msg, strlen(msg));
+		write(1, "\n", strlen("\n"));
+	}
+	if (errno != 0)
+	{
+		write(1, errno_list[errno], strlen(errno_list[errno]));
+	}
+	
+	return 0;
 }
