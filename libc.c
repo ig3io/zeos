@@ -113,8 +113,3 @@ int perror(char * msg)
 
   return 0;
 }
-
-int errno()
-{
-  return errno;
-}
