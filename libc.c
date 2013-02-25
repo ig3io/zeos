@@ -97,7 +97,8 @@ int gettime(){
   return rvalue;
 }
 
-int perror(char * msg){
+int perror(char * msg)
+{
   if (msg != NULL)
   {
     write(1, msg, strlen(msg));
@@ -111,4 +112,9 @@ int perror(char * msg){
   }
 
   return 0;
+}
+
+int errno()
+{
+  return errno;
 }
