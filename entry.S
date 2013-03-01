@@ -92,7 +92,6 @@ ENTRY(system_call_handler)
       jmp end
       err:
       call sys_ni_syscall
-      negl %eax
       end:
       movl %eax, 0x18(%esp)
       RESTORE_ALL
