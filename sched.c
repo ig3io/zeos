@@ -19,6 +19,8 @@ struct task_struct *list_head_to_task_struct(struct list_head *l)
 
 extern struct list_head blocked;
 
+struct list_head freequeue;
+struct list_head readyqueue;
 
 /* get_DIR - Returns the Page Directory address for task 't' */
 page_table_entry * get_DIR (struct task_struct *t) 
@@ -65,7 +67,13 @@ void init_task1(void)
 
 
 void init_sched(){
-
+  INIT_LIST_HEAD(&freequeue);
+  
+  int i = 0;
+  for (i = 0; i < NR_TASKS; i++)
+  {
+   list_add(&(task[i].task.list), &freequeue);
+  } 
 }
 
 struct task_struct* current()
