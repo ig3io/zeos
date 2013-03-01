@@ -20,6 +20,8 @@
 #define LECTURA 0
 #define ESCRIPTURA 1
 
+#define WRITE_BUFFER_SIZE 4
+
 int check_fd(int fd, int permissions)
 {
   if (fd!=1) return -EBADF; /*EBADF*/
@@ -67,20 +69,20 @@ int sys_write(int fd, char * buffer, int size)
     return -EINVAL;
   }
   // copy data..
-  char buffer_kernel[4];
+  char buffer_kernel[WRITE_BUFFER_SIZE];
   int pending = size;
   int done = 0;
   int res = 0;
-  while (pending > 4)
+  while (pending > WRITE_BUFFER_SIZE)
   {
-    int res_cp = copy_from_user(buffer + done, buffer_kernel, 4);
-    sys_write_console(buffer_kernel, 4);
+    int res_cp = copy_from_user(buffer + done, buffer_kernel, WRITE_BUFFER_SIZE);
+    sys_write_console(buffer_kernel, WRITE_BUFFER_SIZE);
     if (res_cp < 0)
     {
       return res_cp;
     }
-    pending -= sizeof(char) * 4;
-    done += sizeof(char) * 4;
+    pending -= sizeof(char) * WRITE_BUFFER_SIZE;
+    done += sizeof(char) * WRITE_BUFFER_SIZE;
   }
   int res_cp = copy_from_user(buffer + done, buffer_kernel, pending);
   sys_write_console(buffer_kernel, pending);
