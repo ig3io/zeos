@@ -17,11 +17,14 @@ int __attribute__ ((__section__(".text.main")))
   write(1, test, 3);*/
   //int counter =0;
   char *msg = "Hi! Welcome User!\n";
+  int res = 0;
   write(1, msg, strlen(msg));
 
   msg = "We're going to generate a bad descriptor file error... watch out\n";
-  write(1, msg, strlen(msg));
-
+  res = write(1, msg, strlen(msg));
+  if (res == strlen(msg)) {
+    write(1, "Write return OK!\n", strlen("Write return OK!\n"));
+  }
 
   write(3, "error", strlen("error"));
   msg = "Done! What does perror say?\n";

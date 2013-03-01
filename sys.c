@@ -88,7 +88,12 @@ int sys_write(int fd, char * buffer, int size)
   sys_write_console(buffer_kernel, pending);
   if (res_cp < 0)
   {
-    return -EIO;
+    res = -EIO;
+  }
+  else
+  {
+    done += sizeof(char) * pending;
+    res = done;
   }
   return res;
 }
