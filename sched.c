@@ -5,12 +5,13 @@
 #include <sched.h>
 #include <mm.h>
 #include <io.h>
+#include<list.h>
 
 union task_union task[NR_TASKS]
   __attribute__((__section__(".data.task")));
 
 
-#if 0
+#if 1
 struct task_struct *list_head_to_task_struct(struct list_head *l)
 {
   return list_entry( l, struct task_struct, list);
@@ -58,8 +59,12 @@ void cpu_idle(void)
 
 void init_idle (void)
 {
-	//struct task_struct idle=list_first();
+	struct task_struct idle;
+	idle = *list_head_to_task_struct(freequeue.next);//Here we should use list_first function, but I don't know how it's use
+	idle.PID=0;
 	
+	
+
 }
 
 void init_task1(void)
