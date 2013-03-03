@@ -58,7 +58,8 @@ void cpu_idle(void)
 
 void init_idle (void)
 {
-
+	//struct task_struct idle=list_first();
+	
 }
 
 void init_task1(void)
@@ -68,7 +69,7 @@ void init_task1(void)
 
 void init_sched(){
   INIT_LIST_HEAD(&freequeue);
-  
+  INIT_LIST_HEAD(&readyqueue);
   int i = 0;
   for (i = 0; i < NR_TASKS; i++)
   {
