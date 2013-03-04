@@ -60,7 +60,7 @@ void cpu_idle(void)
 void init_idle (void)
 {
 	struct task_struct idle;
-	idle = *list_head_to_task_struct(freequeue.next);//Here we should use list_first function, but I don't know how it's use
+	idle = *list_head_to_task_struct(list_first(&freequeue)); // Uses list_first
 	idle.PID=0;
 	
 	
