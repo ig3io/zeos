@@ -62,8 +62,11 @@ void init_idle (void)
 	struct task_struct idle;
 	idle = *list_head_to_task_struct(list_first(&freequeue)); // Uses list_first
 	idle.PID=0;
-	
-	
+	__asm__ __volatile__(
+		"push &cpu_idle\n\t"
+		"push 3"/*valor indeferente*/
+	);
+	idle_task = &idle;
 
 }
 
