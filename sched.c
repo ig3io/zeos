@@ -76,8 +76,8 @@ void init_idle (void)
   
   __asm__ __volatile__(
      "movl %%esp, %0\n\t"
-     : /* No output */
-     : (idle.kernel_esp)
+     : /* No output TODO UNTESTEEED */
+     : "r" (idle.kernel_esp)
      );
 }
 
@@ -92,7 +92,7 @@ void init_sched(){
   int i = 0;
   for (i = 0; i < NR_TASKS; i++)
   {
-   list_add(&(task[i].task.list), &freequeue);
+    list_add(&(task[i].task.list), &freequeue);
   } 
 }
 
@@ -107,4 +107,3 @@ struct task_struct* current()
 
   return (struct task_struct*)(ret_value&0xfffff000);
 }
-
