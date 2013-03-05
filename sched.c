@@ -23,6 +23,8 @@ extern struct list_head blocked;
 struct list_head freequeue;
 struct list_head readyqueue;
 
+struct task_struct *idle_task;
+
 /* get_DIR - Returns the Page Directory address for task 't' */
 page_table_entry * get_DIR (struct task_struct *t) 
 {
@@ -59,17 +61,17 @@ void cpu_idle(void)
 
 void init_idle (void)
 {
-	struct task_struct idle;
-	idle = *list_head_to_task_struct(list_first(&freequeue)); // Uses list_first
-	idle.PID=0;
-	__asm__ __volatile__(
-		"pushl %0\n\t"
-		"pushl $3" /* value does not matter */
-    : /* No output */ 
-    : "a" (&cpu_idle) 
-	);
+  struct task_struct idle;
+  idle = *list_head_to_task_struct(list_first(&freequeue)); // Uses list_first
+  idle.PID=0;
+  __asm__ __volatile__(
+      "pushl %0\n\t"
+      "pushl $3" /* value does not matter */
+      : /* No output */ 
+      : "a" (&cpu_idle) 
+      );
   // TODO - asm inline not tested
-	idle_task = &idle;
+  idle_task = &idle;
 
 }
 
@@ -96,6 +98,7 @@ struct task_struct* current()
   	"movl %%esp, %0"
 	: "=g" (ret_value)
   );
+
   return (struct task_struct*)(ret_value&0xfffff000);
 }
 
