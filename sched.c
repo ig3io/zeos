@@ -65,6 +65,14 @@ void init_idle (void)
   idle = *list_head_to_task_struct(list_first(&freequeue)); // Uses list_first
   idle.PID=0;
   // This is the stack initialization, right? - Ignacio
+
+  union task_union idle_stack = (union task_union *)idle;
+
+  // TODO: is unsigned int the best type possible?
+  idle_stack[KERNEL_STACK_SIZE - 1] = (unsigned int)&cpu_idle;
+  idle_stack[KERNEL_STACK_SIZE - 2] = 0;  // Dummy value
+
+
   __asm__ __volatile__(
       "pushl %0\n\t"
       "pushl $0x00" /* value does not matter */
