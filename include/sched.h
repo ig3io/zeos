@@ -17,6 +17,7 @@ enum state_t { ST_RUN, ST_READY, ST_BLOCKED, ST_ZOMBIE };
 struct task_struct {
   int PID;			/* Process ID */
   page_table_entry * dir_pages_baseAddr;
+  int *kernel_esp;
   struct list_head list;
 };
 
