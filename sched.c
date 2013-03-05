@@ -64,15 +64,21 @@ void init_idle (void)
   struct task_struct idle;
   idle = *list_head_to_task_struct(list_first(&freequeue)); // Uses list_first
   idle.PID=0;
+  // This is the stack initialization, right? - Ignacio
   __asm__ __volatile__(
       "pushl %0\n\t"
-      "pushl $3" /* value does not matter */
+      "pushl $0x00" /* value does not matter */
       : /* No output */ 
       : "a" (&cpu_idle) 
       );
-  // TODO - asm inline not tested
+  // TODO ^ asm inline not tested
   idle_task = &idle;
-
+  
+  __asm__ __volatile__(
+     "movl %%esp, %0\n\t"
+     : /* No output */
+     : (idle.kernel_esp)
+     );
 }
 
 void init_task1(void)
