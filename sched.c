@@ -68,7 +68,7 @@ void init_idle (void)
 
   union task_union idle_stack = (union task_union *)idle;
 
-  // TODO: is unsigned int the best type possible?
+  // TODO: is unsigned int the best type possible? Yes, in the zeOS document they said!
   idle_stack[KERNEL_STACK_SIZE - 1] = (unsigned int)&cpu_idle;
   idle_stack[KERNEL_STACK_SIZE - 2] = 0;  // Dummy value
 
