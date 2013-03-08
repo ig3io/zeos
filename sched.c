@@ -72,21 +72,22 @@ void init_idle (void)
   idle_stack[KERNEL_STACK_SIZE - 1] = (unsigned int)&cpu_idle;
   idle_stack[KERNEL_STACK_SIZE - 2] = 0;  // Dummy value
 
-
+/*
   __asm__ __volatile__(
       "pushl %0\n\t"
-      "pushl $0x00" /* value does not matter */
-      : /* No output */ 
-      : "a" (&cpu_idle) 
+      "pushl $0x00" // value does not matter
+      : // No output
+      : "r" (&cpu_idle) 
       );
   // TODO ^ asm inline not tested
   idle_task = &idle;
   
   __asm__ __volatile__(
      "movl %%esp, %0\n\t"
-     : /* No output TODO UNTESTEEED */
+     : // No output TODO UNTESTEEED
      : "r" (idle.kernel_esp)
      );
+  */
 }
 
 void init_task1(void)
