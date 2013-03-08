@@ -18,7 +18,7 @@ struct task_struct {
   int PID;			/* Process ID */
   page_table_entry * dir_pages_baseAddr;
   unsigned int *kernel_esp;
-  unsigned int quantum;
+  int quantum;
   struct list_head list;
 };
 
