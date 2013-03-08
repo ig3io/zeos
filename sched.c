@@ -61,18 +61,21 @@ void cpu_idle(void)
 
 void init_idle (void)
 {
-  struct task_struct idle;
-  idle = *list_head_to_task_struct(list_first(&freequeue)); // Uses list_first
-  idle.PID=0;
+  /*
+  struct task_struct *idle;
+  idle = list_head_to_task_struct(list_first(&freequeue)); // Uses list_first
+  idle->PID=0;
   // This is the stack initialization, right? - Ignacio
 
-  union task_union idle_stack = (union task_union *)idle;
+  union task_union *idle_stack = (union task_union *)idle;
 
   // TODO: is unsigned int the best type possible? Yes, in the zeOS document they said!
-  idle_stack[KERNEL_STACK_SIZE - 1] = (unsigned int)&cpu_idle;
+  idle_stack[KERNEL_STACK_SIZE - 1] = (unsigned int *)&cpu_idle;
   idle_stack[KERNEL_STACK_SIZE - 2] = 0;  // Dummy value
+  
+  idle.kernel_esp = KERNEL_STACK_SIZE - 2;
 
-/*
+
   __asm__ __volatile__(
       "pushl %0\n\t"
       "pushl $0x00" // value does not matter
@@ -83,7 +86,7 @@ void init_idle (void)
   idle_task = &idle;
   
   __asm__ __volatile__(
-     "movl %%esp, %0\n\t"
+     "movl %%esp, %0\n\t"l
      : // No output TODO UNTESTEEED
      : "r" (idle.kernel_esp)
      );
@@ -94,6 +97,52 @@ void init_task1(void)
 {
 }
 
+void inner_task_switch(union task_union *new)
+{
+  __asm__ __volatile__ (
+    "pushl %%ebp\n\t"
+    "movl %%esp, %%ebp\n\t"
+    :
+    :
+  );
+  struct task_struct * current_proc = current();
+  
+  __asm__ __volatile__ (
+    "movl %%ebp, (%0)"
+    : "=r" (current_proc->kernel_esp)
+  );
+
+  __asm__ __volatile__ (
+    "movl %0, %%esp\n\t"
+    "movl %%ebp, %%esp\n\t"
+    "popl %%ebp\n\t"
+    "ret\n\t"
+    : "=r" (new->task.kernel_esp)
+  );
+
+
+}
+
+void task_switch(union task_union *new)
+{
+  __asm__ __volatile__ (
+    "pushl %%esi\n\t"
+    "pushl %%edi\n\t"
+    "pushl %%ebx\n\t"
+    :
+    :
+  );
+  
+  inner_task_switch(new);
+
+  __asm__ __volatile__ (
+    "popl %%ebx\n\t"
+    "popl %%edi\n\t"
+    "popl %%esi\n\t"
+    :
+    :
+  );
+}
 
 void init_sched(){
   INIT_LIST_HEAD(&freequeue);
