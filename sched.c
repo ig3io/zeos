@@ -165,3 +165,23 @@ struct task_struct* current()
 
   return (struct task_struct*)(ret_value&0xfffff000);
 }
+
+int update_sched_data_rr(void)
+{
+  // TODO
+} 
+
+int needs_sched_rr(void)
+{
+  // TODO 
+}
+
+void update_current_state_rr(struct list_head *dest)
+{
+  // TODO
+}
+
+void sched_next_rr(void)
+{
+  // TODO
+}
