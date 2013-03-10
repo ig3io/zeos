@@ -61,36 +61,26 @@ void cpu_idle(void)
 
 void init_idle (void)
 {
-  /*
-  struct task_struct *idle;
-  idle = list_head_to_task_struct(list_first(&freequeue)); // Uses list_first
-  idle->PID=0;
-  // This is the stack initialization, right? - Ignacio
+  // We need the first PCB
+  idle_task = list_head_to_task_struct(list_first(&freequeue));
+  list_del(list_first(&freequeue));
+  
+  idle_task->PID = 0;
 
-  union task_union *idle_stack = (union task_union *)idle;
+  
+  unsigned long *idle_stack = ((union task_union *)idle_task)->stack;
 
-  // TODO: is unsigned int the best type possible? Yes, in the zeOS document they said!
+  // TODO:
+  // is unsigned int the best type possible?
+  // Yes, in the zeOS document they said!
+  // OK!
   idle_stack[KERNEL_STACK_SIZE - 1] = (unsigned int *)&cpu_idle;
   idle_stack[KERNEL_STACK_SIZE - 2] = 0;  // Dummy value
   
-  idle.kernel_esp = KERNEL_STACK_SIZE - 2;
+  idle_task->kernel_esp = &idle_stack[KERNEL_STACK_SIZE - 2];
 
 
-  __asm__ __volatile__(
-      "pushl %0\n\t"
-      "pushl $0x00" // value does not matter
-      : // No output
-      : "r" (&cpu_idle) 
-      );
-  // TODO ^ asm inline not tested
-  idle_task = &idle;
-  
-  __asm__ __volatile__(
-     "movl %%esp, %0\n\t"l
-     : // No output TODO UNTESTEEED
-     : "r" (idle.kernel_esp)
-     );
-  */
+  // TODO: rest of stuff to initialize
 }
 
 void init_task1(void)
@@ -147,6 +137,7 @@ void task_switch(union task_union *new)
 void init_sched(){
   INIT_LIST_HEAD(&freequeue);
   INIT_LIST_HEAD(&readyqueue);
+
   int i = 0;
   for (i = 0; i < NR_TASKS; i++)
   {
@@ -165,6 +156,9 @@ struct task_struct* current()
 
   return (struct task_struct*)(ret_value&0xfffff000);
 }
+
+
+// Scheduling. Necessary for E2?
 
 int update_sched_data_rr(void)
 {
