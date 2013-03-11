@@ -62,8 +62,9 @@ void cpu_idle(void)
 void init_idle (void)
 {
   // We need the first PCB
-  idle_task = list_head_to_task_struct(list_first(&freequeue));
-  list_del(list_first(&freequeue));
+  struct list_head * list_elem = list_first(&freequeue);
+  idle_task = list_head_to_task_struct(list_elem);
+  list_del(list_elem);
   
   idle_task->PID = 0;
 
@@ -85,6 +86,15 @@ void init_idle (void)
 
 void init_task1(void)
 {
+  struct list_head list_elem = list_first(&freequeue);
+  struct task_struct * task1_task = list_head_to_task_struct(list_elem);
+  list_del(list_elem);
+  task1_task->PID = 1;
+
+  // TODO TODO TODO TODO
+  // Pages! memory! stuff!
+
+
 }
 
 void inner_task_switch(union task_union *new)
