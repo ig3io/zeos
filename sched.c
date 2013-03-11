@@ -86,7 +86,7 @@ void init_idle (void)
 
 void init_task1(void)
 {
-  struct list_head list_elem = list_first(&freequeue);
+  struct list_head * list_elem = list_first(&freequeue);
   struct task_struct * task1_task = list_head_to_task_struct(list_elem);
   list_del(list_elem);
   task1_task->PID = 1;
