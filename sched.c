@@ -99,6 +99,14 @@ void init_task1(void)
 
 void inner_task_switch(union task_union *new)
 {
+	page_table_entry * current_proc_pages = get_DIR(current());
+	page_table_entry * new_proc_pages = get_DIR(&new->task);
+
+	tss.esp0= & new->stack[KERNEL_STACK_SIZE];
+	set_cr3(new_proc_pages);
+	
+
+
   __asm__ __volatile__ (
     "pushl %%ebp\n\t"
     "movl %%esp, %%ebp\n\t"

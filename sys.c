@@ -19,7 +19,7 @@
 
 #define LECTURA 0
 #define ESCRIPTURA 1
-#define NUM_DATA_PAG 4
+
 
 #define WRITE_BUFFER_SIZE 4
 
@@ -44,20 +44,20 @@ int sys_fork()
 {
   int PID=-1;
 
-  struct list_head free_pcb = list_first(&freequeue);// take the first free PCB
+  struct list_head *free_pcb = list_first(&freequeue);// take the first free PCB
 /* if freequeue don't have any element, return an error(not implemented)*/
-  struct task_struct child = list_head_to_task_struct(free_pcb);
-  struct tas_struct father = current();
+  struct task_struct *child = list_head_to_task_struct(free_pcb);
+  struct task_struct *father = current();
   
   /* create a variable for store the free frames that we need for save data+Kernel pages. I create de NUM_DATA_PAG macro, but is because i don't know how much occupy data+kernel in pages, for the moment i supose 4, but we must ask at juanjo*/
 
 ////////////////// COLLECTING FREE FRAMES ////////////////////////
-  int frames[NUM_DATA_PAG];
+  int frames[NUM_PAG_DATA];
   int i;
-  for (i=0;i<NUM_DATA_PAG;++i){
-	frames[i] = alloc_frames();
+  for (i=0;i<NUM_PAG_DATA;++i){
+	frames[i] = alloc_frame();
 	if(frames[i]==-1){
-		while(i >=0) free_frame[i--];//FRAMES LIBERATION! like blacksXD
+		while(i >=0) free_frame(frames[i--]);//FRAMES LIBERATION! like blacksXD
 		 /* return not memory space error*/
 	}
   }
