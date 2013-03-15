@@ -67,6 +67,8 @@ void init_idle (void)
   list_del(list_elem);
   
   idle_task->PID = 0;
+	idle_task->quantum = QUANTUM;
+	idle_task->state = ST_READY;
 
   
   unsigned long *idle_stack = ((union task_union *)idle_task)->stack;
@@ -87,12 +89,15 @@ void init_idle (void)
 void init_task1(void)
 {
   struct list_head * list_elem = list_first(&freequeue);
-  struct task_struct * task1_task = list_head_to_task_struct(list_elem);
+  struct task_struct * task1_pcb = list_head_to_task_struct(list_elem);
   list_del(list_elem);
-  task1_task->PID = 1;
+  task1_pcb->PID = 1;
+	task1_pcb->quantum=QUANTUM;
+	task1_pcb->state=ST_RUN;
+	
+	set_user_pages(task1_pcb);
+	set_cr3(get_DIR(task1_pcb));
 
-  // TODO TODO TODO TODO
-  // Pages! memory! stuff!
 
 
 }
@@ -176,21 +181,21 @@ struct task_struct* current()
 }
 
 
-// Scheduling. Necessary for E2?
 
 int update_sched_data_rr(void)
 {
-  // TODO
+  current()->quantum--;
 } 
 
 int needs_sched_rr(void)
 {
-  // TODO 
+  if(current()->quantum==0) return 1;
+	return 0;
 }
 
 void update_current_state_rr(struct list_head *dest)
 {
-  // TODO
+  
 }
 
 void sched_next_rr(void)
