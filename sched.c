@@ -102,9 +102,8 @@ void init_task1(void)
 
 void inner_task_switch(union task_union *new)
 {
-  page_table_entry * current_proc_pages = get_DIR(current());
-  
-  // page_table_entry * new_proc_pages = get_DIR(&new->task);
+  //page_table_entry * current_proc_pages = get_DIR(current());
+  page_table_entry * new_proc_pages = get_DIR(&new->task);
   // TODO: new_proc_pages should be saved somewhere??
   // No? It can be obtainer through get_DIR
 
@@ -186,13 +185,23 @@ int update_sched_data_rr(void)
 
 int needs_sched_rr(void)
 {
-  if(current()->quantum==0) return 1;
-  return 0;
+  return current()->quantum == 0;
 }
 
 void update_current_state_rr(struct list_head *dest)
 {
+  if (dest == &freequeue) {
+    // TODO
+    current()->state = ST_ZOMBIE;
+  }
+  else if (dest == &readyqueue) {
+    // TODO
+    current()->state = ST_READY;
+  }
+  // else if (dest == something else) { .. }
+  // TODO: I don't even know what I'm doing. Incertainity level:  WAT
 
+  if (current() != idle_task) list_add_tail(&current()->list, dest);
 }
 
 void sched_next_rr(void)
