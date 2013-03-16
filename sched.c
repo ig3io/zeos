@@ -8,7 +8,7 @@
 #include<list.h>
 
 union task_union task[NR_TASKS]
-  __attribute__((__section__(".data.task")));
+__attribute__((__section__(".data.task")));
 
 
 #if 1
@@ -28,35 +28,35 @@ struct task_struct *idle_task;
 /* get_DIR - Returns the Page Directory address for task 't' */
 page_table_entry * get_DIR (struct task_struct *t) 
 {
-	return t->dir_pages_baseAddr;
+  return t->dir_pages_baseAddr;
 }
 
 /* get_PT - Returns the Page Table address for task 't' */
 page_table_entry * get_PT (struct task_struct *t) 
 {
-	return (page_table_entry *)(((unsigned int)(t->dir_pages_baseAddr->bits.pbase_addr))<<12);
+  return (page_table_entry *)(((unsigned int)(t->dir_pages_baseAddr->bits.pbase_addr))<<12);
 }
 
 
 int allocate_DIR(struct task_struct *t) 
 {
-	int pos;
+  int pos;
 
-	pos = ((int)task-(int)t)/sizeof(union task_union);
+  pos = ((int)task-(int)t)/sizeof(union task_union);
 
-	t->dir_pages_baseAddr = (page_table_entry*) &dir_pages[pos]; 
+  t->dir_pages_baseAddr = (page_table_entry*) &dir_pages[pos]; 
 
-	return 1;
+  return 1;
 }
 
 void cpu_idle(void)
 {
-	__asm__ __volatile__("sti": : :"memory");
+  __asm__ __volatile__("sti": : :"memory");
 
-	while(1)
-	{
-	;
-	}
+  while(1)
+  {
+    ;
+  }
 }
 
 void init_idle (void)
@@ -65,12 +65,12 @@ void init_idle (void)
   struct list_head * list_elem = list_first(&freequeue);
   idle_task = list_head_to_task_struct(list_elem);
   list_del(list_elem);
-  
-  idle_task->PID = 0;
-	idle_task->quantum = QUANTUM;
-	idle_task->state = ST_READY;
 
-  
+  idle_task->PID = 0;
+  idle_task->quantum = QUANTUM;
+  idle_task->state = ST_READY;
+
+
   unsigned long *idle_stack = ((union task_union *)idle_task)->stack;
 
   // TODO:
@@ -79,8 +79,8 @@ void init_idle (void)
   // OK!
   idle_stack[KERNEL_STACK_SIZE - 1] = (unsigned int *)&cpu_idle;
   idle_stack[KERNEL_STACK_SIZE - 2] = 0;  // Dummy value
-  
-  idle_task->kernel_esp = &idle_stack[KERNEL_STACK_SIZE - 2];
+
+  idle_task->kernel_esp = (unsigned int *)&idle_stack[KERNEL_STACK_SIZE - 2];
 
 
   // TODO: rest of stuff to initialize
@@ -90,71 +90,69 @@ void init_task1(void)
 {
   struct list_head * list_elem = list_first(&freequeue);
   struct task_struct * task1_pcb = list_head_to_task_struct(list_elem);
+
   list_del(list_elem);
   task1_pcb->PID = 1;
-	task1_pcb->quantum=QUANTUM;
-	task1_pcb->state=ST_RUN;
-	
-	set_user_pages(task1_pcb);
-	set_cr3(get_DIR(task1_pcb));
+  task1_pcb->quantum=QUANTUM;
+  task1_pcb->state=ST_RUN;
 
-
-
+  set_user_pages(task1_pcb);
+  set_cr3(get_DIR(task1_pcb));
 }
 
 void inner_task_switch(union task_union *new)
 {
-	page_table_entry * current_proc_pages = get_DIR(current());
-	page_table_entry * new_proc_pages = get_DIR(&new->task);
-
-	tss.esp0= & new->stack[KERNEL_STACK_SIZE];
-	set_cr3(new_proc_pages);
-	
-
-
-  __asm__ __volatile__ (
-    "pushl %%ebp\n\t"
-    "movl %%esp, %%ebp\n\t"
-    :
-    :
-  );
-  struct task_struct * current_proc = current();
+  page_table_entry * current_proc_pages = get_DIR(current());
   
+  // page_table_entry * new_proc_pages = get_DIR(&new->task);
+  // TODO: new_proc_pages should be saved somewhere??
+  // No? It can be obtainer through get_DIR
+
+  tss.esp0= &(new->stack[KERNEL_STACK_SIZE]);
+  set_cr3(new_proc_pages);
+
+
   __asm__ __volatile__ (
-    "movl %%ebp, (%0)"
-    : "=r" (current_proc->kernel_esp)
-  );
+      "pushl %%ebp\n\t"
+      "movl %%esp, %%ebp\n\t"
+      :
+      :
+      );
+  struct task_struct * current_proc = current();
 
   __asm__ __volatile__ (
-    "movl %0, %%esp\n\t"
-    "movl %%ebp, %%esp\n\t"
-    "popl %%ebp\n\t"
-    "ret\n\t"
-    : "=r" (new->task.kernel_esp)
-  );
+      "movl %%ebp, (%0)"
+      : "=r" (current_proc->kernel_esp)
+      );
 
-
+  __asm__ __volatile__ (
+      "movl %0, %%esp\n\t"
+      "movl %%ebp, %%esp\n\t"
+      "popl %%ebp\n\t"
+      "ret\n\t"
+      : "=r" (new->task.kernel_esp)
+      );
 }
 
 void task_switch(union task_union *new)
 {
   __asm__ __volatile__ (
-    "pushl %%esi\n\t"
-    "pushl %%edi\n\t"
-    "pushl %%ebx\n\t"
-    :
-    :
-  );
-  
+      "pushl %%esi\n\t"
+      "pushl %%edi\n\t"
+      "pushl %%ebx\n\t"
+      :
+      :
+      );
+
   inner_task_switch(new);
 
   __asm__ __volatile__ (
-    "popl %%ebx\n\t"
-    "popl %%edi\n\t"
-    "popl %%esi\n\t"
-    :
-    :
-  );
+      "popl %%ebx\n\t"
+      "popl %%edi\n\t"
+      "popl %%esi\n\t"
+      :
+      :
+      );
 }
 
 void init_sched(){
@@ -171,15 +169,14 @@ void init_sched(){
 struct task_struct* current()
 {
   int ret_value;
-  
+
   __asm__ __volatile__(
-  	"movl %%esp, %0"
-	: "=g" (ret_value)
-  );
+      "movl %%esp, %0"
+      : "=g" (ret_value)
+      );
 
   return (struct task_struct*)(ret_value&0xfffff000);
 }
-
 
 
 int update_sched_data_rr(void)
@@ -190,12 +187,12 @@ int update_sched_data_rr(void)
 int needs_sched_rr(void)
 {
   if(current()->quantum==0) return 1;
-	return 0;
+  return 0;
 }
 
 void update_current_state_rr(struct list_head *dest)
 {
-  
+
 }
 
 void sched_next_rr(void)
