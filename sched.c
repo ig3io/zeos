@@ -227,6 +227,8 @@ void sched_next_rr(void)
   // If not the same task running right now, don't switch at all
   if (next != current())
   {
+    next->state = ST_RUN;
+    current()->state = ST_READY;
     task_switch(next);
   }
 }
