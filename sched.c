@@ -194,6 +194,7 @@ void update_current_state_rr(struct list_head *dest)
     // TODO
     current()->state = ST_ZOMBIE;
   }
+  
   else if (dest == &readyqueue) {
     // TODO
     current()->state = ST_READY;
@@ -206,5 +207,26 @@ void update_current_state_rr(struct list_head *dest)
 
 void sched_next_rr(void)
 {
-  // TODO
+  // Quantum to default value
+  current()->quantum = QUANTUM;
+  
+  struct task_struct * next;
+
+  if (list_empty(&readyqueue))
+  {
+    next = idle_task;
+  }
+  else
+  {
+    struct list_head * next_list_elem;
+    next_list_elem = list_first(&readyqueue);
+    next = list_head_to_task_struct(next_list_elem);
+    list_del(next_list_elem);
+  }
+
+  // If not the same task running right now, don't switch at all
+  if (next != current())
+  {
+    task_switch(next);
+  }
 }
