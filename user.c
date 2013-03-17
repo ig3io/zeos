@@ -38,13 +38,13 @@ int __attribute__ ((__section__(".text.main")))
   itoa(gettime(), ticks);
   long counter = 0;
   while(1) {
-	  if(counter > 10000000)
+	  /*if(counter > 10000000)
     {
       counter = 0;
       itoa(gettime(), ticks);
       write(1, ticks, strlen(ticks));
       write(1, " ", strlen(" "));
     }
-	  ++counter;
+	  ++counter;*/
  }
 }

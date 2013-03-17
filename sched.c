@@ -179,16 +179,29 @@ struct task_struct* current()
 
 int update_sched_data_rr(void)
 {
-  current()->quantum--;
+  current()->quantum = current()->quantum - 1;
+  
+  printc_xy(0, 9, 'Q');
+  printc_xy(1, 9, ':');
+  printc_xy(2, 9, (current()->quantum/100) + 48);
+  printc_xy(3, 9, (current()->quantum%100)/10 + 48);
+  printc_xy(4, 9, (current()->quantum%10)/100 + 48);
+
 } 
 
 int needs_sched_rr(void)
 {
-  return current()->quantum == 0;
+  if (current()->quantum <= 0) {
+    return 1;
+  }
+  else {
+    return 0; 
+  }
 }
 
 void update_current_state_rr(struct list_head *dest)
 {
+ 
   if (dest == &freequeue) {
     // TODO
     current()->state = ST_ZOMBIE;
@@ -206,6 +219,7 @@ void update_current_state_rr(struct list_head *dest)
 
 void sched_next_rr(void)
 {
+
   // Quantum to default value
   current()->quantum = QUANTUM;
   
@@ -223,11 +237,19 @@ void sched_next_rr(void)
     list_del(next_list_elem);
   }
 
+  printc_xy(0, 10, 'C');
+  printc_xy(1, 10, ':');
+  printc_xy(2, 10, current()->PID + 48);
+  printc_xy(0, 11, 'N');
+  printc_xy(1, 11, ':');
+  printc_xy(2, 11, next->PID + 48);
+
+
   // If not the same task running right now, don't switch at all
   if (next != current())
   {
     next->state = ST_RUN;
     current()->state = ST_READY;
-    task_switch(next);
+    task_switch((union task_union *)next);
   }
 }

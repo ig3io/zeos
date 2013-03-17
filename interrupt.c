@@ -9,6 +9,9 @@
 
 #include <zeos_interrupt.h>
 
+// TODO
+#include <sched.h>
+
 Gate idt[IDT_ENTRIES];
 Register    idtR;
 
@@ -118,7 +121,18 @@ void keyboard_routine()
   }
 }
 
-void clock_routine(){
+unsigned int times_sched = 0;
+
+void clock_routine() {
   zeos_show_clock();
   ++zeos_ticks;
+  update_sched_data_rr();
+  if (needs_sched_rr())
+  {
+    times_sched++;
+    printc_xy(0, 8, 'S');
+    printc_xy(1, 8, times_sched + 1);
+    update_current_state_rr(&readyqueue);
+    sched_next_rr();
+  }
 }
