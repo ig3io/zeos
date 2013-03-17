@@ -102,10 +102,9 @@ void init_task1(void)
 
 void inner_task_switch(union task_union *new)
 {
-  //page_table_entry * current_proc_pages = get_DIR(current());
   page_table_entry * new_proc_pages = get_DIR(&new->task);
-  // TODO: new_proc_pages should be saved somewhere??
-  // No? It can be obtainer through get_DIR
+  // current_proc_pages should be saved somewhere??
+  // No. It can be obtainer through get_DIR
 
   tss.esp0= &(new->stack[KERNEL_STACK_SIZE]);
   set_cr3(new_proc_pages);
