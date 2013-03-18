@@ -62,10 +62,9 @@ void cpu_idle(void)
 void cpu_dummy(void)
 {
   __asm__ __volatile__("sti": : :"memory");
-
   while(1)
   {
-    ;
+    printc_xy(1, 1, 'D');
   }
 }
 
@@ -79,6 +78,9 @@ void init_idle (void)
   idle_task->quantum = QUANTUM;
   idle_task->state = ST_READY;
 
+
+  // TODO
+  list_add_tail(&idle_task->list, &readyqueue); 
 
   unsigned long *idle_stack = ((union task_union *)idle_task)->stack;
 
@@ -102,6 +104,8 @@ void init_dummy (void)
   idle_task->quantum = QUANTUM;
   idle_task->state = ST_READY;
 
+  // TODO
+  list_add_tail(&idle_task->list, &readyqueue);
 
   unsigned long *idle_stack = ((union task_union *)idle_task)->stack;
 
@@ -123,7 +127,10 @@ void init_task1(void)
 
   task1_pcb->PID = 1;
   task1_pcb->quantum=QUANTUM;
-  task1_pcb->state=ST_RUN;
+  task1_pcb->state=ST_READY;
+
+  // TODO
+  list_add_tail(&idle_task->list, &readyqueue);
 
   set_user_pages(task1_pcb);
   set_cr3(get_DIR(task1_pcb));
@@ -212,7 +219,7 @@ struct task_struct* current()
 
 int update_sched_data_rr(void)
 {
-  current()->quantum = current()->quantum - 1;
+  current()->quantum--;
   
   printc_xy(0, 9, 'Q');
   printc_xy(1, 9, ':');
@@ -234,7 +241,6 @@ int needs_sched_rr(void)
 
 void update_current_state_rr(struct list_head *dest)
 {
- 
   if (dest == &freequeue)
   {
     current()->state = ST_ZOMBIE;
@@ -249,10 +255,10 @@ void update_current_state_rr(struct list_head *dest)
   }
   // TODO: I don't even know what I'm doing. Incertainity level:  WAT
 
-  //if (current() != idle_task)
-  //{
+  if (current() != idle_task)
+  {
     list_add_tail(&current()->list, dest);
-  //}
+  }
 }
 
 void sched_next_rr(void)
