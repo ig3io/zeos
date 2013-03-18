@@ -59,9 +59,18 @@ void cpu_idle(void)
   }
 }
 
+void cpu_dummy(void)
+{
+  __asm__ __volatile__("sti": : :"memory");
+
+  while(1)
+  {
+    ;
+  }
+}
+
 void init_idle (void)
 {
-  // We need the first PCB
   struct list_head * list_elem = list_first(&freequeue);
   idle_task = list_head_to_task_struct(list_elem);
   list_del(list_elem);
@@ -74,14 +83,34 @@ void init_idle (void)
   unsigned long *idle_stack = ((union task_union *)idle_task)->stack;
 
   // TODO:
-  // is unsigned int the best type possible?
-  // Yes, in the zeOS document they said!
-  // OK!
+  // Is unsigned int the best type possible? Yes, in the zeOS document they said!
   idle_stack[KERNEL_STACK_SIZE - 1] = (unsigned int *)&cpu_idle;
   idle_stack[KERNEL_STACK_SIZE - 2] = 0;  // Dummy value
 
   idle_task->kernel_esp = (unsigned int *)&idle_stack[KERNEL_STACK_SIZE - 2];
 
+  // TODO: rest of stuff to initialize
+}
+
+void init_dummy (void)
+{
+  struct list_head * list_elem = list_first(&freequeue);
+  idle_task = list_head_to_task_struct(list_elem);
+  list_del(list_elem);
+
+  idle_task->PID = 2;
+  idle_task->quantum = QUANTUM;
+  idle_task->state = ST_READY;
+
+
+  unsigned long *idle_stack = ((union task_union *)idle_task)->stack;
+
+  // TODO:
+  // Is unsigned int the best type possible? Yes, in the zeOS document they said!
+  idle_stack[KERNEL_STACK_SIZE - 1] = (unsigned int *)&cpu_dummy;
+  idle_stack[KERNEL_STACK_SIZE - 2] = 0;  // Dummy value
+
+  idle_task->kernel_esp = (unsigned int *)&idle_stack[KERNEL_STACK_SIZE - 2];
 
   // TODO: rest of stuff to initialize
 }
@@ -90,8 +119,8 @@ void init_task1(void)
 {
   struct list_head * list_elem = list_first(&freequeue);
   struct task_struct * task1_pcb = list_head_to_task_struct(list_elem);
-
   list_del(list_elem);
+
   task1_pcb->PID = 1;
   task1_pcb->quantum=QUANTUM;
   task1_pcb->state=ST_RUN;
@@ -110,25 +139,29 @@ void inner_task_switch(union task_union *new)
   set_cr3(new_proc_pages);
 
 
-  __asm__ __volatile__ (
-      "pushl %%ebp\n\t"
-      "movl %%esp, %%ebp\n\t"
-      :
-      :
-      );
+ // __asm__ __volatile__ (
+ //     "pushl %%ebp\n\t"
+ //     "movl %%esp, %%ebp\n\t"
+ //     :
+ //     :
+ //     );
   struct task_struct * current_proc = current();
 
-  __asm__ __volatile__ (
-      "movl %%ebp, (%0)"
-      : "=r" (current_proc->kernel_esp)
-      );
+//  __asm__ __volatile__ (
+//      "movl %%ebp, (%0)"
+//      : /* no output */
+//      : "r" (&current_proc->kernel_esp)
+//      );
 
   __asm__ __volatile__ (
-      "movl %0, %%esp\n\t"
-      "movl %%ebp, %%esp\n\t"
+      //"movl %0, %%esp\n\t"
+      //"movl %%ebp, %%esp\n\t"
+      "movl %%ebp, (%0)\n\t"
+      "movl %1, %%esp\n\t"
       "popl %%ebp\n\t"
       "ret\n\t"
-      : "=r" (new->task.kernel_esp)
+      : /* no output */
+      :"r" (&current_proc->kernel_esp), "r" (new->task.kernel_esp)
       );
 }
 
@@ -160,7 +193,7 @@ void init_sched(){
   int i = 0;
   for (i = 0; i < NR_TASKS; i++)
   {
-    list_add(&(task[i].task.list), &freequeue);
+    list_add_tail(&(task[i].task.list), &freequeue);
   } 
 }
 
@@ -202,19 +235,24 @@ int needs_sched_rr(void)
 void update_current_state_rr(struct list_head *dest)
 {
  
-  if (dest == &freequeue) {
-    // TODO
+  if (dest == &freequeue)
+  {
     current()->state = ST_ZOMBIE;
   }
-  
-  else if (dest == &readyqueue) {
-    // TODO
+  else if (dest == &readyqueue)
+  {
     current()->state = ST_READY;
   }
-  // else if (dest == something else) { .. }
+  else
+  {
+    current()->state = ST_BLOCKED;
+  }
   // TODO: I don't even know what I'm doing. Incertainity level:  WAT
 
-  if (current() != idle_task) list_add_tail(&current()->list, dest);
+  //if (current() != idle_task)
+  //{
+    list_add_tail(&current()->list, dest);
+  //}
 }
 
 void sched_next_rr(void)
@@ -248,8 +286,8 @@ void sched_next_rr(void)
   // If not the same task running right now, don't switch at all
   if (next != current())
   {
-    next->state = ST_RUN;
     current()->state = ST_READY;
+    next->state = ST_RUN;
     task_switch((union task_union *)next);
   }
 }
