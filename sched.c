@@ -98,7 +98,7 @@ void init_dummy (void)
   dummy_task->state = ST_READY;
 
   // TODO
-  //list_add_tail(&dummy_task->list, &readyqueue);
+  list_add_tail(&dummy_task->list, &readyqueue);
 
   unsigned long *dummy_stack = ((union task_union *)dummy_task)->stack;
 
