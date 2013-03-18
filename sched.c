@@ -61,11 +61,7 @@ void cpu_idle(void)
 
 void cpu_dummy(void)
 {
-  __asm__ __volatile__("sti": : :"memory");
-  while(1)
-  {
-    printc_xy(1, 1, 'D');
-  }
+  printc_xy(0, 0, 'Z');
 }
 
 void init_idle (void)
@@ -78,9 +74,6 @@ void init_idle (void)
   idle_task->quantum = QUANTUM;
   idle_task->state = ST_READY;
 
-
-  // TODO
-  list_add_tail(&idle_task->list, &readyqueue); 
 
   unsigned long *idle_stack = ((union task_union *)idle_task)->stack;
 
@@ -97,24 +90,24 @@ void init_idle (void)
 void init_dummy (void)
 {
   struct list_head * list_elem = list_first(&freequeue);
-  idle_task = list_head_to_task_struct(list_elem);
+  struct task_struct * dummy_task = list_head_to_task_struct(list_elem);
   list_del(list_elem);
 
-  idle_task->PID = 2;
-  idle_task->quantum = QUANTUM;
-  idle_task->state = ST_READY;
+  dummy_task->PID = 2;
+  dummy_task->quantum = QUANTUM;
+  dummy_task->state = ST_READY;
 
   // TODO
-  list_add_tail(&idle_task->list, &readyqueue);
+  //list_add_tail(&dummy_task->list, &readyqueue);
 
-  unsigned long *idle_stack = ((union task_union *)idle_task)->stack;
+  unsigned long *dummy_stack = ((union task_union *)dummy_task)->stack;
 
   // TODO:
   // Is unsigned int the best type possible? Yes, in the zeOS document they said!
-  idle_stack[KERNEL_STACK_SIZE - 1] = (unsigned int *)&cpu_dummy;
-  idle_stack[KERNEL_STACK_SIZE - 2] = 0;  // Dummy value
+  dummy_stack[KERNEL_STACK_SIZE - 1] = (unsigned int *)&cpu_dummy;
+  dummy_stack[KERNEL_STACK_SIZE - 2] = 0;  // Dummy value
 
-  idle_task->kernel_esp = (unsigned int *)&idle_stack[KERNEL_STACK_SIZE - 2];
+  dummy_task->kernel_esp = (unsigned int *)&dummy_stack[KERNEL_STACK_SIZE - 2];
 
   // TODO: rest of stuff to initialize
 }
@@ -130,7 +123,7 @@ void init_task1(void)
   task1_pcb->state=ST_READY;
 
   // TODO
-  list_add_tail(&idle_task->list, &readyqueue);
+  //list_add_tail(&task1_pcb->list, &readyqueue);
 
   set_user_pages(task1_pcb);
   set_cr3(get_DIR(task1_pcb));
@@ -254,15 +247,18 @@ void update_current_state_rr(struct list_head *dest)
     current()->state = ST_BLOCKED;
   }
   // TODO: I don't even know what I'm doing. Incertainity level:  WAT
-
-  if (current() != idle_task)
+  
+  /*if (current() != idle_task)
   {
     list_add_tail(&current()->list, dest);
-  }
+  }*/
 }
+
+unsigned int count = 0;
 
 void sched_next_rr(void)
 {
+  count++;
 
   // Quantum to default value
   current()->quantum = QUANTUM;
@@ -271,10 +267,12 @@ void sched_next_rr(void)
 
   if (list_empty(&readyqueue))
   {
+    printc_xy(0, 0, 'A');
     next = idle_task;
   }
   else
   {
+    printc_xy(0, 0, 'B');
     struct list_head * next_list_elem;
     next_list_elem = list_first(&readyqueue);
     next = list_head_to_task_struct(next_list_elem);
@@ -288,12 +286,18 @@ void sched_next_rr(void)
   printc_xy(1, 11, ':');
   printc_xy(2, 11, next->PID + 48);
 
-
   // If not the same task running right now, don't switch at all
   if (next != current())
   {
+    printc_xy(0, 0, 'C');
     current()->state = ST_READY;
+    printc_xy(0, 0, 'D');
+    //list_del(&current()->list);
+    printc_xy(0, 0, 'E');
+    list_add_tail(&current()->list, &readyqueue);
+    printc_xy(0, 0, 'F');
     next->state = ST_RUN;
+    printc_xy(0, 0, 'G');
     task_switch((union task_union *)next);
   }
 }

@@ -11,7 +11,7 @@
 
 #define NR_TASKS      10
 #define KERNEL_STACK_SIZE	1024
-#define QUANTUM		100
+#define QUANTUM		500
 
 enum state_t { ST_RUN, ST_READY, ST_BLOCKED, ST_ZOMBIE };
 
@@ -41,6 +41,8 @@ extern struct list_head readyqueue;
 void init_task1(void);
 
 void init_idle(void);
+
+void init_dummy(void);
 
 void init_sched(void);
 
