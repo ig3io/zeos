@@ -216,6 +216,8 @@ void sched_exit_rr(void)
 {
   struct task_struct * next;
 
+  update_current_state_rr(&freequeue);
+
   if (list_empty(&readyqueue))
   {
     printc_xy(0, 0, 'A');
@@ -227,6 +229,7 @@ void sched_exit_rr(void)
     struct list_head * next_list_elem;
     next_list_elem = list_first(&readyqueue);
     next = list_head_to_task_struct(next_list_elem);
+    next->state = ST_RUN;
   }
 
   printc_xy(0, 10, 'C');
@@ -238,15 +241,9 @@ void sched_exit_rr(void)
 
   if (next != current())
   {
-    printc_xy(0, 0, 'C');
-    update_current_state_rr(&freequeue);
-    printc_xy(0, 0, 'D');
-    printc_xy(0, 0, 'E');
-    
-    printc_xy(0, 0, 'F');
-    next->state = ST_RUN;
     printc_xy(0, 0, 'G');
     task_switch((union task_union *)next);
+    printc_xy(0, 0, 'F');
   }
 }
 
@@ -258,6 +255,13 @@ void sched_next_rr(void)
   
   struct task_struct * next;
 
+
+  update_current_state_rr(&readyqueue);
+ 
+  // Unless you've called exit(), the current process will always
+  // have the option to continue execution 
+  
+  // TODO unnecessary? redundant?
   if (list_empty(&readyqueue))
   {
     printc_xy(0, 0, 'A');
@@ -269,6 +273,7 @@ void sched_next_rr(void)
     struct list_head * next_list_elem;
     next_list_elem = list_first(&readyqueue);
     next = list_head_to_task_struct(next_list_elem);
+    next->state = ST_RUN;
     //list_del(next_list_elem);
   }
 
@@ -281,14 +286,8 @@ void sched_next_rr(void)
 
   if (next != current())
   {
-    printc_xy(0, 0, 'C');
-    update_current_state_rr(&readyqueue);
-    printc_xy(0, 0, 'D');
-    printc_xy(0, 0, 'E');
-    
     printc_xy(0, 0, 'F');
-    next->state = ST_RUN;
-    printc_xy(0, 0, 'G');
     task_switch((union task_union *)next);
+    printc_xy(0, 0, 'G');
   }
 }
