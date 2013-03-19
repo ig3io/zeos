@@ -246,12 +246,12 @@ void update_current_state_rr(struct list_head *dest)
   {
     current()->state = ST_BLOCKED;
   }
-  // TODO: I don't even know what I'm doing. Incertainity level:  WAT
-  
-  /*if (current() != idle_task)
-  {
+
+  if (current() != idle_task) {
+    list_del(&current()->list);
     list_add_tail(&current()->list, dest);
-  }*/
+  }
+  
 }
 
 unsigned int count = 0;
@@ -276,7 +276,7 @@ void sched_next_rr(void)
     struct list_head * next_list_elem;
     next_list_elem = list_first(&readyqueue);
     next = list_head_to_task_struct(next_list_elem);
-    list_del(next_list_elem);
+    //list_del(next_list_elem);
   }
 
   printc_xy(0, 10, 'C');
@@ -286,17 +286,16 @@ void sched_next_rr(void)
   printc_xy(1, 11, ':');
   printc_xy(2, 11, next->PID + 48);
 
-  // If not the same task running right now, don't switch at all
   if (next != current())
   {
     printc_xy(0, 0, 'C');
-    current()->state = ST_READY;
+    update_current_state_rr(&readyqueue);
     printc_xy(0, 0, 'D');
-    //list_del(&current()->list);
     printc_xy(0, 0, 'E');
-    list_add_tail(&current()->list, &readyqueue);
+    
     printc_xy(0, 0, 'F');
     next->state = ST_RUN;
+    list_del(&next->list);
     printc_xy(0, 0, 'G');
     task_switch((union task_union *)next);
   }
