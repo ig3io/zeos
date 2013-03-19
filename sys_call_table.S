@@ -3,7 +3,7 @@
 
 ENTRY (sys_call_table)
 	.long sys_ni_syscall//0
-	.long sys_ni_syscall
+	.long sys_exit      //1 sys_exit call
 	.long sys_fork
 	.long sys_ni_syscall
 	.long sys_write     // sys_write call!

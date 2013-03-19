@@ -61,7 +61,7 @@ void cpu_idle(void)
 
 void cpu_dummy(void)
 {
-  printc_xy(0, 0, 'Z');
+  printc_xy(3, 3, 'Z');
 }
 
 void init_idle (void)
@@ -88,17 +88,17 @@ void init_idle (void)
 }
 
 void init_dummy (void)
-{
+{/*
   struct list_head * list_elem = list_first(&freequeue);
-  struct task_struct * dummy_task = list_head_to_task_struct(list_elem);
   list_del(list_elem);
+  struct task_struct * dummy_task = list_head_to_task_struct(list_elem);
 
   dummy_task->PID = 2;
   dummy_task->quantum = QUANTUM;
   dummy_task->state = ST_READY;
 
   // TODO
-  list_add_tail(&dummy_task->list, &readyqueue);
+  //list_add_tail(&dummy_task->list, &readyqueue);
 
   unsigned long *dummy_stack = ((union task_union *)dummy_task)->stack;
 
@@ -110,20 +110,21 @@ void init_dummy (void)
   dummy_task->kernel_esp = (unsigned int *)&dummy_stack[KERNEL_STACK_SIZE - 2];
 
   // TODO: rest of stuff to initialize
+  // */
 }
 
 void init_task1(void)
 {
   struct list_head * list_elem = list_first(&freequeue);
-  struct task_struct * task1_pcb = list_head_to_task_struct(list_elem);
   list_del(list_elem);
+  struct task_struct * task1_pcb = list_head_to_task_struct(list_elem);
 
   task1_pcb->PID = 1;
   task1_pcb->quantum=QUANTUM;
   task1_pcb->state=ST_READY;
 
   // TODO
-  //list_add_tail(&task1_pcb->list, &readyqueue);
+  list_add_tail(&task1_pcb->list, &readyqueue);
 
   set_user_pages(task1_pcb);
   set_cr3(get_DIR(task1_pcb));
@@ -256,6 +257,46 @@ void update_current_state_rr(struct list_head *dest)
 
 unsigned int count = 0;
 
+void sched_exit_rr(void)
+{
+  struct task_struct * next;
+
+  if (list_empty(&readyqueue))
+  {
+    printc_xy(0, 0, 'A');
+    next = idle_task;
+  }
+  else
+  {
+    printc_xy(0, 0, 'B');
+    struct list_head * next_list_elem;
+    next_list_elem = list_first(&readyqueue);
+    next = list_head_to_task_struct(next_list_elem);
+    //list_del(next_list_elem);
+  }
+
+  printc_xy(0, 10, 'C');
+  printc_xy(1, 10, ':');
+  printc_xy(2, 10, current()->PID + 48);
+  printc_xy(0, 11, 'N');
+  printc_xy(1, 11, ':');
+  printc_xy(2, 11, next->PID + 48);
+
+  if (next != current())
+  {
+    printc_xy(0, 0, 'C');
+    update_current_state_rr(&freequeue);
+    printc_xy(0, 0, 'D');
+    printc_xy(0, 0, 'E');
+    
+    printc_xy(0, 0, 'F');
+    next->state = ST_RUN;
+    //list_del(&next->list);
+    printc_xy(0, 0, 'G');
+    task_switch((union task_union *)next);
+  }
+}
+
 void sched_next_rr(void)
 {
   count++;
@@ -295,7 +336,7 @@ void sched_next_rr(void)
     
     printc_xy(0, 0, 'F');
     next->state = ST_RUN;
-    list_del(&next->list);
+    //list_del(&next->list);
     printc_xy(0, 0, 'G');
     task_switch((union task_union *)next);
   }

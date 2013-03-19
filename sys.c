@@ -71,7 +71,11 @@ int sys_fork()
 }
 
 void sys_exit()
-{  
+{
+  // TODO
+  // free frames...
+              
+  sched_exit_rr();
 }
 
 int sys_write(int fd, char * buffer, int size)

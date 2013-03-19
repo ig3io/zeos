@@ -37,13 +37,19 @@ int __attribute__ ((__section__(".text.main")))
   char ticks[5] = {[0 ... 3] = ' ', [4] = '\n'};
   itoa(gettime(), ticks);
   long counter = 0;
+  int times = 0;
   while(1) {
 	if(counter > 10000000)
     {
+      times++;
       counter = 0;
       itoa(gettime(), ticks);
       write(1, ticks, strlen(ticks));
       write(1, " ", strlen(" "));
+    }
+    if(times > 5)
+    {
+      exit();
     }
 	++counter;
  }

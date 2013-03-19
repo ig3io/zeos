@@ -88,7 +88,7 @@ int __attribute__((__section__(".text.main")))
   init_idle();
 
   // TODO init dummy
-  init_dummy();
+  //init_dummy();
 
   /* Initialize task 1 data */
   init_task1();

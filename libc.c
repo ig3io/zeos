@@ -113,3 +113,12 @@ int perror(char * msg)
 
   return 0;
 }
+
+void exit(void)
+{
+  __asm__ __volatile__ (
+      "int $0x01\n\t"
+      :
+      :
+      );
+}
