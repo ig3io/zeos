@@ -47,7 +47,7 @@ int __attribute__ ((__section__(".text.main")))
       write(1, ticks, strlen(ticks));
       write(1, " ", strlen(" "));
     }
-    if(times > 5)
+    if(times > 2)
     {
       exit();
     }

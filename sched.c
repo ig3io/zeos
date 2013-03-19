@@ -59,10 +59,6 @@ void cpu_idle(void)
   }
 }
 
-void cpu_dummy(void)
-{
-  printc_xy(3, 3, 'Z');
-}
 
 void init_idle (void)
 {
@@ -77,40 +73,10 @@ void init_idle (void)
 
   unsigned long *idle_stack = ((union task_union *)idle_task)->stack;
 
-  // TODO:
-  // Is unsigned int the best type possible? Yes, in the zeOS document they said!
   idle_stack[KERNEL_STACK_SIZE - 1] = (unsigned int *)&cpu_idle;
   idle_stack[KERNEL_STACK_SIZE - 2] = 0;  // Dummy value
 
   idle_task->kernel_esp = (unsigned int *)&idle_stack[KERNEL_STACK_SIZE - 2];
-
-  // TODO: rest of stuff to initialize
-}
-
-void init_dummy (void)
-{/*
-  struct list_head * list_elem = list_first(&freequeue);
-  list_del(list_elem);
-  struct task_struct * dummy_task = list_head_to_task_struct(list_elem);
-
-  dummy_task->PID = 2;
-  dummy_task->quantum = QUANTUM;
-  dummy_task->state = ST_READY;
-
-  // TODO
-  //list_add_tail(&dummy_task->list, &readyqueue);
-
-  unsigned long *dummy_stack = ((union task_union *)dummy_task)->stack;
-
-  // TODO:
-  // Is unsigned int the best type possible? Yes, in the zeOS document they said!
-  dummy_stack[KERNEL_STACK_SIZE - 1] = (unsigned int *)&cpu_dummy;
-  dummy_stack[KERNEL_STACK_SIZE - 2] = 0;  // Dummy value
-
-  dummy_task->kernel_esp = (unsigned int *)&dummy_stack[KERNEL_STACK_SIZE - 2];
-
-  // TODO: rest of stuff to initialize
-  // */
 }
 
 void init_task1(void)
@@ -123,40 +89,28 @@ void init_task1(void)
   task1_pcb->quantum=QUANTUM;
   task1_pcb->state=ST_READY;
 
-  // TODO
+  // It has to be added. The only process that is not in any queue at any
+  // moment is the idle task
   list_add_tail(&task1_pcb->list, &readyqueue);
 
   set_user_pages(task1_pcb);
   set_cr3(get_DIR(task1_pcb));
+
+  // TODO statistics
 }
 
 void inner_task_switch(union task_union *new)
 {
   page_table_entry * new_proc_pages = get_DIR(&new->task);
-  // current_proc_pages should be saved somewhere??
-  // No. It can be obtainer through get_DIR
 
   tss.esp0= &(new->stack[KERNEL_STACK_SIZE]);
   set_cr3(new_proc_pages);
 
 
- // __asm__ __volatile__ (
- //     "pushl %%ebp\n\t"
- //     "movl %%esp, %%ebp\n\t"
- //     :
- //     :
- //     );
   struct task_struct * current_proc = current();
 
-//  __asm__ __volatile__ (
-//      "movl %%ebp, (%0)"
-//      : /* no output */
-//      : "r" (&current_proc->kernel_esp)
-//      );
 
   __asm__ __volatile__ (
-      //"movl %0, %%esp\n\t"
-      //"movl %%ebp, %%esp\n\t"
       "movl %%ebp, (%0)\n\t"
       "movl %1, %%esp\n\t"
       "popl %%ebp\n\t"
@@ -255,8 +209,9 @@ void update_current_state_rr(struct list_head *dest)
   
 }
 
-unsigned int count = 0;
 
+// Same as sched_next_rr, but it assumes the current process will not be
+// returned to (it goes to freequeue, no readyqueue)
 void sched_exit_rr(void)
 {
   struct task_struct * next;
@@ -272,7 +227,6 @@ void sched_exit_rr(void)
     struct list_head * next_list_elem;
     next_list_elem = list_first(&readyqueue);
     next = list_head_to_task_struct(next_list_elem);
-    //list_del(next_list_elem);
   }
 
   printc_xy(0, 10, 'C');
@@ -291,7 +245,6 @@ void sched_exit_rr(void)
     
     printc_xy(0, 0, 'F');
     next->state = ST_RUN;
-    //list_del(&next->list);
     printc_xy(0, 0, 'G');
     task_switch((union task_union *)next);
   }
@@ -299,7 +252,6 @@ void sched_exit_rr(void)
 
 void sched_next_rr(void)
 {
-  count++;
 
   // Quantum to default value
   current()->quantum = QUANTUM;
@@ -336,7 +288,6 @@ void sched_next_rr(void)
     
     printc_xy(0, 0, 'F');
     next->state = ST_RUN;
-    //list_del(&next->list);
     printc_xy(0, 0, 'G');
     task_switch((union task_union *)next);
   }

@@ -117,8 +117,8 @@ int perror(char * msg)
 void exit(void)
 {
   __asm__ __volatile__ (
-      "int $0x01\n\t"
-      :
-      :
-      );
+    "int $0x80\n\t"
+    :
+    : "a" (0x01)
+  );
 }

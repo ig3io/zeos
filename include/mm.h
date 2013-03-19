@@ -23,6 +23,9 @@ int alloc_frame( void );
 void free_frame( unsigned int frame );
 void set_user_pages( struct task_struct *task );
 
+// TODO: it's not in this header, but could be useful (?)
+void free_user_pages(struct task_struct * task);
+
 
 extern Descriptor  *gdt;
 

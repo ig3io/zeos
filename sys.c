@@ -74,7 +74,9 @@ void sys_exit()
 {
   // TODO
   // free frames...
-              
+  printc_xy(2, 4, 'E');
+  printc_xy(3, 4, 'x');
+  free_user_pages(current());
   sched_exit_rr();
 }
 
