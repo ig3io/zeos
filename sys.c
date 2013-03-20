@@ -30,6 +30,13 @@ int check_fd(int fd, int permissions)
   return 0;
 }
 
+void ret_from_fork(){
+	__asm__ __volatile__(
+		"popl %eax\n\t"
+		"xor %eax,%eax"
+	);
+}
+
 int sys_ni_syscall()
 {
 	return -ENOSYS; /*ENOSYS*/
@@ -42,14 +49,19 @@ int sys_getpid()
 
 int sys_fork()
 {
+	printc_xy(7, 9, 'F');
+	printc_xy(8, 9, 'O');
+	printc_xy(9, 9, 'R');
+	printc_xy(10, 9, 'K');
+	
   int PID=-1;
 
   struct list_head *free_pcb = list_first(&freequeue);// take the first free PCB
 /* if freequeue don't have any element, return an error(not implemented)*/
-  struct task_struct *child = list_head_to_task_struct(free_pcb);
-  struct task_struct *father = current();
-  
-  /* create a variable for store the free frames that we need for save data+Kernel pages. I create de NUM_DATA_PAG macro, but is because i don't know how much occupy data+kernel in pages, for the moment i supose 4, but we must ask at juanjo*/
+  union task_union *child = (union task_union*)list_head_to_task_struct(free_pcb);
+  union task_union *father = (union task_union*)current();
+  list_del(free_pcb);
+  /* create a variable for store the free frames that we need for save data+Kernel pages.*/
 
 ////////////////// COLLECTING FREE FRAMES ////////////////////////
   int frames[NUM_PAG_DATA];
@@ -61,12 +73,54 @@ int sys_fork()
 		 /* return not memory space error*/
 	}
   }
+
 /////////////////////////////////////////////////////////////////////
+page_table_entry* TP_child = get_PT(&child->task);
+page_table_entry* TP_father = get_PT(&father->task);
+copy_data(father, child, sizeof(struct task_struct));
 
-  
+//int child_dir = allocate_DIR(child->task);//I'm not sure what I'm doing here?¿!?!?¿!?
 
-  
-  
+
+for(i=PAG_LOG_INIT_CODE_P0;i<PAG_LOG_INIT_CODE_P0+NUM_PAG_CODE;++i) //Copy the Code Pages to child proces
+	set_ss_pag(TP_child,i,get_frame(TP_father,i));
+
+for(i=PAG_LOG_INIT_CODE_P0;i<PAG_LOG_INIT_CODE_P0+NUM_PAG_DATA;++i)//Create new Data+Stack Pages to child proces
+	set_ss_pag(TP_child,i,frames[i-PAG_LOG_INIT_CODE_P0]);
+
+for(i=PAG_LOG_INIT_CODE_P0+NUM_PAG_DATA;i<PAG_LOG_INIT_CODE_P0+2*NUM_PAG_DATA;++i){//Mapping the data+stack pages of child
+	printc_xy(i-PAG_LOG_INIT_CODE_P0-NUM_PAG_DATA,10,'A');
+	set_ss_pag(TP_father,i,frames[i-(PAG_LOG_INIT_CODE_P0+NUM_PAG_DATA)]);
+	printc_xy(i-PAG_LOG_INIT_CODE_P0-NUM_PAG_DATA,11,'A');
+	copy_data(((i-(NUM_PAG_DATA))*PAGE_SIZE),((i)*PAGE_SIZE),PAGE_SIZE);
+	printc_xy(i-PAG_LOG_INIT_CODE_P0-NUM_PAG_DATA,12,'A');
+	del_ss_pag(TP_father,i);
+	printc_xy(i-PAG_LOG_INIT_CODE_P0-NUM_PAG_DATA,13,'A');
+}
+printc_xy(15, 9, 'K');
+set_cr3(get_DIR(&father->task)); //FLUSH TLB
+
+////////////////STATISTICS//////////////////////
+child->task.PID = current()->PID+1;
+child->task.quantum = QUANTUM;
+child->task.state = ST_READY;
+///////////////////////////////////////////////
+
+unsigned long *ebp;
+
+__asm__ __volatile__(
+	"mov %%ebp,%0"
+	:"=g"(ebp));
+
+printc_xy(14, 9, 'K');
+int elem = ebp - &father->stack[0]; // Calculate the diference bettwen ebp & esp, necessary for possible values pushed in the stack
+
+child->stack[elem] = *ebp;
+child->stack[elem-1] = &ret_from_fork;
+child->stack[elem-2] = ebp;	
+PID = child->task.PID;
+list_add_tail(&child->task.list,&readyqueue);
+printc_xy(15, 9, 'K');
   return PID;
 }
 
