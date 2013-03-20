@@ -42,7 +42,7 @@ int allocate_DIR(struct task_struct *t)
 {
   int pos;
 
-  pos = ((int)task-(int)t)/sizeof(union task_union);
+  pos = ((int)t-(int)task)/sizeof(union task_union);
 
   t->dir_pages_baseAddr = (page_table_entry*) &dir_pages[pos]; 
 
