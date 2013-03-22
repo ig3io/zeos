@@ -97,6 +97,38 @@ int gettime(){
   return rvalue;
 }
 
+int getpid(){
+  
+  int rvalue = 0;
+  __asm__ __volatile__ (
+    "int $0x80\n\t"
+    : "=a" (rvalue)
+    : "a" (0x14)
+  );
+
+  if(rvalue < 0) {
+    errno = errno * -1;
+    rvalue=-1;
+  }
+  return rvalue;
+}
+
+int fork(){
+  int rvalue = 0;
+  __asm__ __volatile__ (
+    "int $0x80\n\t"
+    : "=a" (rvalue)
+    : "a" (0x02)
+  );
+
+  if(rvalue < 0) {
+    errno = errno * -1;
+    rvalue=-1;
+  }
+  return rvalue;
+}
+
+
 int perror(char * msg)
 {
   if (msg != NULL)
