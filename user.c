@@ -37,6 +37,22 @@ int __attribute__ ((__section__(".text.main")))
   char ticks[5] = {[0 ... 3] = ' ', [4] = '\n'};
   itoa(gettime(), ticks);
   long counter = 0;
+  ///////PRUEBAS DE FORK///////////////
+  int pid = fork();
+  if(pid == 0){
+	char c_pid;
+	itoa(getpid(),c_pid);
+	 msg = "HOLA SOY EL PUTO HIJO Y MI PID ES";
+	write(1,msg,strlen(msg));
+	write(1,c_pid,strlen(c_pid));
+  }
+  else/* {
+	char c_pid;
+	itoa(getpid(),c_pid);
+	msg = "EL FORK NO FUNCIONA, PRINGADOS!!!";
+	write(1,msg,strlen(msg));
+	write(1,c_pid,strlen(c_pid));
+  }*/
   while(1) {
 	if(counter > 10000000)
     {
