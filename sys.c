@@ -35,6 +35,7 @@ void ret_from_fork(){
 		"popl %eax\n\t"
 		"xor %eax,%eax"
 	);
+	printc_xy(17, 9, 'K');
 }
 
 int sys_ni_syscall()
@@ -82,22 +83,22 @@ copy_data(father, child, sizeof(struct task_struct));
 //int child_dir = allocate_DIR(child->task);//I'm not sure what I'm doing here?¿!?!?¿!?
 
 
-for(i=PAG_LOG_INIT_CODE_P0;i<PAG_LOG_INIT_CODE_P0+NUM_PAG_CODE;++i) //Copy the Code Pages to child proces
+for(i=PAG_LOG_INIT_CODE_P0;i<PAG_LOG_INIT_DATA_P0;++i) //Copy the Code Pages to child proces
 	set_ss_pag(TP_child,i,get_frame(TP_father,i));
 
-for(i=PAG_LOG_INIT_CODE_P0;i<PAG_LOG_INIT_CODE_P0+NUM_PAG_DATA;++i)//Create new Data+Stack Pages to child proces
+for(i=PAG_LOG_INIT_DATA_P0;i<PAG_LOG_INIT_DATA_P0+NUM_PAG_DATA;++i)//Create new Data+Stack Pages to child proces
 	set_ss_pag(TP_child,i,frames[i-PAG_LOG_INIT_CODE_P0]);
 
-for(i=PAG_LOG_INIT_CODE_P0+NUM_PAG_DATA;i<PAG_LOG_INIT_CODE_P0+2*NUM_PAG_DATA;++i){//Mapping the data+stack pages of child
-	printc_xy(i-PAG_LOG_INIT_CODE_P0-NUM_PAG_DATA,10,'A');
-	set_ss_pag(TP_father,i,frames[i-(PAG_LOG_INIT_CODE_P0+NUM_PAG_DATA)]);
-	printc_xy(i-PAG_LOG_INIT_CODE_P0-NUM_PAG_DATA,11,'A');
+for(i=PAG_LOG_INIT_DATA_P0+NUM_PAG_DATA;i<PAG_LOG_INIT_DATA_P0+2*NUM_PAG_DATA;++i){//Mapping the data+stack pages of child
+	//printc_xy(i-FRAME_INIT_CODE_P0-NUM_PAG_DATA,10,'A');
+	set_ss_pag(TP_father,i,frames[i-(PAG_LOG_INIT_DATA_P0+NUM_PAG_DATA)]);
+	//printc_xy(i-FRAME_INIT_CODE_P0-NUM_PAG_DATA,11,'A');
 	copy_data(((i-(NUM_PAG_DATA))*PAGE_SIZE),((i)*PAGE_SIZE),PAGE_SIZE);
-	printc_xy(i-PAG_LOG_INIT_CODE_P0-NUM_PAG_DATA,12,'A');
+	//printc_xy(i-FRAME_INIT_CODE_P0-NUM_PAG_DATA,12,'A');
 	del_ss_pag(TP_father,i);
-	printc_xy(i-PAG_LOG_INIT_CODE_P0-NUM_PAG_DATA,13,'A');
+	//printc_xy(i-FRAME_INIT_CODE_P0-NUM_PAG_DATA,13,'A');
 }
-printc_xy(15, 9, 'K');
+printc_xy(14, 9, 'K');
 set_cr3(get_DIR(&father->task)); //FLUSH TLB
 
 ////////////////STATISTICS//////////////////////
@@ -112,15 +113,18 @@ __asm__ __volatile__(
 	"mov %%ebp,%0"
 	:"=g"(ebp));
 
-printc_xy(14, 9, 'K');
+printc_xy(15, 9, 'K');
 int elem = ebp - &father->stack[0]; // Calculate the diference bettwen ebp & esp, necessary for possible values pushed in the stack
 
-child->stack[elem] = *ebp;
+//child->stack[elem] = ebp;
 child->stack[elem-1] = &ret_from_fork;
-child->stack[elem-2] = ebp;	
+child->stack[elem-2] = *ebp;
+
+child->task.kernel_esp = &child->stack[elem-2];
+	
 PID = child->task.PID;
 list_add_tail(&child->task.list,&readyqueue);
-printc_xy(15, 9, 'K');
+printc_xy(16, 9, 'K');
   return PID;
 }
 

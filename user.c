@@ -40,20 +40,22 @@ int __attribute__ ((__section__(".text.main")))
   int times = 0;
   ///////PRUEBAS DE FORK///////////////
   int pid = fork();
+  write(1, msg, strlen(msg));
   if(pid == 0){
+	write(1, msg, strlen(msg));
 	char c_pid;
-	itoa(getpid(),c_pid);
+	//itoa(getpid(),c_pid);
 	 msg = "HOLA SOY EL PUTO HIJO Y MI PID ES";
 	write(1,msg,strlen(msg));
-	write(1,c_pid,strlen(c_pid));
+	//write(1,c_pid,strlen(c_pid));
   }
-  else/* {
+  else {
 	char c_pid;
-	itoa(getpid(),c_pid);
+	//itoa(pid,c_pid);
 	msg = "EL FORK NO FUNCIONA, PRINGADOS!!!";
 	write(1,msg,strlen(msg));
-	write(1,c_pid,strlen(c_pid));
-  }*/
+	//write(1,c_pid,strlen(c_pid));
+  }
   while(1) {
 	if(counter > 10000000)
     {
