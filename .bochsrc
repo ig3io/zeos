@@ -446,7 +446,7 @@ debugger_log: -
 # Examples:
 #   vga_update_interval: 250000
 #=======================================================================
-vga_update_interval: 300000
+#TODO vga_update_interval: 300000
 
 # using for Winstone '98 tests
 #vga_update_interval:  100000
@@ -721,6 +721,6 @@ keyboard_mapping: enabled=0, map=
 #=======================================================================
 #newharddrivesupport: enabled=1
 
-gdbstub: enabled=1, port=1234, text_base=0, data_base=0, bss_base=0
+# TODO gdbstub: enabled=1, port=1234, text_base=0, data_base=0, bss_base=0
 
 
