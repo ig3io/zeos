@@ -105,7 +105,7 @@ void inner_task_switch(union task_union *new)
   tss.esp0= &(new->stack[KERNEL_STACK_SIZE]);
   set_cr3(new_proc_pages);
 
-
+  printc_xy(16,10,'S');
   struct task_struct * current_proc = current();
 
 
@@ -117,6 +117,7 @@ void inner_task_switch(union task_union *new)
       : /* no output */
       :"r" (&current_proc->kernel_esp), "r" (new->task.kernel_esp)
       );
+printc_xy(17,10,'S');
 }
 
 void task_switch(union task_union *new)
@@ -130,6 +131,7 @@ void task_switch(union task_union *new)
       );
 
   inner_task_switch(new);
+
 
   __asm__ __volatile__ (
       "popl %%ebx\n\t"
@@ -285,8 +287,8 @@ void sched_next_rr(void)
 
   if (next != current())
   {
-    printc_xy(0, 0, 'F');
+    //printc_xy(0, 0, 'F');
     task_switch((union task_union *)next);
-    printc_xy(0, 0, 'G');
+    //printc_xy(0, 0, 'G');
   }
 }

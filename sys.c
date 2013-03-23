@@ -114,11 +114,11 @@ __asm__ __volatile__(
 	:"=g"(ebp));
 
 printc_xy(15, 9, 'K');
-int elem = ebp - &father->stack[0]; // Calculate the diference bettwen ebp & esp, necessary for possible values pushed in the stack
+int elem = ((unsigned long*)ebp - &father->stack[0]); // Calculate the diference bettwen ebp & esp, necessary for possible values pushed in the stack
 
-//child->stack[elem] = ebp;
+child->stack[elem] = (unsigned long) (((unsigned long *) child->stack[elem]-&father->stack[0]) + &child->stack[0]);
 child->stack[elem-1] = &ret_from_fork;
-child->stack[elem-2] = *ebp;
+child->stack[elem-2] = &child->stack[elem];
 
 child->task.kernel_esp = &child->stack[elem-2];
 	
@@ -130,7 +130,7 @@ printc_xy(16, 9, 'K');
 
 void sys_exit()
 {
-  // TODO
+  // TODOt
   // free frames...
   printc_xy(2, 4, 'E');
   printc_xy(3, 4, 'x');
