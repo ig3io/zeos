@@ -85,7 +85,7 @@ page_table_entry* TP_child = get_PT(&child->task);
 page_table_entry* TP_father = get_PT(&father->task);
 copy_data(father, child, sizeof(struct task_struct));
 
-//int child_dir = allocate_DIR(child->task);//I'm not sure what I'm doing here?¿!?!?¿!?
+//int child_dir = allocate_DIR(child);//I'm not sure what I'm doing here?¿!?!?¿!?
 
 
 for(i=PAG_LOG_INIT_CODE_P0;i<PAG_LOG_INIT_DATA_P0;++i) //Copy the Code Pages to child proces
@@ -112,7 +112,7 @@ child->task.quantum = QUANTUM;
 child->task.state = ST_READY;
 ///////////////////////////////////////////////
 
-unsigned long *ebp;
+unsigned long ebp;
 
 __asm__ __volatile__(
 	"mov %%ebp,%0"
@@ -122,11 +122,12 @@ printc_xy(15, 9, 'K');
 
 int elem = ((unsigned long *)ebp - &father->stack[0])/sizeof(unsigned long); // Calculate the diference bettwen ebp & esp, necessary for possible values pushed in the stack
 
-child->stack[elem] = (unsigned long) (((unsigned long *) child->stack[elem]-&father->stack[0]) + &child->stack[0]);
+child->stack[elem+2] = (unsigned long) (((unsigned long *) child->stack[elem]-&father->stack[0]) + &child->stack[0]);
 child->stack[elem+1] = &ret_from_fork;
 child->stack[elem+0] = &child->stack[elem];
 
-child->task.kernel_esp = &child->stack[elem-2];
+//child->task.kernel_esp = &child->stack[elem];
+child->task.kernel_esp  = (unsigned long *)ebp;
 	
 PID = child->task.PID;
 list_add_tail(&child->task.list,&readyqueue);
