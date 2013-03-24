@@ -56,6 +56,7 @@ int __attribute__ ((__section__(".text.main")))
 	write(1,msg,strlen(msg));
 	//write(1,c_pid,strlen(c_pid));
   }
+  char c_pid[1];
   while(1) {
 	if(counter > 10000000)
     {
@@ -64,10 +65,13 @@ int __attribute__ ((__section__(".text.main")))
       itoa(gettime(), ticks);
       write(1, ticks, strlen(ticks));
       write(1, " ", strlen(" "));
-    }
-    if(times > 2)
-    {
-      exit();
+      //itoa(pid, c_pid); 
+      //write(1, "pid", strlen("pid"));
+      //write(1, pid, strlen(pid));
+      if (getpid() != 1) {
+        write(1, "hijo", strlen("hijo"));
+      }
+      write(1, " ", strlen(" "));
     }
 	++counter;
  }
