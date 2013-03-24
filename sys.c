@@ -33,15 +33,6 @@ int check_fd(int fd, int permissions)
   return 0;
 }
 
-/*
-void ret_from_fork(){
-	__asm__ __volatile__(
-		"popl %eax\n\t"
-		"xor %eax,%eax\n\t"
-        "ret"
-	);
-	printc_xy(17, 9, 'K');
-}*/
 
 int sys_ni_syscall()
 {
@@ -122,7 +113,7 @@ printc_xy(15, 9, 'K');
 
 int elem = ((unsigned long *)ebp - &father->stack[0])/sizeof(unsigned long); // Calculate the diference bettwen ebp & esp, necessary for possible values pushed in the stack
 
-child->stack[elem+2] = (unsigned long) (((unsigned long *) child->stack[elem]-&father->stack[0]) + &child->stack[0]);
+//child->stack[elem+2] = (unsigned long) (((unsigned long *) child->stack[elem]-&father->stack[0]) + &child->stack[0]);
 child->stack[elem+1] = &ret_from_fork;
 child->stack[elem+0] = &child->stack[elem];
 
