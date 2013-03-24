@@ -17,6 +17,9 @@
 
 #include <errno.h>
 
+// TODO: ret_from_fork
+#include <entry.h>
+
 #define LECTURA 0
 #define ESCRIPTURA 1
 
@@ -30,13 +33,15 @@ int check_fd(int fd, int permissions)
   return 0;
 }
 
+/*
 void ret_from_fork(){
 	__asm__ __volatile__(
 		"popl %eax\n\t"
-		"xor %eax,%eax"
+		"xor %eax,%eax\n\t"
+        "ret"
 	);
 	printc_xy(17, 9, 'K');
-}
+}*/
 
 int sys_ni_syscall()
 {
@@ -114,11 +119,12 @@ __asm__ __volatile__(
 	:"=g"(ebp));
 
 printc_xy(15, 9, 'K');
-int elem = ((unsigned long*)ebp - &father->stack[0]); // Calculate the diference bettwen ebp & esp, necessary for possible values pushed in the stack
+
+int elem = ((unsigned long *)ebp - &father->stack[0])/sizeof(unsigned long); // Calculate the diference bettwen ebp & esp, necessary for possible values pushed in the stack
 
 child->stack[elem] = (unsigned long) (((unsigned long *) child->stack[elem]-&father->stack[0]) + &child->stack[0]);
-child->stack[elem-1] = &ret_from_fork;
-child->stack[elem-2] = &child->stack[elem];
+child->stack[elem+1] = &ret_from_fork;
+child->stack[elem+0] = &child->stack[elem];
 
 child->task.kernel_esp = &child->stack[elem-2];
 	
