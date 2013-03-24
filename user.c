@@ -52,7 +52,7 @@ int __attribute__ ((__section__(".text.main")))
   else {
 	char c_pid;
 	//itoa(pid,c_pid);
-	msg = "EL FORK NO FUNCIONA, PRINGADOS!!!";
+	msg = "EL FORK NO ESTROPEA AL PADRE, PRINGADOS!!!";
 	write(1,msg,strlen(msg));
 	//write(1,c_pid,strlen(c_pid));
   }
