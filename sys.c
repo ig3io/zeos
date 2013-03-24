@@ -89,7 +89,7 @@ for(i=PAG_LOG_INIT_DATA_P0+NUM_PAG_DATA;i<PAG_LOG_INIT_DATA_P0+2*NUM_PAG_DATA;++
 	//printc_xy(i-FRAME_INIT_CODE_P0-NUM_PAG_DATA,10,'A');
 	set_ss_pag(TP_father,i,frames[i-(PAG_LOG_INIT_DATA_P0+NUM_PAG_DATA)]);
 	//printc_xy(i-FRAME_INIT_CODE_P0-NUM_PAG_DATA,11,'A');
-	copy_data(((i-(NUM_PAG_DATA))*PAGE_SIZE),((i)*PAGE_SIZE),PAGE_SIZE);
+	copy_data((unsigned long *)((i-(NUM_PAG_DATA))*PAGE_SIZE),(unsigned long *)((i)*PAGE_SIZE),PAGE_SIZE);
 	//printc_xy(i-FRAME_INIT_CODE_P0-NUM_PAG_DATA,12,'A');
 	del_ss_pag(TP_father,i);
 	//printc_xy(i-FRAME_INIT_CODE_P0-NUM_PAG_DATA,13,'A');
@@ -114,8 +114,8 @@ printc_xy(15, 9, 'K');
 int elem = ((unsigned long *)ebp - &father->stack[0])/sizeof(unsigned long); // Calculate the diference bettwen ebp & esp, necessary for possible values pushed in the stack
 
 //child->stack[elem+2] = (unsigned long) (((unsigned long *) child->stack[elem]-&father->stack[0]) + &child->stack[0]);
-child->stack[elem+1] = &ret_from_fork;
-child->stack[elem+0] = &child->stack[elem];
+child->stack[elem+1] = (unsigned long)&ret_from_fork;
+child->stack[elem+0] = (unsigned long)&child->stack[elem];
 
 //child->task.kernel_esp = &child->stack[elem];
 child->task.kernel_esp  = (unsigned long *)ebp;

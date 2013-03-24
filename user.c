@@ -4,18 +4,9 @@ char buff[24];
 
 int pid;
 
-int __attribute__ ((__section__(".text.main")))
-  main(void)
+void e1_demo(void)
 {
-    /* Next line, tries to move value 0 to CR3 register. This register is a privileged one, and so it will raise an exception */
-     /* __asm__ __volatile__ ("mov %0, %%cr3"::"r" (0) ); */
 
-  /*char test[3];
-  test[0] = 'A';
-  test[1] = 'B';
-  test[2] = '\0';
-  write(1, test, 3);*/
-  //int counter =0;
   char *msg = "Hi! Welcome User!\n";
   int res = 0;
   write(1, msg, strlen(msg));
@@ -36,43 +27,61 @@ int __attribute__ ((__section__(".text.main")))
 
   char ticks[5] = {[0 ... 3] = ' ', [4] = '\n'};
   itoa(gettime(), ticks);
-  long counter = 0;
-  int times = 0;
-  ///////PRUEBAS DE FORK///////////////
-  int pid = fork();
-  write(1, msg, strlen(msg));
-  if(pid == 0){
-	write(1, msg, strlen(msg));
-	char c_pid;
-	//itoa(getpid(),c_pid);
-	 msg = "HOLA SOY EL PUTO HIJO Y MI PID ES";
-	write(1,msg,strlen(msg));
-	//write(1,c_pid,strlen(c_pid));
-  }
-  else {
-	char c_pid;
-	//itoa(pid,c_pid);
-	msg = "EL FORK NO ESTROPEA AL PADRE, PRINGADOS!!!";
-	write(1,msg,strlen(msg));
-	//write(1,c_pid,strlen(c_pid));
-  }
-  char c_pid[1];
+
+  int counter = 0;
   while(1) {
-	if(counter > 10000000)
+    if(counter > 10000000)
     {
-      times++;
       counter = 0;
       itoa(gettime(), ticks);
       write(1, ticks, strlen(ticks));
       write(1, " ", strlen(" "));
-      //itoa(pid, c_pid); 
-      //write(1, "pid", strlen("pid"));
-      //write(1, pid, strlen(pid));
+    }
+    ++counter;
+  }
+}
+
+void exit_demo(void)
+{
+  // TODO
+}
+
+void fork_demo(void)
+{
+  char *msg;
+  int pid = fork();
+  if(pid == 0){
+    msg = "HOLA SOY EL PUTO HIJO Y MI PID ES";
+    write(1, msg, strlen(msg));
+  }
+  else {
+    msg = "EL FORK NO ESTROPEA AL PADRE, PRINGADOS!!!";
+    write(1, msg, strlen(msg));
+  }
+  
+  int counter = 0;
+  int times = 0;
+  while(1) {
+	if(counter > 10000000)
+    {
+      counter = 0;
+      times++;
+      counter = 0;
+      char c_times[1];
+      itoa(times, c_times);
+      write(1, c_times, strlen(c_times));
       if (getpid() != 1) {
-        write(1, "hijo", strlen("hijo"));
-      }
+        write(1, "h", strlen("h"));
+      } 
       write(1, " ", strlen(" "));
     }
 	++counter;
  }
+}
+
+int __attribute__ ((__section__(".text.main")))
+  main(void)
+{
+  // e1_demo();
+  fork_demo();
 }

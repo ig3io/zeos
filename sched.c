@@ -72,10 +72,10 @@ void init_idle (void)
 
   unsigned long *idle_stack = ((union task_union *)idle_task)->stack;
 
-  idle_stack[KERNEL_STACK_SIZE - 1] = (unsigned int *)&cpu_idle;
-  idle_stack[KERNEL_STACK_SIZE - 2] = 0;  // Dummy value
+  idle_stack[KERNEL_STACK_SIZE - 1] = (unsigned long)&cpu_idle;
+  idle_stack[KERNEL_STACK_SIZE - 2] = (unsigned long)0;  // Dummy value
 
-  idle_task->kernel_esp = (unsigned int *)&idle_stack[KERNEL_STACK_SIZE - 2];
+  idle_task->kernel_esp = (unsigned long *)&idle_stack[KERNEL_STACK_SIZE - 2];
 }
 
 void init_task1(void)
@@ -102,7 +102,7 @@ void inner_task_switch(union task_union *new)
 {
   page_table_entry * new_proc_pages = get_DIR(&new->task);
 
-  tss.esp0= &(new->stack[KERNEL_STACK_SIZE]);
+  tss.esp0= (unsigned long)&(new->stack[KERNEL_STACK_SIZE]);
   set_cr3(new_proc_pages);
 
   printc_xy(16,10,'S');
