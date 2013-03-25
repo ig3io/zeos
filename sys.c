@@ -103,26 +103,31 @@ child->task.quantum = QUANTUM;
 child->task.state = ST_READY;
 ///////////////////////////////////////////////
 
-unsigned long ebp;
+int ebp;
+int hijo = &child->stack[0];
+int padre = &father->stack[0];
 
 __asm__ __volatile__(
-	"mov %%ebp,%0"
-	:"=g"(ebp));
+	"mov %%ebp,%0\n\t"
+	"mov %1,%%ecx\n\t"
+	"mov %2,%%edx\n\t"
+	:"=g"(ebp)
+	:"r" (hijo), "r" (padre));
 
 printc_xy(15, 9, 'K');
 
-int elem = ((unsigned long *)ebp - &father->stack[0])/sizeof(unsigned long); // Calculate the diference bettwen ebp & esp, necessary for possible values pushed in the stack
+int des = ebp - (int)&father->stack[0]; // Calculate the diference bettwen ebp & esp, necessary for possible values pushed in the stack
 
-//child->stack[elem+2] = (unsigned long) (((unsigned long *) child->stack[elem]-&father->stack[0]) + &child->stack[0]);
-child->stack[elem+1] = (unsigned long)&ret_from_fork;
-child->stack[elem+0] = (unsigned long)&child->stack[elem];
+child->stack[des] = ((int)child->stack[des] - (int)&father->stack[0]) + (int)&child->stack[0];
+child->stack[des-1] = (unsigned long)&ret_from_fork;
+child->stack[des-2] = (unsigned long)&child->stack[des];
+
 
 //child->task.kernel_esp = &child->stack[elem];
 child->task.kernel_esp  = (unsigned long *)ebp;
 	
 PID = child->task.PID;
 list_add_tail(&child->task.list,&readyqueue);
-printc_xy(16, 9, 'K');
   return PID;
 }
 
