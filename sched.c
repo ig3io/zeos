@@ -110,6 +110,7 @@ void inner_task_switch(union task_union *new)
 
 
   __asm__ __volatile__ (
+	"nop\n\t"
       "movl %%ebp, (%0)\n\t"
       "movl %1, %%esp\n\t"
       "popl %%ebp\n\t"

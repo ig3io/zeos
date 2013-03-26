@@ -74,9 +74,9 @@ int sys_fork()
 /////////////////////////////////////////////////////////////////////
 page_table_entry* TP_child = get_PT(&child->task);
 page_table_entry* TP_father = get_PT(&father->task);
-copy_data(father, child, sizeof(struct task_struct));
+copy_data(father, child, sizeof(union task_union));
 
-//int child_dir = allocate_DIR(child);//I'm not sure what I'm doing here?¿!?!?¿!?
+// allocate_DIR(child->task);//I'm not sure what I'm doing here?¿!?!?¿!?
 
 
 for(i=PAG_LOG_INIT_CODE_P0;i<PAG_LOG_INIT_DATA_P0;++i) //Copy the Code Pages to child proces
@@ -103,7 +103,7 @@ child->task.quantum = QUANTUM;
 child->task.state = ST_READY;
 ///////////////////////////////////////////////
 
-int ebp;
+unsigned long *ebp;
 int hijo = &child->stack[0];
 int padre = &father->stack[0];
 
@@ -116,15 +116,26 @@ __asm__ __volatile__(
 
 printc_xy(15, 9, 'K');
 
-int des = ebp - (int)&father->stack[0]; // Calculate the diference bettwen ebp & esp, necessary for possible values pushed in the stack
+int des = (unsigned long*)ebp - &father->stack[0]; // Calculate the diference bettwen ebp & esp, necessary for possible values pushed in the stack
+
+__asm__ __volatile__(
+	"mov %0,%%esi"
+	:
+	:"r"(des));
+
 
 child->stack[des] = ((int)child->stack[des] - (int)&father->stack[0]) + (int)&child->stack[0];
 child->stack[des-1] = (unsigned long)&ret_from_fork;
 child->stack[des-2] = (unsigned long)&child->stack[des];
 
+__asm__ __volatile__(
+	"nop"
+	:
+	:);
 
-//child->task.kernel_esp = &child->stack[elem];
-child->task.kernel_esp  = (unsigned long *)ebp;
+
+child->task.kernel_esp = &child->stack[des-2];
+//child->task.kernel_esp  = (unsigned long *)ebp;
 	
 PID = child->task.PID;
 list_add_tail(&child->task.list,&readyqueue);
