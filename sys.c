@@ -206,5 +206,26 @@ int sys_gettime(){
 
 int sys_get_stats(int pid, struct stats * st)
 {
+  struct task_struct * target = NULL;
+  struct list_head * it;
+  // Only readyqueue is of interest right now
+  list_for_each(it, &readyqueue)
+  {
+    struct task_struct * it_task = list_head_to_task_struct(it);
+    if (it_task->PID == pid)
+    {
+      target = it_task;
+    }
+  }
+  // TODO some error code to return?
+  if (target == NULL)
+  { 
+    return -1;
+  }
+
+  if (copy_to_user(&target->stats, st, sizeof(struct stats) < 0))
+  {
+    return -1; 
+  }
   return 0;
 }
