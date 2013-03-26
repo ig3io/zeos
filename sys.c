@@ -56,10 +56,6 @@ int sys_getpid()
 
 int sys_fork()
 {
-	printc_xy(7, 9, 'F');
-	printc_xy(8, 9, 'O');
-	printc_xy(9, 9, 'R');
-	printc_xy(10, 9, 'K');
 	
   int PID=-1;
 
@@ -76,8 +72,8 @@ int sys_fork()
   for (i=0;i<NUM_PAG_DATA;++i){
 	frames[i] = alloc_frame();
 	if(frames[i]==-1){
-		while(i >=0) free_frame(frames[i--]);//FRAMES LIBERATION! like blacksXD
-		 /* return not memory space error*/
+		while(i >=0) free_frame(frames[i--]);
+		 return -ENOMEM;
 	}
   }
 
@@ -86,7 +82,7 @@ page_table_entry* TP_child = get_PT(&child->task);
 page_table_entry* TP_father = get_PT(&father->task);
 copy_data(father, child, sizeof(union task_union));
 
- allocate_DIR(&(child->task));//I'm not sure what I'm doing here?¿!?!?¿!?
+allocate_DIR(&(child->task));//I'm not sure what I'm doing here?¿!?!?¿!?
 
 
 for(i=PAG_LOG_INIT_CODE_P0;i<PAG_LOG_INIT_DATA_P0;i++) //Copy the Code Pages to child proces
@@ -151,12 +147,11 @@ list_add_tail(&child->task.list,&readyqueue);
 
 void sys_exit()
 {
-  // TODOt
-  // free frames...
-  printc_xy(2, 4, 'E');
-  printc_xy(3, 4, 'x');
+  int i;
   free_user_pages(current());
-  sched_exit_rr();
+  for(i = PAG_LOG_INIT_CODE_P0; i<PAG_LOG_INIT_DATA_P0; ++i) del_ss_pag(get_PT(current()),i);
+  update_current_state_rr(&freequeue);
+  sched_next_rr();
 }
 
 int sys_write(int fd, char * buffer, int size)

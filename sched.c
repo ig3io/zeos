@@ -211,7 +211,7 @@ void update_current_state_rr(struct list_head *dest)
 
 // Same as sched_next_rr, but it assumes the current process will not be
 // returned to (it goes to freequeue, no readyqueue)
-void sched_exit_rr(void)
+/*void sched_exit_rr(void)
 {
   struct task_struct * next;
 
@@ -244,18 +244,31 @@ void sched_exit_rr(void)
     task_switch((union task_union *)next);
     printc_xy(0, 0, 'F');
   }
-}
+}*/
 
 void sched_next_rr(void)
 {
 
   // Quantum to default value
   current()->quantum = QUANTUM;
-  
+  int state = current()-> state;
+
+	switch (state){
+			case ST_ZOMBIE:
+					list_add_tail(&current()->list,&freequeue);
+					break;
+			case ST_READY:
+					list_add_tail(&current()->list,&readyqueue);
+					break;
+			case ST_BLOCKED:
+					//In this case, what it do??
+					break;
+			default:
+					break;
+	}
+
   struct task_struct * next;
 
-
-  update_current_state_rr(&readyqueue);
  
   // Unless you've called exit(), the current process will always
   // have the option to continue execution 
