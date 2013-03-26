@@ -22,6 +22,8 @@ int fork();
 
 void exit();
 
+int get_stats(int pid, struct stats * st);
+
 int perror(char * msg);
 
 #endif  /* __LIBC_H__ */

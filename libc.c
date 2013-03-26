@@ -154,3 +154,21 @@ void exit(void)
     : "a" (0x01)
   );
 }
+
+int get_stats(int pid, struct stats * st)
+{
+  int rvalue = 0;
+
+  __asm__ __volatile__ (
+    "int $0x80\n\t"
+    : "=a" (rvalue)
+    : "b" (pid), "c" (st), "a" (0x35)
+  );
+
+  if (rvalue < 0)
+  {
+    errno = rvalue * -1;
+    rvalue = -1;
+  }
+  return rvalue;
+}
