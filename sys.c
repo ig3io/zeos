@@ -26,6 +26,7 @@
 
 #define WRITE_BUFFER_SIZE 4
 
+
 int check_fd(int fd, int permissions)
 {
   if (fd!=1) return -EBADF; /*EBADF*/

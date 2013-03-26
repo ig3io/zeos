@@ -98,6 +98,8 @@ ENTRY(system_call_handler)
       iret
 
 ENTRY(ret_from_fork)
+    pop %ebp
+    pop %ebp
     RESTORE_ALL
     movl $0x00, %eax
     iret

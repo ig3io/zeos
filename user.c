@@ -71,7 +71,7 @@ void fork_demo(void)
       itoa(times, c_times);
       write(1, c_times, strlen(c_times));
       if (getpid() != 1) {
-        write(1, "h", strlen("h"));
+        //write(1, "h", strlen("h"));
       } 
       write(1, " ", strlen(" "));
     }
