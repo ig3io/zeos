@@ -58,6 +58,8 @@ page_table_entry * get_PT (struct task_struct *t) ;
 
 page_table_entry * get_DIR (struct task_struct *t) ;
 
+int allocate_DIR(struct task_struct *t);
+
 /* Headers for the scheduling policy */
 void sched_next_rr();
 void sched_exit_rr();
