@@ -77,14 +77,8 @@ void init_idle (void)
   idle_stack[KERNEL_STACK_SIZE - 2] = (unsigned long)0;  // Dummy value
 
   idle_task->kernel_esp = (unsigned long *)&idle_stack[KERNEL_STACK_SIZE - 2];
-  
-  idle_task->stats.user_ticks = 0;
-  idle_task->stats.system_ticks = 0;
-  idle_task->stats.blocked_ticks = 0;
-  idle_task->stats.ready_ticks = 0;
-  idle_task->stats.elapsed_total_ticks = get_ticks();
-  idle_task->stats.total_trans = 0;
-  idle_task->stats.remaining_ticks = 0;
+
+  stats_init(&idle_task->stats);
 }
 
 void init_task1(void)
@@ -105,13 +99,7 @@ void init_task1(void)
   set_cr3(get_DIR(task1_pcb));
 
   // TODO statistics
-  task1_pcb->stats.user_ticks = 0;
-  task1_pcb->stats.system_ticks = 0;
-  task1_pcb->stats.blocked_ticks = 0;
-  task1_pcb->stats.ready_ticks = 0;
-  task1_pcb->stats.elapsed_total_ticks = get_ticks();
-  task1_pcb->stats.total_trans = 0;
-  task1_pcb->stats.remaining_ticks = 0;
+  stats_init(&task1_pcb->stats);
 }
 
 void inner_task_switch(union task_union *new)
