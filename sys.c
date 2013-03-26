@@ -203,3 +203,8 @@ int sys_write(int fd, char * buffer, int size)
 int sys_gettime(){
 	return zeos_ticks;
 }
+
+int sys_get_stats(int pid, struct stats * st)
+{
+  return 0;
+}
