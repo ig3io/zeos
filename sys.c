@@ -17,8 +17,6 @@
 
 #include <errno.h>
 
-// TODO: ret_from_fork
-#include <entry.h>
 
 #define LECTURA 0
 #define ESCRIPTURA 1
