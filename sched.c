@@ -76,6 +76,14 @@ void init_idle (void)
   idle_stack[KERNEL_STACK_SIZE - 2] = (unsigned long)0;  // Dummy value
 
   idle_task->kernel_esp = (unsigned long *)&idle_stack[KERNEL_STACK_SIZE - 2];
+  
+  idle_task->stats.user_ticks = 0;
+  idle_task->stats.system_ticks = 0;
+  idle_task->stats.blocked_ticks = 0;
+  idle_task->stats.ready_ticks = 0;
+  idle_task->stats.elapsed_total_ticks = 0;
+  idle_task->stats.total_trans = 0;
+  idle_task->stats.remaining_ticks = 0;
 }
 
 void init_task1(void)
@@ -96,6 +104,13 @@ void init_task1(void)
   set_cr3(get_DIR(task1_pcb));
 
   // TODO statistics
+  task1_pcb->stats.user_ticks = 0;
+  task1_pcb->stats.system_ticks = 0;
+  task1_pcb->stats.blocked_ticks = 0;
+  task1_pcb->stats.ready_ticks = 0;
+  task1_pcb->stats.elapsed_total_ticks = 0;
+  task1_pcb->stats.total_trans = 0;
+  task1_pcb->stats.remaining_ticks = 0;
 }
 
 void inner_task_switch(union task_union *new)
@@ -168,6 +183,23 @@ int update_sched_data_rr(void)
 {
   current()->quantum--;
   
+  // Enclosing function is called at each clock interrupt.
+  // Thus only triggered while on user time
+  current()->stats.user_ticks++;
+  // current()->stats.system_ticks++;
+  current()->stats.elapsed_total_ticks++;
+  current()->stats.remaining_ticks = current()->quantum;
+ 
+  struct list_head * it_ready;
+  list_for_each(it_ready, &readyqueue)
+  {
+    struct task_struct * task_ready = list_head_to_task_struct(it_ready);
+    if (task_ready != current()) {
+      task_ready->stats.system_ticks++;
+      task_ready->stats.ready_ticks++;
+    }
+  }
+
   printc_xy(0, 9, 'Q');
   printc_xy(1, 9, ':');
   printc_xy(2, 9, (current()->quantum/100) + 48);
