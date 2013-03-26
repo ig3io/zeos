@@ -176,6 +176,7 @@ void update_sched_data_rr(void)
   current()->stats.user_ticks = get_ticks() - current()->stats.elapsed_total_ticks;
   current()->stats.remaining_ticks = current()->quantum;
  
+  /*
   struct list_head * it_ready;
   list_for_each(it_ready, &readyqueue)
   {
@@ -184,7 +185,7 @@ void update_sched_data_rr(void)
     if (task_ready != current()) {
       stats_ready.ready_ticks = get_ticks() - stats_ready.elapsed_total_ticks;
     }
-  }
+  }*/
 
   // There are no more queues of interest, right now
 
