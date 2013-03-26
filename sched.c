@@ -200,6 +200,8 @@ int update_sched_data_rr(void)
     }
   }
 
+  // There are no more queues of interest, right now
+
   printc_xy(0, 9, 'Q');
   printc_xy(1, 9, ':');
   printc_xy(2, 9, (current()->quantum/100) + 48);
