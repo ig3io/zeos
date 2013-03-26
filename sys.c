@@ -26,6 +26,15 @@
 
 #define WRITE_BUFFER_SIZE 4
 
+void ret_from_fork(){
+	__asm__ __volatile__(
+		"popl %%eax\n"
+		"xor %%eax,%%eax\n"
+		:
+		:
+		:"ax");
+}
+		
 
 int check_fd(int fd, int permissions)
 {
@@ -77,26 +86,27 @@ page_table_entry* TP_child = get_PT(&child->task);
 page_table_entry* TP_father = get_PT(&father->task);
 copy_data(father, child, sizeof(union task_union));
 
-// allocate_DIR(child->task);//I'm not sure what I'm doing here?¿!?!?¿!?
+ allocate_DIR(&(child->task));//I'm not sure what I'm doing here?¿!?!?¿!?
 
 
-for(i=PAG_LOG_INIT_CODE_P0;i<PAG_LOG_INIT_DATA_P0;++i) //Copy the Code Pages to child proces
+for(i=PAG_LOG_INIT_CODE_P0;i<PAG_LOG_INIT_DATA_P0;i++) //Copy the Code Pages to child proces
 	set_ss_pag(TP_child,i,get_frame(TP_father,i));
 
-for(i=PAG_LOG_INIT_DATA_P0;i<PAG_LOG_INIT_DATA_P0+NUM_PAG_DATA;++i)//Create new Data+Stack Pages to child proces
-	set_ss_pag(TP_child,i,frames[i-PAG_LOG_INIT_CODE_P0]);
 
-for(i=PAG_LOG_INIT_DATA_P0+NUM_PAG_DATA;i<PAG_LOG_INIT_DATA_P0+2*NUM_PAG_DATA;++i){//Mapping the data+stack pages of child
-	//printc_xy(i-FRAME_INIT_CODE_P0-NUM_PAG_DATA,10,'A');
+for(i=PAG_LOG_INIT_DATA_P0+NUM_PAG_DATA;i<PAG_LOG_INIT_DATA_P0+2*NUM_PAG_DATA;i++){//Mapping the data+stack pages of child
+
 	set_ss_pag(TP_father,i,frames[i-(PAG_LOG_INIT_DATA_P0+NUM_PAG_DATA)]);
-	//printc_xy(i-FRAME_INIT_CODE_P0-NUM_PAG_DATA,11,'A');
-	copy_data((unsigned long *)((i-(NUM_PAG_DATA))*PAGE_SIZE),(unsigned long *)((i)*PAGE_SIZE),PAGE_SIZE);
-	//printc_xy(i-FRAME_INIT_CODE_P0-NUM_PAG_DATA,12,'A');
+
+	copy_data((void *)((i-(NUM_PAG_DATA))*PAGE_SIZE),(void *)((i)*PAGE_SIZE),PAGE_SIZE);
+
 	del_ss_pag(TP_father,i);
-	//printc_xy(i-FRAME_INIT_CODE_P0-NUM_PAG_DATA,13,'A');
 }
-printc_xy(14, 9, 'K');
-set_cr3(get_DIR(&father->task)); //FLUSH TLB
+
+for(i=PAG_LOG_INIT_DATA_P0;i<PAG_LOG_INIT_DATA_P0+NUM_PAG_DATA;i++)//Create new Data+Stack Pages to child proces
+	set_ss_pag(TP_child,i,frames[i-PAG_LOG_INIT_DATA_P0]);
+
+
+set_cr3(get_DIR(current())); //FLUSH TLB
 
 ////////////////STATISTICS//////////////////////
 child->task.PID = current()->PID+1;
@@ -104,18 +114,15 @@ child->task.quantum = QUANTUM;
 child->task.state = ST_READY;
 ///////////////////////////////////////////////
 
-unsigned long *ebp;
-int hijo = &child->stack[0];
-int padre = &father->stack[0];
+int ebp;
+
 
 __asm__ __volatile__(
 	"mov %%ebp,%0\n\t"
-	"mov %1,%%ecx\n\t"
-	"mov %2,%%edx\n\t"
 	:"=g"(ebp)
-	:"r" (hijo), "r" (padre));
+	:
+	:"memory");
 
-printc_xy(15, 9, 'K');
 
 int des = (unsigned long*)ebp - &father->stack[0]; // Calculate the diference bettwen ebp & esp, necessary for possible values pushed in the stack
 
@@ -136,7 +143,6 @@ __asm__ __volatile__(
 
 
 child->task.kernel_esp = &child->stack[des-2];
-//child->task.kernel_esp  = (unsigned long *)ebp;
 	
 PID = child->task.PID;
 list_add_tail(&child->task.list,&readyqueue);

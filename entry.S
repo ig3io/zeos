@@ -97,9 +97,9 @@ ENTRY(system_call_handler)
       RESTORE_ALL
       iret
 
-ENTRY(ret_from_fork)
-    pop %ebp
-    pop %ebp
-    RESTORE_ALL
-    movl $0x00, %eax
-    iret
+//ENTRY(ret_from_fork)
+   // pop %ebp
+    //pop %ebp
+    //RESTORE_ALL
+    //movl $0x00, %eax
+    //iret

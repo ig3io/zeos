@@ -102,23 +102,20 @@ void inner_task_switch(union task_union *new)
 {
   page_table_entry * new_proc_pages = get_DIR(&new->task);
 
+	__asm__ __volatile__(
+				"movl %%ebp,%0"
+				:"=r"(current()->kernel_esp) : : "memory");	
+
   tss.esp0= (unsigned long)&(new->stack[KERNEL_STACK_SIZE]);
-  set_cr3(new_proc_pages);
-
-  printc_xy(16,10,'S');
-  struct task_struct * current_proc = current();
-
+  if(new->task.dir_pages_baseAddr != current()-> dir_pages_baseAddr)set_cr3(new_proc_pages);
 
   __asm__ __volatile__ (
-	"nop\n\t"
-      "movl %%ebp, (%0)\n\t"
-      "movl %1, %%esp\n\t"
+      "movl %0, %%esp\n\t"
       "popl %%ebp\n\t"
       "ret\n\t"
       : /* no output */
-      :"r" (&current_proc->kernel_esp), "r" (new->task.kernel_esp)
+      :"r" (new->task.kernel_esp) : "memory"
       );
-printc_xy(17,10,'S');
 }
 
 void task_switch(union task_union *new)
