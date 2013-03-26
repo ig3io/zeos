@@ -183,12 +183,9 @@ struct task_struct* current()
 int update_sched_data_rr(void)
 {
   current()->quantum--;
-  
-  // Enclosing function is called at each clock interrupt.
-  // Thus only triggered while on user time
+  // Enclosing function is called at each clock interrupt (while executing
+  // user code)
   current()->stats.user_ticks = get_ticks() - current()->stats.elapsed_total_ticks;
-  // current()->stats.system_ticks++;
-  //current()->stats.elapsed_total_ticks++;
   current()->stats.remaining_ticks = current()->quantum;
  
   struct list_head * it_ready;
@@ -251,6 +248,8 @@ void update_current_state_rr(struct list_head *dest)
   struct task_struct * next;
 
   update_current_state_rr(&freequeue);
+
+
 
   if (list_empty(&readyqueue))
   {
