@@ -180,7 +180,7 @@ struct task_struct* current()
 }
 
 
-int update_sched_data_rr(void)
+void update_sched_data_rr(void)
 {
   current()->quantum--;
   // Enclosing function is called at each clock interrupt (while executing
