@@ -5,7 +5,8 @@
 #include <sched.h>
 #include <mm.h>
 #include <io.h>
-#include<list.h>
+#include <list.h>
+#include <utils.h>
 
 union task_union task[NR_TASKS]
 __attribute__((__section__(".data.task")));
@@ -185,18 +186,18 @@ int update_sched_data_rr(void)
   
   // Enclosing function is called at each clock interrupt.
   // Thus only triggered while on user time
-  current()->stats.user_ticks++;
+  current()->stats.user_ticks = get_ticks() - current()->stats.elapsed_total_ticks;
   // current()->stats.system_ticks++;
-  current()->stats.elapsed_total_ticks++;
+  //current()->stats.elapsed_total_ticks++;
   current()->stats.remaining_ticks = current()->quantum;
  
   struct list_head * it_ready;
   list_for_each(it_ready, &readyqueue)
   {
     struct task_struct * task_ready = list_head_to_task_struct(it_ready);
+    struct stats stats_ready = task_ready->stats;
     if (task_ready != current()) {
-      task_ready->stats.system_ticks++;
-      task_ready->stats.ready_ticks++;
+      stats_ready.ready_ticks = get_ticks() - stats_ready.elapsed_total_ticks;
     }
   }
 
