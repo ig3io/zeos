@@ -228,7 +228,6 @@ void sched_next_rr(void)
   {
     next = idle_task;
   }
-
   else
   {
     struct list_head * next_list_elem;
