@@ -29,8 +29,6 @@ int New_pid=1;
 int assign_pid(){
 	return ++New_pid;
 }
-	
-	
 
 void ret_from_fork(){
 	__asm__ __volatile__(
