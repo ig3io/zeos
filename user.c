@@ -109,24 +109,28 @@ void stats_basic_demo(void)
   {
     if (counter > 10000000)
     {
+      char st_trans[4];
       if (pid == 0)
       {
-        msg = "pare - ";
+        msg = "\npare - ";
       }
       else
       {
-        msg = "fill - ";
+        msg = "\nfill - ";
       }
       write(1, msg, strlen(msg));
       
       struct stats st;
       if (get_stats(pid, &st) < 0)
       {
-        msg = "problema amb get_stats\n"; 
+        msg = "problema amb get_stats"; 
       }
       else
       {
-        msg = "get_stats amb exit\n";
+        msg = "get_stats amb exit - trans: ";
+        write(1, msg, strlen(msg));
+        itoa(st.total_trans, st_trans);
+        msg = st_trans;
       }
       write(1, msg, strlen(msg));
       counter = 0;
