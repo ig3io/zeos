@@ -50,16 +50,22 @@ int check_fd(int fd, int permissions)
 
 int sys_ni_syscall()
 {
+  stats_current_user_to_system();
+  stats_current_system_to_user();
   return -ENOSYS; /*ENOSYS*/
 }
 
 int sys_getpid()
 {
+  stats_current_user_to_system();
+  stats_current_system_to_user();
   return current()->PID;
 }
 
 int sys_fork()
 {
+  stats_current_user_to_system();
+
   int PID=-1;
 
   struct list_head *free_pcb = list_first(&freequeue);// take the first free PCB
@@ -146,32 +152,40 @@ int sys_fork()
   PID = child->task.PID;
   list_add_tail(&child->task.list,&readyqueue);
 
+  stats_current_system_to_user();
   return PID;
 }
 
 void sys_exit()
 {
+  stats_current_user_to_system();
   int i;
   free_user_pages(current());
   for(i = PAG_LOG_INIT_CODE_P0; i<PAG_LOG_INIT_DATA_P0; ++i) del_ss_pag(get_PT(current()),i);
   update_current_state_rr(&freequeue);
   sched_next_rr();
+  stats_current_system_to_user();
 }
 
 int sys_write(int fd, char * buffer, int size)
 {
+  stats_current_user_to_system();
+
   int ch_fd = check_fd(fd, ESCRIPTURA);
 
   if (ch_fd < 0)
   {
+    stats_current_system_to_user();
   	return ch_fd;
   }
   if (buffer == NULL)
   {
+    stats_current_system_to_user();
     return -EINVAL;
   }
   if (size < 0)
   {
+    stats_current_system_to_user();
     return -EINVAL;
   }
   // copy data..
@@ -185,6 +199,7 @@ int sys_write(int fd, char * buffer, int size)
     sys_write_console(buffer_kernel, WRITE_BUFFER_SIZE);
     if (res_cp < 0)
     {
+      stats_current_system_to_user();
       return res_cp;
     }
     pending -= sizeof(char) * WRITE_BUFFER_SIZE;
@@ -202,15 +217,20 @@ int sys_write(int fd, char * buffer, int size)
     res = done;
   }
 
+  stats_current_system_to_user();
   return res;
 }
 
 int sys_gettime(){
-    return zeos_ticks;
+  stats_current_user_to_system();
+  stats_current_system_to_user();
+  return zeos_ticks;
 }
 
 int sys_get_stats(int pid, struct stats * st)
 {
+  stats_current_user_to_system();
+
   struct task_struct * target = NULL;
   struct list_head * it;
   // Only readyqueue is of interest right now
@@ -224,13 +244,17 @@ int sys_get_stats(int pid, struct stats * st)
   }
   // TODO some error code to return?
   if (target == NULL)
-  { 
+  {
+    stats_current_system_to_user(); 
     return -1;
   }
 
   if (copy_to_user(&target->stats, st, sizeof(struct stats) < 0))
   {
+    stats_current_system_to_user();
     return -1; 
   }
+
+  stats_current_system_to_user();
   return 0;
 }
