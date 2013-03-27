@@ -251,7 +251,7 @@ int sys_get_stats(int pid, struct stats * st)
     return -1;
   }
 
-  if (copy_to_user(&target->stats, st, sizeof(struct stats) < 0))
+  if (copy_to_user(&target->stats, st, sizeof(struct stats)) < 0)
   {
     stats_current_system_to_user();
     return -1; 
