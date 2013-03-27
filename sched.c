@@ -195,14 +195,22 @@ int needs_sched_rr(void)
 void update_current_state_rr(struct list_head *dest)
 {
 
-  if (dest == &freequeue) current()->state = ST_ZOMBIE;
-
-  else if (dest == &readyqueue) current()->state = ST_READY;
-
-  else current()->state = ST_BLOCKED;
+  if (dest == &freequeue)
+  {
+    current()->state = ST_ZOMBIE;
+  }
+  else if (dest == &readyqueue)
+  {
+    current()->state = ST_READY;
+  }
+  else
+  {
+    current()->state = ST_BLOCKED;
+  }
 
   /*PUT THE PROCES IN THE QUEUE THAT IT CORRESPOND*/
-  if (current() != idle_task) {
+  if (current() != idle_task)
+  {
     list_del(&current()->list);
     list_add_tail(&current()->list, dest);
   }
@@ -236,5 +244,12 @@ void sched_next_rr(void)
   printc_xy(1, 11, ':');
   printc_xy(2, 11, next->PID + 48);
 
-  if (next != current()) task_switch((union task_union *)next);
+  if (next != current())
+  {
+    // Stats updating
+    stats_update_ready_to_system(&next->stats);
+    stats_update_system_to_ready(&current()->stats);
+
+    task_switch((union task_union *)next);
+  }
 }
