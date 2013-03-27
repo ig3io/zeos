@@ -167,34 +167,19 @@ struct task_struct* current()
   return (struct task_struct*)(ret_value&0xfffff000);
 }
 
-
-void update_sched_data_rr(void)
+void print_current_quantum()
 {
-  current()->quantum--;
-  // Enclosing function is called at each clock interrupt (while executing
-  // user code)
-  current()->stats.user_ticks = get_ticks() - current()->stats.elapsed_total_ticks;
-  current()->stats.remaining_ticks = current()->quantum;
- 
-  /*
-  struct list_head * it_ready;
-  list_for_each(it_ready, &readyqueue)
-  {
-    struct task_struct * task_ready = list_head_to_task_struct(it_ready);
-    struct stats stats_ready = task_ready->stats;
-    if (task_ready != current()) {
-      stats_ready.ready_ticks = get_ticks() - stats_ready.elapsed_total_ticks;
-    }
-  }*/
-
-  // There are no more queues of interest, right now
-
   printc_xy(0, 9, 'Q');
   printc_xy(1, 9, ':');
   printc_xy(2, 9, (current()->quantum/100) + 48);
   printc_xy(3, 9, (current()->quantum%100)/10 + 48);
   printc_xy(4, 9, (current()->quantum%10)/100 + 48);
+}
 
+void update_sched_data_rr(void)
+{
+  current()->quantum--;
+  print_current_quantum();
 } 
 
 int needs_sched_rr(void)
@@ -225,13 +210,16 @@ void update_current_state_rr(struct list_head *dest)
 
 void sched_next_rr(void)
 {
-
   // Quantum to default value
   current()->quantum = QUANTUM;
 
   struct task_struct * next;
-
-  if (list_empty(&readyqueue)) next = idle_task;//Check if we have proces in the readyqueue
+  
+  //Check if we have proces in the readyqueue
+  if (list_empty(&readyqueue))
+  {
+    next = idle_task;
+  }
 
   else
   {
