@@ -248,13 +248,13 @@ int sys_get_stats(int pid, struct stats * st)
   if (target == NULL)
   {
     stats_current_system_to_user(); 
-    return -1;
+    return -ESRCH;
   }
 
   if (copy_to_user(&target->stats, st, sizeof(struct stats)) < 0)
   {
     stats_current_system_to_user();
-    return -1; 
+    return -EFAULT;
   }
 
   stats_current_system_to_user();
