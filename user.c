@@ -43,7 +43,16 @@ void e1_demo(void)
 
 void exit_demo(void)
 {
-  // TODO
+  	char *msg;
+	char pid[1];
+	msg = "SOY EL HIJO ";
+	write(1, msg, strlen(msg));
+	itoa(getpid(),pid);
+	write(1,pid,1);
+	msg = " Y ME VOY A SUCIDAR, ADIOOOOS\n";
+	write(1,msg,strlen(msg));
+	exit();
+	
 }
 
 void fork_demo(void)
@@ -51,11 +60,11 @@ void fork_demo(void)
   char *msg;
   int pid = fork();
   if(pid == 0){
-    msg = "HOLA SOY EL PUTO HIJO Y MI PID ES";
+    msg = "HOLA SOY EL HIJO\n";
     write(1, msg, strlen(msg));
   }
   else {
-    msg = "EL FORK NO ESTROPEA AL PADRE, PRINGADOS!!!";
+    msg = "HOLA SOY EL PADRE\n";
     write(1, msg, strlen(msg));
   }
   
@@ -72,7 +81,9 @@ void fork_demo(void)
       write(1, c_times, strlen(c_times));
       if (getpid() != 1) {
         write(1, "h", strlen("h"));
+	if(times%15==0) exit_demo();
       } 
+      if(getpid()==1 && times%25==0) fork();
       write(1, " ", strlen(" "));
     }
 	++counter;
