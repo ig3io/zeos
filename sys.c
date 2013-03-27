@@ -238,7 +238,7 @@ int sys_get_stats(int pid, struct stats * st)
   list_for_each(it, &readyqueue)
   {
     struct task_struct * it_task = list_head_to_task_struct(it);
-    if (it_task->PID == pid && it_task->state == ST_READY)
+    if (it_task->PID) // == pid && (it_task->state == ST_READY || it_task->state == ST_RUN))
     {
       target = it_task;
     }
