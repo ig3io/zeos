@@ -107,7 +107,7 @@ void stats_basic_demo(void)
   int counter = 0;
   while(1)
   {
-    if (counter > 60000000)
+    if (counter > 10000000)
     {
       if (pid == 0)
       {
