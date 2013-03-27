@@ -144,7 +144,7 @@ int __attribute__ ((__section__(".text.main")))
   main(void)
 {
   // e1_demo();
-  //fork_demo();
-  stats_basic_demo();
+  fork_demo();
+  //stats_basic_demo();
   return 0;
 }
