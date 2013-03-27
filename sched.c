@@ -298,6 +298,7 @@ void stats_update_ready_to_system(struct stats * st)
 {
   st->ready_ticks += get_ticks() - st->elapsed_total_ticks;
   st->elapsed_total_ticks = get_ticks();
+  st->total_trans++;  // READY -> RUN (sys)
 }
 
 void stats_init(struct stats * st)
