@@ -109,6 +109,16 @@ void stats_basic_demo(void)
   {
     if (counter > 60000000)
     {
+      if (pid == 0)
+      {
+        msg = "pare - ";
+      }
+      else
+      {
+        msg = "fill - ";
+      }
+      write(1, msg, strlen(msg));
+      
       struct stats st;
       if (get_stats(pid, &st) < 0)
       {
@@ -132,4 +142,5 @@ int __attribute__ ((__section__(".text.main")))
   // e1_demo();
   //fork_demo();
   stats_basic_demo();
+  return 0;
 }

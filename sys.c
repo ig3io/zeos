@@ -244,7 +244,7 @@ int sys_get_stats(int pid, struct stats * st)
     }
   }
 
-  printc_xy(11, 10, 'k');
+  printc_xy(10, 10, 'k');
 
   if (target == NULL)
   {
@@ -252,14 +252,14 @@ int sys_get_stats(int pid, struct stats * st)
     return -1;
   }
 
-  printc_xy(12, 10, 'L');
+  printc_xy(10, 10, 'L');
   if (copy_to_user(&target->stats, st, sizeof(struct stats) < 0))
   {
     stats_current_system_to_user();
     return -1; 
   }
 
-  printc_xy(13, 10, 'M');
+  printc_xy(10, 10, 'M');
   
   stats_current_system_to_user();
   return 0;
