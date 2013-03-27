@@ -162,7 +162,7 @@ int get_stats(int pid, struct stats * st)
   __asm__ __volatile__ (
     "int $0x80\n\t"
     : "=a" (rvalue)
-    : "b" (pid), "c" (st), "a" (0x35)
+    : "b" (pid), "c" (st), "a" (0x23)
   );
 
   if (rvalue < 0)
