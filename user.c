@@ -96,11 +96,11 @@ void stats_basic_demo(void)
   int pid = fork();
   if (pid == 0)
   {
-    msg = "pare\n";
+    msg = "\npare";
   }
   else
   {
-    msg = "fill\n";
+    msg = "\nfill";
   }
   write(1, msg, strlen(msg));
 
@@ -109,7 +109,7 @@ void stats_basic_demo(void)
   {
     if (counter > 10000000)
     {
-      char st_trans[4];
+      char st_trans[1];
       if (pid == 0)
       {
         msg = "\npare - ";
