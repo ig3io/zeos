@@ -24,6 +24,14 @@
 
 #define WRITE_BUFFER_SIZE 4
 
+int New_pid=1;
+
+int assign_pid(){
+	return ++New_pid;
+}
+	
+	
+
 void ret_from_fork(){
 	__asm__ __volatile__(
 		"popl %%eax\n"
@@ -103,7 +111,7 @@ for(i=PAG_LOG_INIT_DATA_P0;i<PAG_LOG_INIT_DATA_P0+NUM_PAG_DATA;i++)//Create new 
 set_cr3(get_DIR(current())); //FLUSH TLB
 
 ////////////////STATISTICS//////////////////////
-child->task.PID = current()->PID+1;
+child->task.PID = assign_pid();
 child->task.quantum = QUANTUM;
 child->task.state = ST_READY;
 ///////////////////////////////////////////////

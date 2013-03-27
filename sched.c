@@ -209,107 +209,36 @@ int needs_sched_rr(void)
 
 void update_current_state_rr(struct list_head *dest)
 {
-  if (dest == &freequeue)
-  {
-    current()->state = ST_ZOMBIE;
-  }
-  else if (dest == &readyqueue)
-  {
-    current()->state = ST_READY;
-  }
-  else
-  {
-    current()->state = ST_BLOCKED;
-  }
 
+  if (dest == &freequeue) current()->state = ST_ZOMBIE;
+
+  else if (dest == &readyqueue) current()->state = ST_READY;
+
+  else current()->state = ST_BLOCKED;
+
+  /*PUT THE PROCES IN THE QUEUE THAT IT CORRESPOND*/
   if (current() != idle_task) {
     list_del(&current()->list);
     list_add_tail(&current()->list, dest);
   }
-  
 }
-
-
-// Same as sched_next_rr, but it assumes the current process will not be
-// returned to (it goes to freequeue, no readyqueue)
-/*void sched_exit_rr(void)
-{
-  struct task_struct * next;
-
-  update_current_state_rr(&freequeue);
-
-
-
-  if (list_empty(&readyqueue))
-  {
-    printc_xy(0, 0, 'A');
-    next = idle_task;
-  }
-  else
-  {
-    printc_xy(0, 0, 'B');
-    struct list_head * next_list_elem;
-    next_list_elem = list_first(&readyqueue);
-    next = list_head_to_task_struct(next_list_elem);
-    next->state = ST_RUN;
-  }
-
-  printc_xy(0, 10, 'C');
-  printc_xy(1, 10, ':');
-  printc_xy(2, 10, current()->PID + 48);
-  printc_xy(0, 11, 'N');
-  printc_xy(1, 11, ':');
-  printc_xy(2, 11, next->PID + 48);
-
-  if (next != current())
-  {
-    printc_xy(0, 0, 'G');
-    task_switch((union task_union *)next);
-    printc_xy(0, 0, 'F');
-  }
-}*/
 
 void sched_next_rr(void)
 {
 
   // Quantum to default value
   current()->quantum = QUANTUM;
-  int state = current()-> state;
-
-	switch (state){
-			case ST_ZOMBIE:
-					list_add_tail(&current()->list,&freequeue);
-					break;
-			case ST_READY:
-					list_add_tail(&current()->list,&readyqueue);
-					break;
-			case ST_BLOCKED:
-					//In this case, what it do??
-					break;
-			default:
-					break;
-	}
 
   struct task_struct * next;
 
- 
-  // Unless you've called exit(), the current process will always
-  // have the option to continue execution 
-  
-  // TODO unnecessary? redundant?
-  if (list_empty(&readyqueue))
-  {
-    printc_xy(0, 0, 'A');
-    next = idle_task;
-  }
+  if (list_empty(&readyqueue)) next = idle_task;//Check if we have proces in the readyqueue
+
   else
   {
-    printc_xy(0, 0, 'B');
     struct list_head * next_list_elem;
     next_list_elem = list_first(&readyqueue);
     next = list_head_to_task_struct(next_list_elem);
     next->state = ST_RUN;
-    //list_del(next_list_elem);
   }
 
   printc_xy(0, 10, 'C');
@@ -319,10 +248,5 @@ void sched_next_rr(void)
   printc_xy(1, 11, ':');
   printc_xy(2, 11, next->PID + 48);
 
-  if (next != current())
-  {
-    //printc_xy(0, 0, 'F');
-    task_switch((union task_union *)next);
-    //printc_xy(0, 0, 'G');
-  }
+  if (next != current()) task_switch((union task_union *)next);
 }
