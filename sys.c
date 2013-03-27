@@ -229,11 +229,11 @@ int sys_gettime(){
 
 int sys_get_stats(int pid, struct stats * st)
 {
-  printc_xy(10, 10, 'J');
   stats_current_user_to_system();
 
   struct task_struct * target = NULL;
   struct list_head * it;
+  
   // Only readyqueue is of interest right now. Alive process = it's inside the
   // ready queue
   list_for_each(it, &readyqueue)
@@ -245,23 +245,18 @@ int sys_get_stats(int pid, struct stats * st)
     }
   }
 
-  printc_xy(10, 10, 'k');
-
   if (target == NULL)
   {
     stats_current_system_to_user(); 
     return -1;
   }
 
-  printc_xy(10, 10, 'L');
   if (copy_to_user(&target->stats, st, sizeof(struct stats) < 0))
   {
     stats_current_system_to_user();
     return -1; 
   }
 
-  printc_xy(10, 10, 'M');
-  
   stats_current_system_to_user();
   return 0;
 }
