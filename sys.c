@@ -234,11 +234,12 @@ int sys_get_stats(int pid, struct stats * st)
 
   struct task_struct * target = NULL;
   struct list_head * it;
-  // Only readyqueue is of interest right now
+  // Only readyqueue is of interest right now. Alive process = it's inside the
+  // ready queue
   list_for_each(it, &readyqueue)
   {
     struct task_struct * it_task = list_head_to_task_struct(it);
-    if (it_task->PID) // == pid && (it_task->state == ST_READY || it_task->state == ST_RUN))
+    if (it_task->PID)
     {
       target = it_task;
     }
