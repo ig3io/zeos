@@ -71,4 +71,10 @@ void stats_current_system_to_user();
 void stats_current_user_to_system();
 void stats_current_system_to_ready();
 void stats_current_ready_to_system();
+
+void stats_update_system_to_user(struct stats * st);
+void stats_update_user_to_system(struct stats * st);
+void stats_update_system_to_ready(struct stats * st);
+void stats_update_ready_to_system(struct stats * st);
+
 #endif  /* __SCHED_H__ */
