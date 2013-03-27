@@ -90,9 +90,46 @@ void fork_demo(void)
  }
 }
 
+void stats_basic_demo(void)
+{
+  char *msg;
+  int pid = fork();
+  if (pid == 0)
+  {
+    msg = "pare\n";
+  }
+  else
+  {
+    msg = "fill\n";
+  }
+  write(1, msg, strlen(msg));
+
+  int counter = 0;
+  while(1)
+  {
+    if (counter > 60000000)
+    {
+      struct stats st;
+      if (get_stats(pid, &st) < 0)
+      {
+        msg = "problema amb get_stats\n"; 
+      }
+      else
+      {
+        msg = "get_stats amb exit\n";
+      }
+      write(1, msg, strlen(msg));
+      counter = 0;
+    }
+    ++counter;
+  }
+
+}
+
 int __attribute__ ((__section__(".text.main")))
   main(void)
 {
   // e1_demo();
-  fork_demo();
+  //fork_demo();
+  stats_basic_demo();
 }
