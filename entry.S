@@ -71,18 +71,14 @@
 ENTRY(keyboard_handler)
       SAVE_ALL
       EOI
-      call stats_current_user_to_system
       call keyboard_routine
-      call stats_current_system_to_user
       RESTORE_ALL
       iret
 
 ENTRY(clock_handler)
       SAVE_ALL
       EOI
-      call stats_current_user_to_system
       call clock_routine
-      call stats_current_system_to_user
       RESTORE_ALL
       iret
 
@@ -92,9 +88,7 @@ ENTRY(system_call_handler)
       jl err
       cmpl $0x28, %eax
       jg err
-      call stats_current_user_to_system
       call *sys_call_table(, %eax, 0x04)
-      call stats_current_system_to_user
       jmp end
       err:
       call sys_ni_syscall
