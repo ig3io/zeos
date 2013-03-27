@@ -229,6 +229,7 @@ int sys_gettime(){
 
 int sys_get_stats(int pid, struct stats * st)
 {
+  printc_xy(10, 10, 'J');
   stats_current_user_to_system();
 
   struct task_struct * target = NULL;
@@ -237,24 +238,29 @@ int sys_get_stats(int pid, struct stats * st)
   list_for_each(it, &readyqueue)
   {
     struct task_struct * it_task = list_head_to_task_struct(it);
-    if (it_task->PID == pid)
+    if (it_task->PID == pid && it_task->state == ST_READY)
     {
       target = it_task;
     }
   }
-  // TODO some error code to return?
+
+  printc_xy(11, 10, 'k');
+
   if (target == NULL)
   {
     stats_current_system_to_user(); 
     return -1;
   }
 
+  printc_xy(12, 10, 'L');
   if (copy_to_user(&target->stats, st, sizeof(struct stats) < 0))
   {
     stats_current_system_to_user();
     return -1; 
   }
 
+  printc_xy(13, 10, 'M');
+  
   stats_current_system_to_user();
   return 0;
 }
