@@ -66,4 +66,9 @@ void update_current_state_rr(struct list_head *dest);
 int needs_sched_rr();
 void update_sched_data_rr();
 
+/* Stats */
+void stats_current_system_to_user();
+void stats_current_user_to_system();
+void stats_current_system_to_ready();
+void stats_current_ready_to_system();
 #endif  /* __SCHED_H__ */

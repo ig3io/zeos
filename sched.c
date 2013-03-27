@@ -253,3 +253,23 @@ void sched_next_rr(void)
     task_switch((union task_union *)next);
   }
 }
+
+void stats_current_system_to_user()
+{
+  stats_update_system_to_user(&current()->stats);
+}
+
+void stats_current_user_to_system()
+{
+  stats_update_user_to_system(&current()->stats);
+}
+
+void stats_current_system_to_ready()
+{
+  stats_update_system_to_ready(&current()->stats);
+}
+
+void stats_current_ready_to_system()
+{
+  stats_update_ready_to_system(&current()->stats);
+}
