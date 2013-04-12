@@ -8,6 +8,8 @@
 #include <list.h>
 #include <utils.h>
 
+int page_table_refs[NR_TASKS] = {0};
+
 union task_union task[NR_TASKS]
 __attribute__((__section__(".data.task")));
 
