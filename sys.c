@@ -87,11 +87,12 @@ int sys_fork()
   }
 
   /////////////////////////////////////////////////////////////////////
-  page_table_entry* TP_child = get_PT(&child->task);
-  page_table_entry* TP_father = get_PT(&father->task);
   copy_data(father, child, sizeof(union task_union));
 
-  allocate_DIR(&(child->task));//I'm not sure what I'm doing here?¿!?!?¿!?
+  allocate_DIR(&(child->task));
+
+  page_table_entry* TP_child = get_PT(&child->task);
+  page_table_entry* TP_father = get_PT(&father->task);
 
 
   for(i=PAG_LOG_INIT_CODE_P0;i<PAG_LOG_INIT_DATA_P0;i++) //Copy the Code Pages to child proces
@@ -159,9 +160,11 @@ int sys_fork()
 void sys_exit()
 {
   stats_current_user_to_system();
-  int i;
+  //int i;
   free_user_pages(current());
-  for(i = PAG_LOG_INIT_CODE_P0; i<PAG_LOG_INIT_DATA_P0; ++i) del_ss_pag(get_PT(current()),i);
+  int pos = (current()->dir_pages_baseAddr - &dir_pages[0][0] )/((sizeof(page_table_entry)) * TOTAL_PAGES);
+  page_table_refs[pos]--;	
+  //for(i = PAG_LOG_INIT_CODE_P0; i<PAG_LOG_INIT_DATA_P0; ++i) del_ss_pag(get_PT(current()),i);
   update_current_state_rr(&freequeue);
   sched_next_rr();
   stats_current_system_to_user();

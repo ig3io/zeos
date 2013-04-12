@@ -14,6 +14,8 @@
 #define KERNEL_STACK_SIZE	1024
 #define QUANTUM		500
 
+extern int page_table_refs[NR_TASKS];
+
 enum state_t { ST_RUN, ST_READY, ST_BLOCKED, ST_ZOMBIE };
 
 struct task_struct {
