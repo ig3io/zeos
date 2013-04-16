@@ -28,6 +28,8 @@ struct list_head readyqueue;
 
 struct task_struct *idle_task;
 
+struct sem_struct sempahores[NR_SEMS];
+
 /* get_DIR - Returns the Page Directory address for task 't' */
 page_table_entry * get_DIR (struct task_struct *t) 
 {
@@ -168,7 +170,15 @@ void init_sched(){
   for (i = 0; i < NR_TASKS; i++)
   {
     list_add_tail(&(task[i].task.list), &freequeue);
-  } 
+  }
+
+  int j = 0;
+  for (j = 0; j < NR_SEMS; j++)
+  {
+    INIT_LIST_HEAD(&semaphores[j].list);
+    semaphores[j].count = 0;
+    semaphores[j].owner = NULL;
+  }
 }
 
 struct task_struct* current()

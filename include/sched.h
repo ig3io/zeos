@@ -10,9 +10,10 @@
 #include <mm_address.h>
 #include <stats.h>
 
-#define NR_TASKS      10
-#define KERNEL_STACK_SIZE	1024
+#define NR_TASKS    10
+#define KERNEL_STACK_SIZE   1024
 #define QUANTUM		500
+#define NR_SEMS     20
 
 extern int page_table_refs[NR_TASKS];
 
@@ -38,6 +39,14 @@ extern struct task_struct *idle_task;
 
 extern struct list_head freequeue;
 extern struct list_head readyqueue;
+
+struct sem_struct {
+  struct task_struct * owner;
+  int count;
+  struct list_head list;
+}
+
+extern struct sem_struct semaphores[NR_SEMS];
 
 #define KERNEL_ESP       (DWord) &task[1].stack[KERNEL_STACK_SIZE]
 
