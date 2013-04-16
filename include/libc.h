@@ -28,4 +28,12 @@ int get_stats(int pid, struct stats * st);
 
 int perror(char * msg);
 
+int sem_init(int n_sem, unsigned intvalue);
+
+int sem_wait(int n_sem);
+
+int sem_signal(int n_sem);
+
+int sem_destroy(int n_sem);
+
 #endif  /* __LIBC_H__ */

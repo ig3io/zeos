@@ -322,3 +322,23 @@ int sys_get_stats(int pid, struct stats * st)
   stats_current_system_to_user();
   return 0;
 }
+
+int sys_sem_init(int n_sem, unsigned int value)
+{
+  // TODO
+}
+
+int sys_sem_wait(int n_sem)
+{
+  // TODO
+}
+
+int sys_sem_signal(int n_sem)
+{
+  // TODO
+}
+
+int sys_sem_destroy(int n_sem)
+{
+  // TODO
+}

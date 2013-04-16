@@ -190,3 +190,23 @@ int get_stats(int pid, struct stats * st)
   }
   return rvalue;
 }
+
+int sem_init(int n_sem, unsigned int value)
+{
+  // TODO
+}
+
+int sem_wait(int n_sem)
+{
+  // TODO
+}
+
+int sem_signal(int n_sem)
+{
+  // TODO
+}
+
+int sem_destroy(int n_sem)
+{
+  // TODO
+}
