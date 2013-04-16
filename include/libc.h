@@ -20,6 +20,8 @@ int getpid();
 
 int fork();
 
+int clone(void *(function) (void), void *stack);
+
 void exit();
 
 int get_stats(int pid, struct stats * st);

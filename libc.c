@@ -128,6 +128,24 @@ int fork(){
   return rvalue;
 }
 
+int clone(void *(function) (void),void *stack)
+{
+  int rvalue = 0;
+
+  __asm__ __volatile__ (
+    "int $0x80\n\t"
+    : "=a" (rvalue)
+    : "b" (function), "c" (stack), "a" (0x13)
+  );
+
+  if (rvalue < 0)
+  {
+    errno = rvalue * -1;
+    rvalue = -1;
+  }
+  return rvalue;
+}
+
 
 int perror(char * msg)
 {

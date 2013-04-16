@@ -170,6 +170,61 @@ void sys_exit()
   stats_current_system_to_user();
 }
 
+
+int sys_clone(void *(function) (void), void *stack)
+{
+  stats_current_user_to_system();
+
+  int PID=-1;
+
+  struct list_head *free_pcb = list_first(&freequeue);// take the first free PCB
+  /* if freequeue don't have any element, return an error(not implemented)*/
+  union task_union *child = (union task_union*)list_head_to_task_struct(free_pcb);
+  union task_union *father = (union task_union*)current();
+  list_del(free_pcb);
+  /* create a variable for store the free frames that we need for save data+Kernel pages*/
+ 
+  copy_data(father, child, sizeof(union task_union));
+
+  allocate_DIR_clone(&(child->task));
+
+  ////////////////STATISTICS//////////////////////
+  child->task.PID = assign_pid();
+  child->task.quantum = QUANTUM;
+  child->task.state = ST_READY;
+  ///////////////////////////////////////////////
+
+  int ebp;
+
+
+  __asm__ __volatile__(
+      "mov %%ebp,%0\n\t"
+      :"=g"(ebp)
+      :
+      :"memory");
+
+
+  int des = (unsigned long*)ebp - &father->stack[0]; // Calculate the diference bettwen ebp & esp, necessary for possible values pushed in the stack
+
+  __asm__ __volatile__(
+      "mov %0,%%esi"
+      :
+      :"r"(des));
+
+  child->stack[des+1] =  &ret_from_fork;
+  child->stack[des] = ((int)child->stack[des] - (int)&father->stack[0]) + (int)&child->stack[0];
+  child->stack[des-1] = (unsigned long) function;
+  child->stack[des-2] = (unsigned long) stack;
+
+  child->task.kernel_esp = &child->stack[des-2];
+
+  PID = child->task.PID;
+  list_add_tail(&child->task.list,&readyqueue);
+
+  stats_current_system_to_user();
+  return PID;
+}
+
 int sys_write(int fd, char * buffer, int size)
 {
   stats_current_user_to_system();
