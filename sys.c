@@ -323,22 +323,91 @@ int sys_get_stats(int pid, struct stats * st)
   return 0;
 }
 
+int sem_is_valid_number(int n_sem)
+{
+  if (n_sem >= NR_SEMS || n_sem < 0)
+  {
+    return 0;
+  }
+  return 1;
+}
+
 int sys_sem_init(int n_sem, unsigned int value)
 {
-  // TODO
+  if (!sem_is_valid_number(n_sem))
+  {
+    return -1;
+  }
+
+  struct sem_struct * sem = &semaphores[n_sem];
+
+  if (sem->owner != NULL)
+  {
+    return -1;
+  }
+
+  semaphores[n_sem].count = value;
+  semaphores[n_sem].owner = current();
+  // list head already initialized (init_sched)
+  return 0;
 }
 
 int sys_sem_wait(int n_sem)
 {
   // TODO
+  if (!sem_is_valid_number(n_sem))
+  {
+    return -1;
+  }
+
+  struct sem_struct * sem = &semaphores[n_sem];
+
+  if (sem->owner == NULL)
+  {
+    return -1;
+  }
+
+  if (sem->count > 0)
+  {
+    sem->count--;
+  }
+  else
+  {
+    // block process
+  }
+
+  return 0;
 }
 
 int sys_sem_signal(int n_sem)
 {
   // TODO
+  if (!sem_is_valid_number(n_sem))
+  {
+    return -1;
+  }
+
+  struct sem_struct * sem = &semaphores[n_sem];
+  
+  if (sem->owner == NULL)
+  {
+    return -1;
+  }
+
+  if (list_empty(&sem->list))
+  {
+    sem->count++;
+  }
+  else
+  {
+    // Unblock the first process
+  }
+
+  return 0;
 }
 
 int sys_sem_destroy(int n_sem)
 {
   // TODO
+  return -1;
 }
