@@ -28,7 +28,7 @@ struct list_head readyqueue;
 
 struct task_struct *idle_task;
 
-struct sem_struct sempahores[NR_SEMS];
+struct sem_struct semaphores[NR_SEMS];
 
 /* get_DIR - Returns the Page Directory address for task 't' */
 page_table_entry * get_DIR (struct task_struct *t) 
