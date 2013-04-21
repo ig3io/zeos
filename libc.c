@@ -193,20 +193,72 @@ int get_stats(int pid, struct stats * st)
 
 int sem_init(int n_sem, unsigned int value)
 {
-  // TODO
+  int rvalue = 0;
+
+  __asm__ __volatile__ (
+    "int $0x80\n\t"
+    : "=a" (rvalue)
+    : "b" (n_sem), "c" (value), "a" (0x15)
+  );
+
+  if (rvalue < 0)
+  {
+    errno = rvalue * -1;
+    rvalue = -1;
+  }
+  return rvalue;
 }
 
 int sem_wait(int n_sem)
 {
-  // TODO
+  int rvalue = 0;
+
+  __asm__ __volatile__ (
+    "int $0x80\n\t"
+    : "=a" (rvalue)
+    : "b" (n_sem), "a" (0x16)
+  );
+
+  if (rvalue < 0)
+  {
+    errno = rvalue * -1;
+    rvalue = -1;
+  }
+  return rvalue;
 }
 
 int sem_signal(int n_sem)
 {
-  // TODO
+  int rvalue = 0;
+
+  __asm__ __volatile__ (
+    "int $0x80\n\t"
+    : "=a" (rvalue)
+    : "b" (n_sem), "a" (0x17)
+  );
+
+  if (rvalue < 0)
+  {
+    errno = rvalue * -1;
+    rvalue = -1;
+  }
+  return rvalue;
 }
 
 int sem_destroy(int n_sem)
 {
-  // TODO
+  int rvalue = 0;
+
+  __asm__ __volatile__ (
+    "int $0x80\n\t"
+    : "=a" (rvalue)
+    : "b" (n_sem), "a" (0x18)
+  );
+
+  if (rvalue < 0)
+  {
+    errno = rvalue * -1;
+    rvalue = -1;
+  }
+  return rvalue;
 }
