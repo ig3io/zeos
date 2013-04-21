@@ -211,7 +211,7 @@ int sys_clone(void *(function) (void), void *stack)
       :
       :"r"(des));
 
-  child->stack[des+1] =  &ret_from_fork;
+  child->stack[des+1] =(unsigned long)  &ret_from_fork;
   child->stack[des] = ((int)child->stack[des] - (int)&father->stack[0]) + (int)&child->stack[0];
   child->stack[des-1] = (unsigned long) function;
   child->stack[des-2] = (unsigned long) stack;
@@ -348,13 +348,14 @@ int sys_sem_init(int n_sem, unsigned int value)
 
   semaphores[n_sem].count = value;
   semaphores[n_sem].owner = current();
+  INIT_LIST_HEAD(&semaphores[n_sem].list);
+  //I think that each semaphores have his blockedqueue, so it's necesary initialize it!!(not sure XD)
   // list head already initialized (init_sched)
   return 0;
 }
 
 int sys_sem_wait(int n_sem)
 {
-  // TODO
   if (!sem_is_valid_number(n_sem))
   {
     return -1;
@@ -373,7 +374,9 @@ int sys_sem_wait(int n_sem)
   }
   else
   {
-    // block process
+    list_add_tail(&current()->list,&semaphores[n_sem].list);//add to blocked queue of this semaphore
+    sched_next_rr();//The proces it's blocked so it's necesary a context switch
+    
   }
 
   return 0;
@@ -381,7 +384,6 @@ int sys_sem_wait(int n_sem)
 
 int sys_sem_signal(int n_sem)
 {
-  // TODO
   if (!sem_is_valid_number(n_sem))
   {
     return -1;
@@ -400,7 +402,9 @@ int sys_sem_signal(int n_sem)
   }
   else
   {
-    // Unblock the first process
+    
+    list_add_tail(list_first(&semaphores[n_sem].list),&readyqueue);//put the proces in the readyqueueu 
+    list_del(list_first(&semaphores[n_sem].list));//delete the proces from the blockedqueue of this semaphore
   }
 
   return 0;
@@ -408,6 +412,19 @@ int sys_sem_signal(int n_sem)
 
 int sys_sem_destroy(int n_sem)
 {
-  // TODO
-  return -1;
+  if(!sem_is_valid_number(n_sem) || semaphores[n_sem].owner==NULL || semaphores[n_sem].owner != current())
+  	return -1;
+  
+  semaphores[n_sem].owner = NULL;
+
+  while(!list_empty(&semaphores[n_sem].list)){
+    
+    list_add_tail(list_first(&semaphores[n_sem].list),&readyqueue);//put the proces in the readyqueueu 
+    list_del(list_first(&semaphores[n_sem].list));//delete the proces from the blockedqueue of this semaphore
+    
+  }
+
+  return 0;
+  
+  
 }
