@@ -44,7 +44,7 @@ struct sem_struct {
   struct task_struct * owner;
   int count;
   struct list_head list;
-}
+};
 
 extern struct sem_struct semaphores[NR_SEMS];
 
