@@ -157,6 +157,7 @@ int __attribute__ ((__section__(".text.main")))
 {
   // e1_demo();
   //fork_demo();
-  stats_basic_demo();
+  //stats_basic_demo();
+  test_clone_basic();
   return 0;
 }
