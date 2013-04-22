@@ -402,9 +402,10 @@ int sys_sem_signal(int n_sem)
   }
   else
   {
-    
-    list_add_tail(list_first(&semaphores[n_sem].list),&readyqueue);//put the proces in the readyqueueu 
-    list_del(list_first(&semaphores[n_sem].list));//delete the proces from the blockedqueue of this semaphore
+    //put the proces in the readyqueueu 
+    list_add_tail(list_first(&semaphores[n_sem].list),&readyqueue);
+    //delete the proces from the blockedqueue of this semaphore
+    list_del(list_first(&semaphores[n_sem].list));
   }
 
   return 0;
