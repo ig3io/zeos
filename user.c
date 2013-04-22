@@ -136,6 +136,22 @@ void stats_basic_demo(void)
 
 }
 
+void test_clone_function(void)
+{
+  char * msg = "flow!";
+  write(1, msg, strlen(msg));
+}
+
+void test_clone_basic(void)
+{
+  void * stacks[10];
+  int i;
+  for (i = 0; i < 10; i++)
+  {
+    clone(&test_clone_function, stacks[i]);
+  }
+}
+
 int __attribute__ ((__section__(".text.main")))
   main(void)
 {
