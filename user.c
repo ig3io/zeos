@@ -140,16 +140,13 @@ void test_clone_function(void)
 {
   char * msg = "flow!";
   write(1, msg, strlen(msg));
+  exit(0);
 }
 
 void test_clone_basic(void)
 {
-  void * stacks[10];
-  int i;
-  for (i = 0; i < 10; i++)
-  {
-    clone(&test_clone_function, stacks[i]);
-  }
+  unsigned int stack[1024];
+  clone(&test_clone_function, &stack);
 }
 
 int __attribute__ ((__section__(".text.main")))
