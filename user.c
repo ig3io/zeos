@@ -156,5 +156,6 @@ int __attribute__ ((__section__(".text.main")))
   //fork_demo();
   //stats_basic_demo();
   test_clone_basic();
+  while(1);
   return 0;
 }
