@@ -211,12 +211,12 @@ int sys_clone(void *(function) (void), void *stack)
       :
       :"r"(des));
 
-  child->stack[des+1] =(unsigned long)  &ret_from_fork;
-  child->stack[des] = ((int)child->stack[des] - (int)&father->stack[0]) + (int)&child->stack[0];
-  child->stack[des-1] = (unsigned long) function;
-  child->stack[des-2] = (unsigned long) stack;
+  child->stack[des] = (unsigned long*) ebp;//Same as father, so assign the ebp value
+  child->stack[des-1] =(unsigned long)  &ret_from_fork;
+  child->stack[des-2] = (unsigned long) function;
+  child->stack[des-3] = (unsigned long) stack;
 
-  child->task.kernel_esp = &child->stack[des-2];
+  child->task.kernel_esp = &child->stack[des];// IDEM (we could asign the ebp variable, the same result(in theory=))
 
   PID = child->task.PID;
   list_add_tail(&child->task.list,&readyqueue);
