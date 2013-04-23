@@ -136,7 +136,7 @@ void stats_basic_demo(void)
 
 }
 
-void test_clone_function(void)
+void * test_clone_function(void)
 {
   char * msg = "flow!";
   write(1, msg, strlen(msg));
