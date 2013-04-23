@@ -211,7 +211,7 @@ int sys_clone(void *(function) (void), void *stack)
       :
       :"r"(des));
 
-  child->stack[des] = (unsigned long*) ebp;//Same as father, so assign the ebp value
+  child->stack[des] = (unsigned long) ebp;//Same as father, so assign the ebp value
   child->stack[des-1] =(unsigned long)  &ret_from_fork;
   child->stack[des-2] = (unsigned long) function;
   child->stack[des-3] = (unsigned long) stack;
