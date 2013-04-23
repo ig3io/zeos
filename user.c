@@ -175,6 +175,8 @@ void semaphores_basic(void)
   }
   sem_signal(0);
   sem_destroy(0);
+  char * msg ="Destroyed";
+  write(1, msg, strlen(msg));
 }
 
 int __attribute__ ((__section__(".text.main")))
