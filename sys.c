@@ -216,7 +216,7 @@ int sys_clone(void *(function) (void), void *stack)
   child->stack[des-2] = (unsigned long) function;
   child->stack[des-3] = (unsigned long) stack;
 
-  child->task.kernel_esp = &child->stack[des];// IDEM (we could asign the ebp variable, the same result(in theory=))
+  child->task.kernel_esp = &child->stack[des-3];// IDEM (we could asign the ebp variable, the same result(in theory=))
 
   PID = child->task.PID;
   list_add_tail(&child->task.list,&readyqueue);
