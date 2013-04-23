@@ -79,16 +79,11 @@ int __attribute__((__section__(".text.main")))
 
 /* Initialize an address space to be used for the monoprocess version of ZeOS */
 
-  //monoprocess_init_addr_space(); /* TO BE DELETED WHEN ADDED THE PROCESS MANAGEMENT CODE TO BECOME MULTIPROCESS */
-
   /* Initialize Scheduling */
   init_sched();
 
   /* Initialize idle task  data */
   init_idle();
-
-  // TODO init dummy
-  //init_dummy();
 
   /* Initialize task 1 data */
   init_task1();
@@ -109,5 +104,3 @@ int __attribute__((__section__(".text.main")))
   /* The execution never arrives to this point */
   return 0;
 }
-
-
