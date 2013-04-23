@@ -167,7 +167,12 @@ void semaphores_basic(void)
     clone(&semaphores_clone_function, &stack[i]);
   }
   int j = 0;
-  while(j++ < 10000);
+  while(j++ < 10000)
+  {
+    __asm__ __volatile__(
+       "nop\n\t"
+       ); 
+  }
   sem_signal(0);
   sem_destroy(0);
 }
