@@ -149,6 +149,23 @@ void test_clone_basic(void)
   clone(&test_clone_function, &stack);
 }
 
+void * semaphores_clone_function(void)
+{
+  sem_wait(0);
+  // Super critical code region
+  sem_signal(0)
+}
+
+void semaphores_basic(void)
+{
+  unsigned int stack[2][1024];
+  int i;
+  for (i = 0; i < 2; i++)
+  {
+    clone(&semaphores_clone_function, &stack[i]);
+  }
+}
+
 int __attribute__ ((__section__(".text.main")))
   main(void)
 {
