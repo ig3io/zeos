@@ -152,7 +152,16 @@ void test_clone_basic(void)
 void * semaphores_clone_function(void)
 {
   sem_wait(0);
-  char * msg = "desbloqueado";
+  char * msg = "desbloqueado\n";
+  write(1, msg, strlen(msg));
+  int j = 0;
+  while(j++ < 100000)
+  {
+    __asm__ __volatile__(
+       "nop\n\t"
+       ); 
+  }
+  msg = "a punto de salir\n";
   write(1, msg, strlen(msg));
   exit(0);
 }
@@ -167,15 +176,16 @@ void semaphores_basic(void)
     clone(&semaphores_clone_function, &stack[i]);
   }
   int j = 0;
-  while(j++ < 10000)
+  while(j++ < 100000)
   {
     __asm__ __volatile__(
        "nop\n\t"
        ); 
   }
-  sem_signal(0);
+  //sem_signal(0);
+  while(1);
   sem_destroy(0);
-  char * msg ="Destroyed";
+  char * msg ="destroyed\n";
   write(1, msg, strlen(msg));
 }
 
