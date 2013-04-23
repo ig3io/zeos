@@ -348,8 +348,9 @@ int sys_sem_init(int n_sem, unsigned int value)
 
   semaphores[n_sem].count = value;
   semaphores[n_sem].owner = current();
-  INIT_LIST_HEAD(&semaphores[n_sem].list);
+  //INIT_LIST_HEAD(&semaphores[n_sem].list);
   //I think that each semaphores have his blockedqueue, so it's necesary initialize it!!(not sure XD)
+  // Ignacio: It's been initialized in init_sched!
   // list head already initialized (init_sched)
   return 0;
 }
@@ -376,7 +377,6 @@ int sys_sem_wait(int n_sem)
   {
     list_add_tail(&current()->list,&semaphores[n_sem].list);//add to blocked queue of this semaphore
     sched_next_rr();//The proces it's blocked so it's necesary a context switch
-    
   }
 
   return 0;
@@ -402,12 +402,11 @@ int sys_sem_signal(int n_sem)
   }
   else
   {
-    //put the proces in the readyqueueu 
+    //put the proces in the readyqueue 
     list_add_tail(list_first(&semaphores[n_sem].list),&readyqueue);
     //delete the proces from the blockedqueue of this semaphore
     list_del(list_first(&semaphores[n_sem].list));
   }
-
   return 0;
 }
 
@@ -418,11 +417,10 @@ int sys_sem_destroy(int n_sem)
   
   semaphores[n_sem].owner = NULL;
 
-  while(!list_empty(&semaphores[n_sem].list)){
-    
-    list_add_tail(list_first(&semaphores[n_sem].list),&readyqueue);//put the proces in the readyqueueu 
+  while(!list_empty(&semaphores[n_sem].list))
+  {
+    list_add_tail(list_first(&semaphores[n_sem].list),&readyqueue);//put the proces in the readyqueue 
     list_del(list_first(&semaphores[n_sem].list));//delete the proces from the blockedqueue of this semaphore
-    
   }
 
   return 0;
