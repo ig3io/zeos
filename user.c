@@ -152,18 +152,24 @@ void test_clone_basic(void)
 void * semaphores_clone_function(void)
 {
   sem_wait(0);
-  // Super critical code region
-  sem_signal(0)
+  char * msg = "desbloqueado";
+  write(1, msg, strlen(msg));
+  exit(0);
 }
 
 void semaphores_basic(void)
 {
   unsigned int stack[2][1024];
+  sem_init(0, 1);
   int i;
   for (i = 0; i < 2; i++)
   {
     clone(&semaphores_clone_function, &stack[i]);
   }
+  int j = 0;
+  while(j++ < 10000);
+  sem_signal(0);
+  sem_destroy(0);
 }
 
 int __attribute__ ((__section__(".text.main")))
@@ -172,7 +178,8 @@ int __attribute__ ((__section__(".text.main")))
   // e1_demo();
   //fork_demo();
   //stats_basic_demo();
-  test_clone_basic();
+  //test_clone_basic();
+  semaphores_basic();
   while(1);
   return 0;
 }
