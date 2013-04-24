@@ -15,6 +15,8 @@
 #define QUANTUM		100
 #define NR_SEMS     20
 
+extern int current_quantum;
+
 extern int page_table_refs[NR_TASKS];
 
 enum state_t { ST_RUN, ST_READY, ST_BLOCKED, ST_ZOMBIE };

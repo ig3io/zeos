@@ -8,7 +8,7 @@
 #include <list.h>
 #include <utils.h>
 
-int page_table_refs[NR_TASKS] = {0};
+int page_table_refs[NR_TASKS] = { 0 };
 
 union task_union task[NR_TASKS]
 __attribute__((__section__(".data.task")));
@@ -29,6 +29,8 @@ struct list_head readyqueue;
 struct task_struct *idle_task;
 
 struct sem_struct semaphores[NR_SEMS];
+
+int current_quantum = 0;
 
 /* get_DIR - Returns the Page Directory address for task 't' */
 page_table_entry * get_DIR (struct task_struct *t) 
@@ -179,6 +181,8 @@ void init_sched(){
     semaphores[j].count = 0;
     semaphores[j].owner = NULL;
   }
+
+  current_quantum = QUANTUM;
 }
 
 struct task_struct* current()
@@ -197,20 +201,21 @@ void print_current_quantum()
 {
   printc_xy(0, 9, 'Q');
   printc_xy(1, 9, ':');
-  printc_xy(2, 9, (current()->quantum/100) + 48);
-  printc_xy(3, 9, (current()->quantum%100)/10 + 48);
-  printc_xy(4, 9, (current()->quantum%10)/100 + 48);
+  printc_xy(2, 9, (current_quantum/100) + 48);
+  printc_xy(3, 9, (current_quantum%100)/10 + 48);
+  printc_xy(4, 9, (current_quantum%10)/100 + 48);
 }
 
 void update_sched_data_rr(void)
 {
-  current()->quantum--;
+  current_quantum--;
+  //current()->quantum--;
   print_current_quantum();
 } 
 
 int needs_sched_rr(void)
 {
-  if (current()->quantum <= 0) {
+  if (current_quantum <= 0) {
     return 1;
   }
   else {
@@ -245,7 +250,8 @@ void update_current_state_rr(struct list_head *dest)
 void sched_next_rr(void)
 {
   // Quantum to default value
-  current()->quantum = QUANTUM;
+  //current()->quantum = QUANTUM;
+  current_quantum = QUANTUM;
 
   struct task_struct * next;
   
