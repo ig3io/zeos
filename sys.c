@@ -378,7 +378,15 @@ int sys_sem_wait(int n_sem)
   {
     list_del(&current()->list);
     list_add_tail(&current()->list,&sem->list);
+
+    // We're blocking the process, so we schedule the next one
     sched_next_rr();
+  }
+
+  // Now we check if the semaphore was destroyed
+  if (sem->owner == NULL)
+  {
+    return -1;
   }
 
   return 0;
