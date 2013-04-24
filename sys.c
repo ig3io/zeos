@@ -377,9 +377,7 @@ int sys_sem_wait(int n_sem)
   else
   {
     list_del(&current()->list);
-    //add to blocked queue of this semaphore
-    list_add_tail(&current()->list,&semaphores[n_sem].list);
-    //The proces it's blocked so it's necesary a context switch
+    list_add_tail(&current()->list,&sem->list);
     sched_next_rr();
   }
 
@@ -406,12 +404,12 @@ int sys_sem_signal(int n_sem)
   }
   else
   {
-    //delete the proces from the blockedqueue of this semaphore
-    //list_del(list_first(&semaphores[n_sem].list));
-    list_del(&sem->list);
-    //put the proces in the readyqueue 
-    list_add_tail(&sem->list, &readyqueue);
+    //delete the proces from the blockedqueue of this semaphore and 'ready it'
+    struct list_head * elem = list_first(&sem->list);
+    list_del(elem);
+    list_add_tail(elem, &readyqueue);
   }
+  
   return 0;
 }
 
@@ -430,16 +428,16 @@ int sys_sem_destroy(int n_sem)
   	return -1;
   }
   
-  semaphores[n_sem].owner = NULL;
+  sem->owner = NULL;
 
-  // TODO should use the for construct. This would not work (I think)
+  // TODO make the processes return a -1
   while(!list_empty(&semaphores[n_sem].list))
   {
-    //delete the proces from the blockedqueue of this semaphore
-    list_del(list_first(&semaphores[n_sem].list));;
-    //put the proces in the readyqueue
-    list_add_tail(list_first(&semaphores[n_sem].list),&readyqueue);
+    //delete every process from the blocked queue (and put them on the ready)
+    struct list_head * elem = list_first(&sem->list);
+    list_del(elem);;
+    list_add_tail(elem, &readyqueue);
   }
-
+  
   return 0;
 }
