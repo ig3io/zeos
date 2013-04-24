@@ -348,9 +348,10 @@ int sys_sem_init(int n_sem, unsigned int value)
 
   semaphores[n_sem].count = value;
   semaphores[n_sem].owner = current();
-  //INIT_LIST_HEAD(&semaphores[n_sem].list);
+  INIT_LIST_HEAD(&semaphores[n_sem].list);
   //I think that each semaphores have his blockedqueue, so it's necesary initialize it!!(not sure XD)
   // Ignacio: It's been initialized in init_sched!
+  // But okaay, since the work.pdf says it should be initialized here...
   // list head already initialized (init_sched)
   return 0;
 }
@@ -375,8 +376,11 @@ int sys_sem_wait(int n_sem)
   }
   else
   {
-    list_add_tail(&current()->list,&semaphores[n_sem].list);//add to blocked queue of this semaphore
-    sched_next_rr();//The proces it's blocked so it's necesary a context switch
+    list_del(&current()->list);
+    //add to blocked queue of this semaphore
+    list_add_tail(&current()->list,&semaphores[n_sem].list);
+    //The proces it's blocked so it's necesary a context switch
+    sched_next_rr();
   }
 
   return 0;
@@ -403,27 +407,39 @@ int sys_sem_signal(int n_sem)
   else
   {
     //delete the proces from the blockedqueue of this semaphore
-    list_del(list_first(&semaphores[n_sem].list));
+    //list_del(list_first(&semaphores[n_sem].list));
+    list_del(&sem->list);
     //put the proces in the readyqueue 
-    list_add_tail(list_first(&semaphores[n_sem].list),&readyqueue);
+    list_add_tail(&sem->list, &readyqueue);
   }
   return 0;
 }
 
+
 int sys_sem_destroy(int n_sem)
 {
-  if(!sem_is_valid_number(n_sem) || semaphores[n_sem].owner==NULL || semaphores[n_sem].owner != current())
+  if (!sem_is_valid_number(n_sem))
+  {
+    return -1;
+  }
+
+  struct sem_struct * sem = &semaphores[n_sem];
+
+  if (sem->owner==NULL || sem->owner != current())
+  {
   	return -1;
+  }
   
   semaphores[n_sem].owner = NULL;
 
+  // TODO should use the for construct. This would not work (I think)
   while(!list_empty(&semaphores[n_sem].list))
   {
-    list_del(list_first(&semaphores[n_sem].list));//delete the proces from the blockedqueue of this semaphore
-    list_add_tail(list_first(&semaphores[n_sem].list),&readyqueue);//put the proces in the readyqueue 
+    //delete the proces from the blockedqueue of this semaphore
+    list_del(list_first(&semaphores[n_sem].list));;
+    //put the proces in the readyqueue
+    list_add_tail(list_first(&semaphores[n_sem].list),&readyqueue);
   }
 
   return 0;
-  
-  
 }
