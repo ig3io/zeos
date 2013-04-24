@@ -136,10 +136,14 @@ void stats_basic_demo(void)
 
 }
 
+void silly_print(char * msg)
+{
+  write(1, msg, strlen(msg));
+}
+
 void * test_clone_function(void)
 {
-  char * msg = "flow!";
-  write(1, msg, strlen(msg));
+  silly_print("flow!\n");
   exit(0);
 }
 
@@ -149,21 +153,33 @@ void test_clone_basic(void)
   clone(&test_clone_function, &stack);
 }
 
+void silly_wait()
+{
+  int i = 0;
+  while (i++ < 100)
+  {
+    int j = 0;
+    while (j++ < 100000)
+    {
+      __asm__ __volatile__(
+          "nop\n\t"
+        ); 
+    }
+  }
+}
+
 void * semaphores_clone_function(void)
 {
+  silly_wait();
+
   sem_wait(0);
 
-  char * msg = "desbloqueado\n";
-  write(1, msg, strlen(msg));
-  int j = 0;
-  while(j++ < 100000)
-  {
-    __asm__ __volatile__(
-       "nop\n\t"
-       ); 
-  }
-  msg = "a punto de salir\n";
-  write(1, msg, strlen(msg));
+  silly_print("desbloqueado\n");
+  
+  silly_wait();
+  
+  silly_print("saliendo\n");
+  
   exit(0);
 }
 
@@ -171,23 +187,23 @@ void semaphores_basic(void)
 {
   unsigned int stack[2][1024];
   sem_init(0, 0);
-  int i;
-  for (i = 0; i < 2; i++)
+  int flow;
+  for (flow = 0; flow < 2; flow++)
   {
-    clone(&semaphores_clone_function, &stack[i][1024]);
+    clone(&semaphores_clone_function, &stack[flow][1024]);
   }
-  int j = 0;
-  while(j++ < 100000)
-  {
-    __asm__ __volatile__(
-       "nop\n\t"
-       ); 
-  }
-  //sem_signal(0);
+  
+  silly_wait();
+  sem_signal(0);
+ 
+  silly_print("first flow released\n");
+
+  silly_wait();
+  sem_signal(0);
+  
   //sem_destroy(0);
-  while(1);
-  char * msg ="destroyed\n";
-  write(1, msg, strlen(msg));
+  //while(1);
+  silly_print("destroyed\n");
 }
 
 int __attribute__ ((__section__(".text.main")))
