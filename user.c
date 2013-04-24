@@ -200,7 +200,9 @@ void semaphores_basic(void)
 
   silly_wait();
   sem_signal(0);
-  
+ 
+  silly_print("Second flow released\n");
+
   //sem_destroy(0);
   //while(1);
   silly_print("destroyed\n");
