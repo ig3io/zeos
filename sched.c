@@ -239,7 +239,7 @@ void update_current_state_rr(struct list_head *dest)
     current()->state = ST_BLOCKED;
   }
 
-  /*PUT THE PROCES IN THE QUEUE THAT IT CORRESPOND*/
+  // Remove from current queue and move it to dest (if it's not the idle_task)
   if (current() != idle_task)
   {
     list_del(&current()->list);
