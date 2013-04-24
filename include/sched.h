@@ -12,7 +12,7 @@
 
 #define NR_TASKS    10
 #define KERNEL_STACK_SIZE   1024
-#define QUANTUM		200
+#define QUANTUM		100
 #define NR_SEMS     20
 
 extern int page_table_refs[NR_TASKS];
