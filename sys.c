@@ -439,13 +439,14 @@ int sys_sem_destroy(int n_sem)
   sem->owner = NULL;
 
   // TODO make the processes return a -1
-  while(!list_empty(&semaphores[n_sem].list))
+  while(!list_empty(&sem->list))
   {
     //delete every process from the blocked queue (and put them on the ready)
     struct list_head * elem = list_first(&sem->list);
     list_del(elem);
     list_add_tail(elem, &readyqueue);
   }
+  
   
   return 0;
 }
