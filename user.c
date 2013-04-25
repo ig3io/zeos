@@ -185,7 +185,11 @@ void * semaphores_clone_function(void)
   silly_print("Thread: goodbye\n");
 
   // TODO
-  while(1);
+  while(1)
+  {
+    silly_wait();
+    silly_print("Thread: just chillin' inside a while(1)\n"); 
+  }
   exit(0);
 }
 
@@ -209,7 +213,11 @@ void semaphores_basic(void)
   silly_print("Master: furthermore, I'm the destroying the semaphore\n");
  
   //TODO
-  while(1);
+  while(1)
+  {
+    silly_wait();
+    silly_print("Master: just chillin' inside a while(1)\n");
+  }
 
   if (sem_destroy(0) < 0)
   {
