@@ -171,15 +171,18 @@ void silly_wait()
 void * semaphores_clone_function(void)
 {
   silly_wait();
-
-  sem_wait(0);
-
-  silly_print("desbloqueado\n");
-  
+  silly_print("Thread: I'm gonna wait right here...\n");
+  if (sem_wait(0) < 0)
+  {
+    silly_print("Thread: the sem_wait did NOT go okay\n"); 
+  }
+  else
+  {
+    silly_print("Thread: the sem_wait went okay\n");
+  }
+  silly_print("Thread: and now I'm free\n");
   silly_wait();
-  
-  silly_print("saliendo\n");
-  
+  silly_print("Thread: goodbye\n");
   exit(0);
 }
 
@@ -194,18 +197,29 @@ void semaphores_basic(void)
   }
   
   silly_wait();
+  silly_print("Master: releasing first flow...\n");
   sem_signal(0);
  
-  silly_print("first flow released\n");
+  silly_wait(); 
+  silly_print("Master: I'm NOT releasing the second flow...\n");
+  //sem_signal(0);
+  silly_print("Master: furthermore, I'm the destroying the semaphore\n");
+  if (sem_destroy(0) < 0)
+  {
+    silly_print("The sem_destroy did NOT go okay\n");
+  }
+  else
+  {
+    silly_print("The sem_destroy went okay\n");
+  }
+  silly_print("Master: I've never liked how Second Flow stares at me\n");
 
-  silly_wait();
-  sem_signal(0);
- 
-  silly_print("Second flow released\n");
+  silly_print("Master: ciao bambino!\n");
+
 
   //sem_destroy(0);
   //while(1);
-  silly_print("destroyed\n");
+  //silly_print("Master: semaphore destroyed\n");
 }
 
 int __attribute__ ((__section__(".text.main")))
