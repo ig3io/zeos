@@ -376,16 +376,29 @@ int sys_sem_wait(int n_sem)
   }
   else
   {
+
+    char * debug = "Sem: about to block a thread\n";
+    sys_write(1, debug, 29);
+
     list_del(&current()->list);
     list_add_tail(&current()->list,&sem->list);
+    
+    debug = "Sem: thread moved to semaphore list\n";
+    sys_write(1, debug, 36);
 
     // We're blocking the process, so we schedule the next one
     sched_next_rr();
   }
 
   // Now we check if the semaphore was destroyed
+  char * debug = "Sem: about to going back... \n";
+  sys_write(1, debug, 29);
+
   if (sem->owner == NULL)
   {
+    debug = "Sem: (note: it's destroyed!)\n";
+    sys_write(1, debug, 29);
+
     return -1;
   }
 
