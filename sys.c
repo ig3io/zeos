@@ -443,7 +443,7 @@ int sys_sem_destroy(int n_sem)
   {
     //delete every process from the blocked queue (and put them on the ready)
     struct list_head * elem = list_first(&sem->list);
-    list_del(elem);;
+    list_del(elem);
     list_add_tail(elem, &readyqueue);
   }
   
