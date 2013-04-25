@@ -381,7 +381,8 @@ int sys_sem_wait(int n_sem)
     sys_write(1, debug, 29);
 
     list_del(&current()->list);
-    list_add_tail(&current()->list,&sem->list);
+    list_add_tail(&current()->list, &sem->list);
+    current()->state = ST_BLOCKED;
     
     debug = "Sem: thread moved to semaphore list\n";
     sys_write(1, debug, 36);
@@ -429,6 +430,8 @@ int sys_sem_signal(int n_sem)
     struct list_head * elem = list_first(&sem->list);
     list_del(elem);
     list_add_tail(elem, &readyqueue);
+    struct task_struct * task = list_head_to_task_struct(elem); 
+    task->state = ST_READY;
   }
   
   return 0;
@@ -458,6 +461,8 @@ int sys_sem_destroy(int n_sem)
     struct list_head * elem = list_first(&sem->list);
     list_del(elem);
     list_add_tail(elem, &readyqueue);
+    struct task_struct * task = list_head_to_task_struct(elem); 
+    task->state = ST_READY;
   }
   
   
