@@ -183,6 +183,9 @@ void * semaphores_clone_function(void)
   silly_print("Thread: and now I'm free\n");
   silly_wait();
   silly_print("Thread: goodbye\n");
+
+  // TODO
+  while(1);
   exit(0);
 }
 
@@ -204,6 +207,10 @@ void semaphores_basic(void)
   silly_print("Master: I'm NOT releasing the second flow...\n");
   //sem_signal(0);
   silly_print("Master: furthermore, I'm the destroying the semaphore\n");
+ 
+  //TODO
+  while(1);
+
   if (sem_destroy(0) < 0)
   {
     silly_print("The sem_destroy did NOT go okay\n");
@@ -212,6 +219,7 @@ void semaphores_basic(void)
   {
     silly_print("The sem_destroy went okay\n");
   }
+  
   silly_print("Master: I've never liked how Second Flow stares at me\n");
 
   silly_print("Master: ciao bambino!\n");
