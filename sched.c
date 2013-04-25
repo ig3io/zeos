@@ -251,7 +251,7 @@ void sched_next_rr(void)
 {
   // Quantum to default value
   //current()->quantum = QUANTUM;
-  current_quantum = QUANTUM;
+  //current_quantum = QUANTUM;
 
   struct task_struct * next;
   
@@ -274,6 +274,9 @@ void sched_next_rr(void)
   printc_xy(0, 11, 'N');
   printc_xy(1, 11, ':');
   printc_xy(2, 11, next->PID + 48);
+
+  // Restore quantum
+  current_quantum = next->quantum;
 
   if (next != current())
   {
