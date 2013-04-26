@@ -38,7 +38,7 @@ void ret_from_fork(){
 		:
 		:"ax");
 }
-		
+	
 
 int check_fd(int fd, int permissions)
 {
@@ -199,6 +199,7 @@ int sys_clone(void *(function) (void), void *stack)
 
   __asm__ __volatile__(
       "mov %%ebp,%0\n\t"
+      "nop\n\t"
       :"=g"(ebp)
       :
       :"memory");
@@ -209,14 +210,19 @@ int sys_clone(void *(function) (void), void *stack)
   __asm__ __volatile__(
       "mov %0,%%esi"
       :
-      :"r"(des));
+      :"r"(&child->stack[0]));
 
-  child->stack[des] = (unsigned long) ebp;//Same as father, so assign the ebp value
-  child->stack[des-1] =(unsigned long)  &ret_from_fork;
-  child->stack[des-2] = (unsigned long) function;
-  child->stack[des-3] = (unsigned long) stack;
+  child->stack[des] = (unsigned long) ebp; //Same as father, so assign the ebp value
 
-  child->task.kernel_esp = &child->stack[des-3];// IDEM (we could asign the ebp variable, the same result(in theory=))
+    __asm__ __volatile__(
+      "mov %0,%%esi"
+      :
+      :"r"(child->stack[des]));
+  //child->stack[des+1] =(unsigned long)  &ret_from_fork;
+  child->stack[des+7] = (unsigned long) stack;
+  child->stack[des+13] = (unsigned long) function;
+
+  child->task.kernel_esp = &child->stack[des];// IDEM (we could asign the ebp variable, the same result(in theory=))
 
   PID = child->task.PID;
   list_add_tail(&child->task.list,&readyqueue);
