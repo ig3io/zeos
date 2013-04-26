@@ -213,10 +213,12 @@ void semaphores_basic(void)
   silly_print("Master: furthermore, I'm the destroying the semaphore\n");
  
   //TODO
-  while(1)
+  int n=0;
+  while(n<5)
   {
     silly_wait();
     silly_print("Master: just chillin' inside a while(1)\n");
+    ++n;
   }
 
   if (sem_destroy(0) < 0)
@@ -246,6 +248,7 @@ int __attribute__ ((__section__(".text.main")))
   //stats_basic_demo();
   //test_clone_basic();
   semaphores_basic();
+  exit();
   while(1);
   return 0;
 }
