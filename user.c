@@ -1,5 +1,7 @@
 #include <libc.h>
 
+#define TOTAL_THREADS 5
+
 char buff[24];
 
 int pid;
@@ -242,6 +244,125 @@ void semaphores_basic(void)
   //silly_print("Master: semaphore destroyed\n");
 }
 
+void * semaphores_reunion_function(void)
+{
+  silly_print("Thread: hello there, I'm a thread\n");
+  silly_wait();
+  silly_print("Thread: now I'm gonna wait for semaphore 0\n");
+  if (sem_wait(0) < 0)
+  {
+    silly_print("Thread: the wait for semaphore 0 did NOT go okay\n");
+  }
+  else
+  {
+    silly_print("Thread: the wait for semaphore 0 went okay\n");
+  }
+
+  silly_wait();
+  silly_print("Thread: now I'm gonna wait for semaphore 1\n");
+  if (sem_wait(1) < 0)
+  {
+    silly_print("Thread: the wait for semaphore 1 did NOT go okay\n");
+  }
+  else
+  {
+    silly_print("Thread: the wait for semaphore 1 went okay\n");
+  }
+
+  silly_wait();
+  silly_print("Thread: goodbye!\n");
+
+  exit(0);
+}
+
+void semaphores_reunion(void)
+{
+  if (sem_init(0, 3) < 0)
+  {
+    silly_print("Master: a new semaphore (0, 3) dit NOT get created\n");
+  }
+  else
+  {
+    silly_print("Master: a new semaphore (0, 3) has been created\n");
+  }
+
+  if (sem_init(1, 2) < 0)
+  {
+    silly_print("Master: a new semaphore (1, 2) dit NOT get created\n");
+  }
+  else
+  {
+    silly_print("Master: a new semaphore (1, 2) has been created\n");
+  }
+
+
+  unsigned int stack[TOTAL_THREADS][1024];
+  int flow;
+  for (flow = 0; flow < TOTAL_THREADS; flow++)
+  {
+    silly_wait();
+    if (clone(&semaphores_reunion_function, &stack[flow][1024]) < 0)
+    {
+      silly_print("Master: the clone did NOT go okay\n");
+    }
+    else
+    {
+      silly_print("Master: a new thread has been cloned\n");
+    }
+  }
+
+  int i = 0;
+  while (i++ < 3)
+  {
+    silly_print("Master: just chillin' some time, here, inside a while(1)\n");
+    silly_wait();
+  }
+
+  int j = 0;
+  while (j++ < 2)
+  {
+    silly_wait();
+    silly_print("Master: I'm gonna make some space for 1 thread over semaphore 0\n");
+    sem_signal(0);
+  }
+
+  int k = 0;
+  while (k++ < 3)
+  {
+    silly_wait();
+    silly_print("Master: I'm gonna make some space for 1 thread over semaphore 1\n");
+    sem_signal(1);
+  }
+
+  silly_wait();
+  silly_wait();
+  silly_print("Master: I'm gonna destroy semaphore 0. Time's up\n");
+  if (sem_destroy(0) < 0)
+  {
+    silly_print("Master: I wasn't able to properly destroy the semaphore 0\n");
+  }
+  else
+  {
+    silly_print("Master: the semaphore 0 was destroyed!\n");
+  }
+
+  silly_wait();
+  silly_wait();
+
+  silly_print("Master: I'm gonna destroy semaphore 1. Time's up\n");
+  if (sem_destroy(1) < 0)
+  {
+    silly_print("Master: I wasn't able to properly destroy the semaphore 1\n");
+  }
+  else
+  {
+    silly_print("Master: the semaphore 1 was destroyed!\n");
+  }
+
+  silly_print("Master: now I'm gonna get into a while(1). Just because\n");
+  while(1);
+}
+
 int __attribute__ ((__section__(".text.main")))
   main(void)
 {
@@ -249,7 +370,8 @@ int __attribute__ ((__section__(".text.main")))
   //fork_demo();
   //stats_basic_demo();
   //test_clone_basic();
-  semaphores_basic();
+  //semaphores_basic();
+  semaphores_reunion();
   exit();
   while(1);
   return 0;
