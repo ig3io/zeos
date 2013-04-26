@@ -368,45 +368,49 @@ void semaphores_reunion(void)
   while(1);
 }
 
-void * clone_very_basic_function(void)
+void * clone_very_basic_function_a(void)
 {
   silly_print("I'm a thread\n");
 
-  if (sem_wait(0) < 0)
-  {
-    silly_print("sem_wait NOT OK\n");
-  }
-  else
-  {
-    silly_print("sem_wait OK\n");
-  }
+  silly_wait();
+
+  silly_print("Goodbye\n");
 
   exit();
 }
 
+void * clone_very_basic_function_b(void)
+{
+  silly_print("I'm a thread\n");
+
+  silly_wait();
+
+  silly_print("I'm gonna while(1)\n");
+
+  while(1);
+
+  exit();
+}
 void clone_very_basic(void)
 {
   sem_init(0, 0);
 
   unsigned long stack[3][1024];
   int i = 0;
-  for (i = 0; i < 3; i++)
+  for (i = 0; i < 2; i++)
   {
-    clone(&clone_very_basic_function, &stack[i][1024]);
+    clone(&clone_very_basic_function_a, &stack[i][1024]);
   }
 
-  silly_wait();
-  silly_wait();
-  sem_signal(0);
+  clone(&clone_very_basic_function_b, &stack[2][1024]);
 
   silly_wait();
   silly_wait();
-  sem_signal(0);
-
-  silly_wait();
-  silly_wait();
-  sem_signal(0);
   
+  silly_wait();
+  silly_wait();
+  silly_wait();
+  exit();
   while(1);
 }
 
@@ -429,6 +433,8 @@ void * clone_test_function_b(void)
   silly_print("B: blocked\n");
   sem_wait(1);
 
+  exit();
+
   while (1)
   {
     silly_print("I'm B\n");
@@ -442,6 +448,8 @@ void * clone_test_function_c(void)
 {
   silly_print("C: blocked\n");
   sem_wait(2);
+
+  exit();
 
   while (1)
   {
@@ -467,8 +475,10 @@ void clone_test(void)
   silly_wait();
 
   sem_signal(0);
-//  sem_signal(1);
-//  sem_signal(2);
+  sem_signal(1);
+  sem_signal(2);
+
+  while(1);
 }
 
 int __attribute__ ((__section__(".text.main")))
