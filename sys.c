@@ -161,10 +161,11 @@ void sys_exit()
 {
   stats_current_user_to_system();
   //int i;
-  free_user_pages(current());
   int pos = (current()->dir_pages_baseAddr - &dir_pages[0][0] )/((sizeof(page_table_entry)) * TOTAL_PAGES);
   page_table_refs[pos]--;	
-  //for(i = PAG_LOG_INIT_CODE_P0; i<PAG_LOG_INIT_DATA_P0; ++i) del_ss_pag(get_PT(current()),i);
+  if(page_table_refs[pos]==0){
+    free_user_pages(current());
+  }
   update_current_state_rr(&freequeue);
   sched_next_rr();
   stats_current_system_to_user();
