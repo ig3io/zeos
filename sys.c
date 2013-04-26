@@ -294,7 +294,7 @@ int sys_gettime(){
 
 int sys_get_stats(int pid, struct stats * st)
 {
-  printc_xy(10, 10, 'J');
+  //printc_xy(10, 10, 'J');
   stats_current_user_to_system();
 
   struct task_struct * target = NULL;
@@ -309,7 +309,7 @@ int sys_get_stats(int pid, struct stats * st)
     }
   }
 
-  printc_xy(10, 10, 'k');
+  //printc_xy(10, 10, 'k');
 
   if (target == NULL)
   {
@@ -317,14 +317,14 @@ int sys_get_stats(int pid, struct stats * st)
     return -1;
   }
 
-  printc_xy(10, 10, 'L');
+  //printc_xy(10, 10, 'L');
   if (copy_to_user(&target->stats, st, sizeof(struct stats) < 0))
   {
     stats_current_system_to_user();
     return -1; 
   }
 
-  printc_xy(10, 10, 'M');
+  //printc_xy(10, 10, 'M');
   
   stats_current_system_to_user();
   return 0;
@@ -384,28 +384,28 @@ int sys_sem_wait(int n_sem)
   else
   {
 
-    char * debug = "Sem: about to block a thread\n";
-    sys_write(1, debug, 29);
+    //char * debug = "Sem: about to block a thread\n";
+    //sys_write(1, debug, 29);
 
     list_del(&current()->list);
     list_add_tail(&current()->list, &sem->list);
     current()->state = ST_BLOCKED;
     
-    debug = "Sem: thread moved to semaphore list\n";
-    sys_write(1, debug, 36);
+    //debug = "Sem: thread moved to semaphore list\n";
+    //sys_write(1, debug, 36);
 
     // We're blocking the process, so we schedule the next one
     sched_next_rr();
   }
 
   // Now we check if the semaphore was destroyed
-  char * debug = "Sem: about to going back... \n";
-  sys_write(1, debug, 29);
+  //char * debug = "Sem: about to going back... \n";
+  //sys_write(1, debug, 29);
 
   if (sem->owner == NULL)
   {
-    debug = "Sem: (note: it's destroyed!)\n";
-    sys_write(1, debug, 29);
+    //debug = "Sem: (note: it's destroyed!)\n";
+    //sys_write(1, debug, 29);
 
     return -1;
   }
