@@ -145,6 +145,8 @@ void * test_clone_function(void)
 {
   silly_print("flow!\n");
   exit(0);
+  // To avoid warnings
+  return (void *)0;
 }
 
 void test_clone_basic(void)
