@@ -63,7 +63,7 @@ int allocate_DIR(struct task_struct *t)
 
 int allocate_DIR_clone(struct task_struct *t)
 {
-	int pos = (int)((t->dir_pages_baseAddr-&dir_pages[0][0])/sizeof(page_table_entry));
+	int pos = (int)((t->dir_pages_baseAddr-&dir_pages[0][0])/(sizeof(page_table_entry) * TOTAL_PAGES)); //TODO
 	page_table_refs[pos]++;
 	return 1;
 	//TODO Return -1 in error case
