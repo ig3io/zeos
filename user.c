@@ -146,7 +146,7 @@ void silly_print(char * msg)
 void * test_clone_function(void)
 {
   silly_print("flow!\n");
-  exit(0);
+  exit();
   // To avoid warnings
   return (void *)0;
 }
@@ -194,7 +194,7 @@ void * semaphores_clone_function(void)
     silly_wait();
     silly_print("Thread: just chillin' inside a while(1)\n"); 
   }
-  exit(0);
+  exit();
 }
 
 void semaphores_basic(void)
@@ -248,31 +248,31 @@ void * semaphores_reunion_function(void)
 {
   silly_print("Thread: hello there, I'm a thread\n");
   silly_wait();
-  silly_print("Thread: now I'm gonna wait for semaphore 0\n");
+  //silly_print("Thread: now I'm gonna wait for semaphore 0\n");
   if (sem_wait(0) < 0)
   {
     silly_print("Thread: the wait for semaphore 0 did NOT go okay\n");
   }
   else
   {
-    silly_print("Thread: the wait for semaphore 0 went okay\n");
+    //silly_print("Thread: the wait for semaphore 0 went okay\n");
   }
 
   silly_wait();
-  silly_print("Thread: now I'm gonna wait for semaphore 1\n");
+  //silly_print("Thread: now I'm gonna wait for semaphore 1\n");
   if (sem_wait(1) < 0)
   {
     silly_print("Thread: the wait for semaphore 1 did NOT go okay\n");
   }
   else
   {
-    silly_print("Thread: the wait for semaphore 1 went okay\n");
+    //silly_print("Thread: the wait for semaphore 1 went okay\n");
   }
 
   silly_wait();
   silly_print("Thread: goodbye!\n");
 
-  exit(0);
+  exit();
 }
 
 void semaphores_reunion(void)
@@ -283,7 +283,7 @@ void semaphores_reunion(void)
   }
   else
   {
-    silly_print("Master: a new semaphore (0, 3) has been created\n");
+    //silly_print("Master: a new semaphore (0, 3) has been created\n");
   }
 
   if (sem_init(1, 2) < 0)
@@ -292,7 +292,7 @@ void semaphores_reunion(void)
   }
   else
   {
-    silly_print("Master: a new semaphore (1, 2) has been created\n");
+    //silly_print("Master: a new semaphore (1, 2) has been created\n");
   }
 
 
@@ -307,19 +307,21 @@ void semaphores_reunion(void)
     }
     else
     {
-      silly_print("Master: a new thread has been cloned\n");
+      //silly_print("Master: a new thread has been cloned\n");
     }
   }
 
   int i = 0;
   while (i++ < 3)
   {
-    silly_print("Master: just chillin' some time, here, inside a while(1)\n");
+    //silly_print("Master: just chillin' some time, here, inside a while(1)\n");
     silly_wait();
   }
+  
+  
 
   int j = 0;
-  while (j++ < 2)
+  while (j++ < 1)
   {
     silly_wait();
     silly_print("Master: I'm gonna make some space for 1 thread over semaphore 0\n");
@@ -327,12 +329,14 @@ void semaphores_reunion(void)
   }
 
   int k = 0;
-  while (k++ < 3)
+  while (k++ < 2)
   {
     silly_wait();
     silly_print("Master: I'm gonna make some space for 1 thread over semaphore 1\n");
     sem_signal(1);
   }
+
+  while(1);
 
   silly_wait();
   silly_wait();
@@ -350,6 +354,7 @@ void semaphores_reunion(void)
   silly_wait();
 
   silly_print("Master: I'm gonna destroy semaphore 1. Time's up\n");
+
   if (sem_destroy(1) < 0)
   {
     silly_print("Master: I wasn't able to properly destroy the semaphore 1\n");
@@ -363,6 +368,42 @@ void semaphores_reunion(void)
   while(1);
 }
 
+void * clone_very_basic_function(void)
+{
+  if (sem_wait(0) < 0)
+  {
+    silly_print("sem_wait NOT OK\n");
+  }
+  else
+  {
+    silly_print("sem_wait OK\n");
+  }
+
+  exit();
+}
+
+void clone_very_basic(void)
+{
+  sem_init(0, 0);
+
+  unsigned long stack[2][1024];
+  int i = 0;
+  for (i = 0; i < 2; i++)
+  {
+    clone(&clone_very_basic_function, &stack[i][1024]);
+  }
+
+  silly_wait();
+  silly_wait();
+  sem_signal(0);
+
+  silly_wait();
+  silly_wait();
+  sem_signal(0);
+
+  while(1);
+}
+
 int __attribute__ ((__section__(".text.main")))
   main(void)
 {
@@ -371,7 +412,8 @@ int __attribute__ ((__section__(".text.main")))
   //stats_basic_demo();
   //test_clone_basic();
   //semaphores_basic();
-  semaphores_reunion();
+  //semaphores_reunion();
+  clone_very_basic();
   exit();
   while(1);
   return 0;
