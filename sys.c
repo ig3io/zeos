@@ -161,7 +161,7 @@ void sys_exit()
 {
   stats_current_user_to_system();
   //int i;
-  int pos = (current()->dir_pages_baseAddr - &dir_pages[0][0] )/((sizeof(page_table_entry)) * TOTAL_PAGES);
+  int pos = (current()->dir_pages_baseAddr - &dir_pages[0][0] )/((sizeof(page_table_entry))); //* TOTAL_PAGES);
   page_table_refs[pos]--;	
   if(page_table_refs[pos]==0){
     free_user_pages(current());
