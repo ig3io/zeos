@@ -297,6 +297,11 @@ int sys_get_stats(int pid, struct stats * st)
   //printc_xy(10, 10, 'J');
   stats_current_user_to_system();
 
+  if (!access_ok(VERIFY_WRITE, st, sizeof(struct stats)))
+  {
+    return -EACCES;
+  }
+
   struct task_struct * target = NULL;
   struct list_head * it;
   // Only readyqueue is of interest right now
