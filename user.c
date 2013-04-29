@@ -76,6 +76,64 @@ void fork_basic(int total_forks)
   silly_print("Fork: Basic: END\n");
 }
 
+void * clone_basic_function(void)
+{
+  silly_wait();
+  // Just to add some local variables
+  int i = 0;
+  int j = 0;
+  while (i++ < 10)
+  {
+    j += 2;
+  }
+  exit();
+}
+
+void clone_basic(int total_clones)
+{
+  unsigned long stack[10][1024];
+
+  if (total_clones > 10)
+  {
+    silly_print("Clone: Basic: ERROR: total_clones must be lower or equal than 10\n");
+    return;
+  }
+  else
+  {
+    silly_print("Clone: Basic: START: ");
+    silly_print_digit(total_clones);
+    silly_print(" clones planned\n");
+  }
+
+  int clones_ok = 0;
+  int clones_ko = 0;
+
+  int i;
+  for (i = 0; i < total_clones; i++)
+  {
+    int res = clone(&clone_basic_function, &stack[i][1024]);
+    if (res > 0)
+    {
+      clones_ok++;
+    }
+    else
+    {
+      clones_ko++;
+    }
+  }
+
+  silly_print("Clone: Basic Total clones:     ");
+  silly_print_digit(clones_ok + clones_ko);
+  silly_print("\n");
+  silly_print("Clone: Basic: Total OK clones: ");
+  silly_print_digit(clones_ok);
+  silly_print("\n");
+  silly_print("Clone: Basic: Total KO clones: ");
+  silly_print_digit(clones_ko);
+  silly_print("\n");
+
+  silly_print("Clone: Basic: END\n");
+}
 
 void * test_clone_function(void)
 {
@@ -404,7 +462,8 @@ void clone_test(void)
 int __attribute__ ((__section__(".text.main")))
   main(void)
 {
-  fork_basic(20);
+  //fork_basic(20);
+  clone_basic(10);
   while(1);
   
   // e1_demo();
