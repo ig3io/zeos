@@ -184,6 +184,12 @@ int sys_clone(void *(function) (void), void *stack)
 
   int PID=-1;
 
+  // TODO refine return code
+  if (list_empty(&freequeue))
+  {
+    return -1;
+  }
+
   struct list_head *free_pcb = list_first(&freequeue);// take the first free PCB
   /* if freequeue don't have any element, return an error(not implemented)*/
   union task_union *child = (union task_union*)list_head_to_task_struct(free_pcb);
