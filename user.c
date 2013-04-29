@@ -1,6 +1,7 @@
 #include <libc.h>
 
 #define TOTAL_THREADS 5
+#define WAIT_FACTOR 100
 
 char buff[24];
 
@@ -14,7 +15,7 @@ void silly_print(char * msg)
 void silly_wait()
 {
   int i = 0;
-  while (i++ < 100)
+  while (i++ < WAIT_FACTOR)
   {
     int j = 0;
     while (j++ < 100000)
@@ -26,41 +27,55 @@ void silly_wait()
   }
 }
 
-void fork_basic(void)
+void silly_print_digit(int digit)
 {
-  silly_print("Fork: Basic: START\n");
-  int i;
-  for (i = 0; i < 5; i++)
-  {
-    silly_wait();
+  char digit_c;
+  itoa(digit, &digit_c);
+  silly_print(&digit_c);
+}
 
+void fork_basic(int total_forks)
+{
+  silly_print("Fork: Basic: START: ");
+  silly_print_digit(total_forks);
+  silly_print(" fork calls\n");
+
+  int forks_ok = 0;
+  int forks_ko = 0;
+  
+  int i;
+  for (i = 0; i < total_forks; i++)
+  {
     int pid = fork();
     
     if (pid > 0)
     {
-      char pid_c;
-      itoa(pid, &pid_c);
-      silly_print("Fork: Basic: Parent: Child created with PID: ");
-      silly_print(&pid_c);
-      silly_print("\n");
+      forks_ok++;
+    }
+    else if (pid == 0)
+    {
+      silly_wait();
+      exit();
     }
     else
     {
-      char pid_c;
-      int my_pid = getpid();
-      itoa(my_pid, &pid_c);
-      silly_print("Fork: Basic: Child: PID: ");
-      silly_print(&pid_c);
-      silly_print(": Hello\n");
-      silly_wait();
-      silly_print("Fork: Basic: Child: ");
-      silly_print(&pid_c);
-      silly_print(": Exit\n");
-      exit();
+      forks_ko++;
     }
   }
+
+  silly_print("Fork: Basic Total forks:     ");
+  silly_print_digit(forks_ok + forks_ko);
+  silly_print("\n");
+  silly_print("Fork: Basic: Total OK forks: ");
+  silly_print_digit(forks_ok);
+  silly_print("\n");
+  silly_print("Fork: Basic: Total KO forks: ");
+  silly_print_digit(forks_ko);
+  silly_print("\n");
+
   silly_print("Fork: Basic: END\n");
 }
+
 
 void * test_clone_function(void)
 {
@@ -389,8 +404,9 @@ void clone_test(void)
 int __attribute__ ((__section__(".text.main")))
   main(void)
 {
-  fork_basic();
+  fork_basic(20);
   while(1);
+  
   // e1_demo();
   //fork_demo();
   //stats_basic_demo();
