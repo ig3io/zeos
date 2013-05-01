@@ -217,8 +217,9 @@ int sys_clone(void *(function) (void), void *stack)
       :
       :"memory");
 
-
-  int des = (unsigned long*)ebp - &father->stack[0]; // Calculate the diference bettwen ebp & esp, necessary for possible values pushed in the stack
+  // Calculate the diference bettwen ebp & esp, necessary for possible values pushed in the stack
+  //int des = (int)((unsigned long *)ebp - &father->stack[0])/(sizeof(unsigned long));
+  int des = (int)((unsigned long *)ebp - &father->stack[0]);
 
   __asm__ __volatile__(
       "mov %0,%%esi"
@@ -231,9 +232,11 @@ int sys_clone(void *(function) (void), void *stack)
       "mov %0,%%esi"
       :
       :"r"(child->stack[des]));
-  //child->stack[des+1] =(unsigned long)  &ret_from_fork;
+  
+  // child->stack[des+1] =(unsigned long)  &ret_from_fork;
   child->stack[des+7] = (unsigned long) stack;
   child->stack[des+13] = (unsigned long) function;
+  //child->stack[des+16] = (unsigned long) stack;
 
   child->task.kernel_esp = &child->stack[des];// IDEM (we could asign the ebp variable, the same result(in theory=))
 
@@ -478,7 +481,6 @@ int sys_sem_destroy(int n_sem)
   
   sem->owner = NULL;
 
-  // TODO make the processes return a -1
   while(!list_empty(&sem->list))
   {
     //delete every process from the blocked queue (and put them on the ready)
@@ -488,7 +490,6 @@ int sys_sem_destroy(int n_sem)
     struct task_struct * task = list_head_to_task_struct(elem); 
     task->state = ST_READY;
   }
-  
   
   return 0;
 }
