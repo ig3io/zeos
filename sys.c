@@ -233,12 +233,12 @@ int sys_clone(void *(function) (void), void *stack)
       :
       :"r"(child->stack[des]));
   
-  /*
-  // child->stack[des+1] =(unsigned long)  &ret_from_fork;
-  child->stack[des+7] = (unsigned long) stack;
-  child->stack[des+13] = (unsigned long) function;
-  //child->stack[des+16] = (unsigned long) stack;
-  */
+  
+  //// child->stack[des+1] =(unsigned long)  &ret_from_fork;
+  child->stack[des + 7 -2] = (unsigned long) stack;
+  child->stack[des + 13 -2] = (unsigned long) function;
+  ////child->stack[des+16] = (unsigned long) stack;
+  
 
   child->stack[des] = (unsigned long)ebp;
   //child->stack[des + 1] = (unsigned long)&ret_from_fork;
