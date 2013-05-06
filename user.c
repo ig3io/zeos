@@ -140,7 +140,7 @@ void clone_basic(int total_clones)
 
 void * semaphores_basic_function(void)
 {
-  silly_print("Semaphores: Basic: Thread: Waiting...");
+  silly_print("Semaphores: Basic: Thread: Waiting...\n");
   if (sem_wait(0) < 0)
   {
     silly_print("Semaphores: Basic: Thread: Wait ERROR\n");
@@ -149,6 +149,9 @@ void * semaphores_basic_function(void)
   {
     silly_print("Semaphores: Basic: Thread: Wait OK\n");
   }
+
+  //while(1);
+
   exit();
 
   return (void *)0;
@@ -158,7 +161,7 @@ void semaphores_basic(void)
 {
   sem_init(0, 0);
   unsigned long stack[1024];
-  if (clone(&semaphores_basic_function, stack) < 0)
+  if (clone(&semaphores_basic_function, &stack[1024]) < 0)
   {
     silly_print("Semaphores: Basic: Master: Thread creation ERROR\n");
   }
@@ -170,16 +173,93 @@ void semaphores_basic(void)
     sem_signal(0);
   }
 
+  //while(1);
   silly_print("SemaphoreS: Basic: Master: Destroying semaphore\n");
   sem_destroy(0);
 }
+
+void semaphores_medium_function_a(void)
+{
+  silly_print("Semaphores: Medium: Thread A: Waiting...\n");
+  if (sem_wait(0) < 0)
+  {
+    silly_print("Semaphores: Medium: Thread A: Wait ERROR\n");
+  }
+  else
+  {
+    silly_print("Semaphores: Medium: Thread A: Wait OK\n");
+  }
+
+  //while(1);
+
+  exit();
+
+  return (void *)0;
+}
+
+void semaphores_medium_function_b(void)
+{
+  silly_print("Semaphores: Medium: Thread B: Waiting...\n");
+  if (sem_wait(0) < 0)
+  {
+    silly_print("Semaphores: Medium: Thread B: Wait ERROR\n");
+  }
+  else
+  {
+    silly_print("Semaphores: Medium: Thread B: Wait OK\n");
+  }
+
+  //while(1);
+
+  exit();
+
+  return (void *)0;
+}
+
+void semaphores_medium(void)
+{
+  unsigned long stacks[2][1024];
+  sem_init(0, 0);
+
+  if (clone(&semaphores_medium_function_a, &stacks[0][1024]) < 0)
+  {
+    silly_print("Semaphores: Basic: Master: Thread A creation ERROR\n");
+  }
+  else
+  {
+    silly_print("Semaphores: Basic: Master: Thread A creation OK\n");
+  }
+  
+  if (clone(&semaphores_medium_function_b, &stacks[1][1024]) < 0)
+  {
+    silly_print("Semaphores: Basic: Master: Thread B creation ERROR\n");
+  }
+  else
+  {
+    silly_print("Semaphores: Basic: Master: Thread B creation OK\n");
+  }
+
+  silly_wait();
+  silly_print("Semaphores: Basic: Master: Releasing semaphore\n");
+  sem_signal(0);
+  
+  silly_wait();
+  silly_print("Semaphores: Basic: Master: Releasing semaphore\n");
+  sem_signal(0);
+
+  //while(1);
+  silly_print("SemaphoreS: Basic: Master: Destroying semaphore\n");
+  sem_destroy(0);
+}
+
 
 int __attribute__ ((__section__(".text.main")))
   main(void)
 {
   //fork_basic(20);
   //clone_basic(10);
-  semaphores_basic();
+  //semaphores_basic();
+  semaphores_medium();
   while(1);
   
   return 0;
