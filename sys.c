@@ -207,7 +207,7 @@ int sys_clone(void *(function) (void), void *stack)
   child->task.state = ST_READY;
   ///////////////////////////////////////////////
 
-  int ebp;
+  unsigned long ebp;
 
 
   __asm__ __volatile__(
@@ -233,12 +233,19 @@ int sys_clone(void *(function) (void), void *stack)
       :
       :"r"(child->stack[des]));
   
+  /*
   // child->stack[des+1] =(unsigned long)  &ret_from_fork;
   child->stack[des+7] = (unsigned long) stack;
   child->stack[des+13] = (unsigned long) function;
   //child->stack[des+16] = (unsigned long) stack;
+  */
 
-  child->task.kernel_esp = &child->stack[des];// IDEM (we could asign the ebp variable, the same result(in theory=))
+  child->stack[des] = (unsigned long)ebp;
+  //child->stack[des + 1] = (unsigned long)&ret_from_fork;
+  child->stack[des - 2] = (unsigned long)stack;
+  child->stack[des - 1] = (unsigned long)function;
+
+  child->task.kernel_esp = &child->stack[des - 2];// IDEM (we could asign the ebp variable, the same result(in theory=))
 
   PID = child->task.PID;
   list_add_tail(&child->task.list,&readyqueue);
