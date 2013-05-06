@@ -252,6 +252,140 @@ void semaphores_medium(void)
   sem_destroy(0);
 }
 
+void * semaphores_advanced_function_a(void)
+{
+  silly_print("Semaphores: Advanced: Thread A: Hello\n");
+  if (sem_wait(0) < 0)
+  {
+    silly_print("Semaphores: Advanced: Thread A: sem_wait ERROR\n");
+  }
+  else
+  {
+    silly_print("Semaphores: Advanced: Thread A: sem_wait OK\n");
+  }
+  silly_wait();
+  silly_wait();
+  silly_wait();
+  silly_print("Semaphores: Advanced: Thread A: Ciao!\n");
+  exit();
+
+  return (void *)0;
+}
+
+void * semaphores_advanced_function_b(void)
+{
+  silly_print("Semaphores: Advanced: Thread B: Hello\n");
+  if (sem_wait(0) < 0)
+  {
+    silly_print("Semaphores: Advanced: Thread B: sem_wait ERROR\n");
+  }
+  else
+  {
+    silly_print("Semaphores: Advanced: Thread B: sem_wait OK\n");
+  }
+  silly_wait();
+  silly_wait();
+  silly_wait();
+  silly_print("Semaphores: Advanced: Thread B: Ciao!\n");
+  exit();
+
+  return (void *)0;
+}
+
+void * semaphores_advanced_function_c(void)
+{
+  silly_print("Semaphores: Advanced: Thread C: Hello\n");
+  if (sem_wait(0) < 0)
+  {
+    silly_print("Semaphores: Advanced: Thread C: sem_wait ERROR\n");
+  }
+  else
+  {
+    silly_print("Semaphores: Advanced: Thread C: sem_wait OK\n");
+  }
+  silly_wait();
+  silly_wait();
+  silly_wait();
+  silly_print("Semaphores: Advanced: Thread C: Ciao!\n");
+  exit();
+
+  return (void *)0;
+}
+
+void * semaphores_advanced_function_d(void)
+{
+  silly_print("Semaphores: Advanced: Thread D: Hello\n");
+  if (sem_wait(0) < 0)
+  {
+    silly_print("Semaphores: Advanced: Thread D: sem_wait ERROR\n");
+  }
+  else
+  {
+    silly_print("Semaphores: Advanced: Thread D: sem_wait OK\n");
+  }
+  silly_wait();
+  silly_wait();
+  silly_wait();
+  silly_print("Semaphores: Advanced: Thread D: Ciao!\n");
+  exit();
+
+  return (void *)0;
+}
+
+void semaphores_advanced(void)
+{
+  unsigned long stacks[4][1024];
+
+  sem_init(0, 1);
+
+  if (clone(&semaphores_advanced_function_a, &stacks[0][1024]) < 0)
+  {
+    silly_print("Semaphores: Advanced: Master: Thread A creation ERROR\n");
+  }
+  if (clone(&semaphores_advanced_function_b, &stacks[1][1024]) < 0)
+  {
+    silly_print("Semaphores: Advanced: Master: Thread B creation ERROR\n");
+  }
+  if (clone(&semaphores_advanced_function_c, &stacks[2][1024]) < 0)
+  {
+    silly_print("Semaphores: Advanced: Master: Thread C creation ERROR\n");
+  }
+  if (clone(&semaphores_advanced_function_d, &stacks[3][1024]) < 0)
+  {
+    silly_print("Semaphores: Advanced: Master: Thread D creation ERROR\n");
+  }
+
+  silly_print("Semaphores: Advanced: Master: Threads A, B, C, and D created!\n");
+
+  silly_wait();
+
+  silly_print("Semaphores: Advanced: Master: Signaling semaphore 0\n");
+  sem_signal(0);
+  silly_wait();
+  silly_wait();
+
+  silly_print("Semaphores: Advanced: Master: Signaling semaphore 0\n");
+  sem_signal(0);
+  silly_wait();
+  silly_wait();
+
+  if (sem_destroy(0) < 0)
+  {
+    silly_print("Semaphores: Advanced: Master: sem_destroy ERROR\n");
+  }
+  else
+  {
+    silly_print("Semaphores: Advanced: Master: sem_destroy OK\n");
+  }
+
+  silly_wait();
+  silly_wait();
+
+  silly_print("Semaphores: Advanced: Master: Ciao!\n");
+
+  exit();
+
+}
 
 int __attribute__ ((__section__(".text.main")))
   main(void)
@@ -259,7 +393,8 @@ int __attribute__ ((__section__(".text.main")))
   //fork_basic(20);
   //clone_basic(10);
   //semaphores_basic();
-  semaphores_medium();
+  //semaphores_medium();
+  semaphores_advanced();
   while(1);
   
   return 0;
