@@ -9,17 +9,21 @@
 #include <entry.h>
 
 #define IDT_ENTRIES 256
+#define BUFFER_SIZE 30 
 
 extern Gate idt[IDT_ENTRIES];
 extern Register idtR;
 
 extern unsigned int zeos_ticks;
+extern char buffer[30];
 
 void setInterruptHandler(int vector, void (*handler)(), int maxAccessibleFromPL);
 void setTrapHandler(int vector, void (*handler)(), int maxAccessibleFromPL);
 
 void setIdt();
 
+int push(char c);
+void pop();
 void keyboard_routine();
 void clock_routine();
 

@@ -96,6 +96,23 @@ void setIdt()
   set_idt_reg(&idtR);
 }
 
+char buffer[BUFFER_SIZE];
+
+int push(char c)
+{
+  //TODO Push c at final of the array (FIFO)
+  int pos = 0; //for avoid compilation errors (but we need the position of /0 character and put the char in this position)
+  if(pos<BUFFER_SIZE){
+    buffer[pos] = c;
+  }
+  return pos;
+}
+
+void pop()
+{
+  //TODO Pop the first element in array and reajust all other elements
+}
+
 void keyboard_routine()
 {
   // We read the data register port   
@@ -118,6 +135,17 @@ void keyboard_routine()
       printc_xy(2, 13, 'y');
       printc_xy(3, 13, ':');
       printc_xy(4, 13, key_char);
+
+      int last_size_request=0;
+      int buffer_size=push(key_char);; 
+      if(buffer_size>=last_size_request && !(list_empty(&keyboardqueue))){
+        struct list_head * elem = list_first(&keyboardqueue);
+        list_del(elem);
+        list_add_tail(elem, &readyqueue);
+        struct task_struct * task = list_head_to_task_struct(elem); 
+        task->state = ST_READY;
+
+      }
   }
 }
 
