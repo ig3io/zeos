@@ -21,7 +21,8 @@ struct task_struct *list_head_to_task_struct(struct list_head *l)
 }
 #endif 
 
-extern struct list_head blocked;
+ struct list_head blocked;
+ struct list_head keyboardqueue;
 
 struct list_head freequeue;
 struct list_head readyqueue;
