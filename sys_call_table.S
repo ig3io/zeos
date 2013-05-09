@@ -5,8 +5,8 @@ ENTRY (sys_call_table)
 	.long sys_ni_syscall//0
 	.long sys_exit      //1 sys_exit call
 	.long sys_fork
-	.long sys_ni_syscall
-	.long sys_write     // sys_write call!
+	.long sys_read		// 3 sys_read call
+	.long sys_write     // 4 sys_write call
 	.long sys_ni_syscall// 5
 	.long sys_ni_syscall
 	.long sys_ni_syscall
