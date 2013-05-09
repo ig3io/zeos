@@ -81,6 +81,24 @@ int write(int fd, char * buffer, int size)
   return rvalue;
 }
 
+int read(int fd, char * buf, int count)
+{
+  int rvalue = 0;
+
+  __asm__ __volatile__ (
+    "int $0x80\n\t"
+    : "=a" (rvalue)
+    : "b" (fd), "c" (buf), "d" (count), "a" (0x03)
+  );
+
+  if (rvalue < 0)
+  {
+    errno = rvalue * -1;
+    rvalue = -1;
+  }
+  return rvalue;
+}
+
 int gettime(){
   
   int rvalue = 0;
