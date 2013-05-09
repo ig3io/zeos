@@ -27,6 +27,8 @@ struct task_struct *list_head_to_task_struct(struct list_head *l)
 struct list_head freequeue;
 struct list_head readyqueue;
 
+char buffer[BUFFER_SIZE];
+
 struct task_struct *idle_task;
 
 struct sem_struct semaphores[NR_SEMS];
@@ -346,3 +348,34 @@ void stats_init(struct stats * st)
   st->total_trans = 0;
   st->remaining_ticks = 0;
 }
+
+/* queue gestion */ 
+
+/**
+  * Move from queue_1 to queue_2
+  */
+void move_to_queue(struct list_head *queue_1, struct list_head *queue_2)
+{
+
+}
+
+int actual_size_buffer()
+{
+  int count=0;;
+  while(buffer[count]!=0) ++ count;
+  return count;
+}
+
+int push(char c)
+{
+  //TODO I think if the array is full this function crash(I think XD)
+  buffer[actual_size_buffer()] = c;
+  return actual_size_buffer();
+}
+
+
+int pop(int size)
+{
+  return -1;//TODO pop the first size elements
+}
+

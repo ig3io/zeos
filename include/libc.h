@@ -10,6 +10,8 @@
 
 int write(int fd, char *buffer, int size);
 
+int read(int fd, char * buf, int count);
+
 int gettime();
 
 void itoa(int a, char *b);

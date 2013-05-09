@@ -14,10 +14,13 @@
 #define KERNEL_STACK_SIZE   1024
 #define QUANTUM		100
 #define NR_SEMS     20
+#define BUFFER_SIZE 30  
 
 extern int current_quantum;
 
 extern int page_table_refs[NR_TASKS];
+
+extern char buffer[30];
 
 enum state_t { ST_RUN, ST_READY, ST_BLOCKED, ST_ZOMBIE };
 
@@ -26,6 +29,8 @@ struct task_struct {
   page_table_entry * dir_pages_baseAddr;
   unsigned long *kernel_esp;
   int quantum;
+  int pending_from_last_read;
+  int read_from_last_read;
   struct stats stats;
   enum state_t state;
   struct list_head list;
@@ -93,5 +98,14 @@ void stats_update_user_to_system(struct stats * st);
 void stats_update_system_to_ready(struct stats * st);
 void stats_update_ready_to_system(struct stats * st);
 void stats_init(struct stats * st);
+
+/* Queue gestion*/
+
+void move_to_queue(struct list_head *queue_1, struct list_head *queue_2);
+
+/* Buffer gestion*/
+int actual_size_buffer();
+int push(char c);
+int pop(int size);
 
 #endif  /* __SCHED_H__ */

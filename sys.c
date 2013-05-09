@@ -308,6 +308,55 @@ int sys_write(int fd, char * buffer, int size)
   return res;
 }
 
+int sys_read(int fd,char * buf,int count)
+{
+  stats_current_user_to_system();
+
+  int ch_fd = check_fd(fd, LECTURA);
+
+  if (ch_fd < 0)
+  {
+    stats_current_system_to_user();
+    return ch_fd;
+  }
+  if (buf == NULL)
+  {
+    stats_current_system_to_user();
+    return -EINVAL;
+  }
+  if (count < 0)
+  {
+    stats_current_system_to_user();
+    return -EINVAL;
+  }
+
+  current()->pending_from_last_read = count;
+
+  //if one process is wait for read the new process go to the queue
+  if(!list_empty(&keyboardqueue)){
+    list_add_tail(&current()->list,&keyboardqueue);
+    return 0;
+  }
+
+  //check if the buffer have all chars that the process need 
+  else if (count <= actual_size_buffer()) 
+  {
+    int ret = copy_to_user(buffer, buf, count);
+    //TODO move all the other data at head of the buffer
+    return ret;    
+  }
+
+  else {
+    int ret = copy_to_user(buffer,buf,BUFFER_SIZE);
+    count -= BUFFER_SIZE;
+    current()-> read_from_last_read = BUFFER_SIZE;
+    current()->pending_from_last_read = count;
+    move_to_queue(&readyqueue,&keyboardqueue);
+    return ret;
+  }
+}
+
+
 int sys_gettime(){
   stats_current_user_to_system();
   stats_current_system_to_user();
@@ -500,3 +549,4 @@ int sys_sem_destroy(int n_sem)
   
   return 0;
 }
+
