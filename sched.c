@@ -10,6 +10,8 @@
 
 int page_table_refs[NR_TASKS] = { 0 };
 
+struct circular_buffer buffer;
+
 union task_union task[NR_TASKS]
 __attribute__((__section__(".data.task")));
 
@@ -26,8 +28,6 @@ struct task_struct *list_head_to_task_struct(struct list_head *l)
 
 struct list_head freequeue;
 struct list_head readyqueue;
-
-char buffer[BUFFER_SIZE];
 
 struct task_struct *idle_task;
 
@@ -168,6 +168,10 @@ void task_switch(union task_union *new)
 }
 
 void init_sched(){
+  
+  buffer.pos_inicial=0;
+  buffer.pos_final=0;
+
   INIT_LIST_HEAD(&freequeue);
   INIT_LIST_HEAD(&readyqueue);
 
@@ -356,26 +360,45 @@ void stats_init(struct stats * st)
   */
 void move_to_queue(struct list_head *queue_1, struct list_head *queue_2)
 {
-
+  struct list_head * elem = list_first(queue_1);
+  list_del(elem);
+  list_add_tail(elem, queue_2);
+  //TODO state actualization in function of the queue_1
+  //struct task_struct * task = list_head_to_task_struct(elem); 
+  //task->state = ST_READY;
 }
 
-int actual_size_buffer()
+int bufferSize()
 {
-  int count=0;;
-  while(buffer[count]!=0) ++ count;
-  return count;
+  if(buffer.pos_inicial<=buffer.pos_final){
+    return buffer.pos_final-buffer.pos_inicial;
+  }
+  else{
+    return BUFFER_SIZE - (buffer.pos_inicial-buffer.pos_final);
+  }
 }
 
-int push(char c)
+void push(char c)
 {
-  //TODO I think if the array is full this function crash(I think XD)
-  buffer[actual_size_buffer()] = c;
-  return actual_size_buffer();
+  
+  int pos = buffer.pos_final;
+  if(pos==BUFFER_SIZE && buffer.pos_inicial!=0) buffer.pos_final = 0;
+  if(pos+1!=buffer.pos_inicial && pos<BUFFER_SIZE){
+    buffer.buffer[pos] = c;
+    ++buffer.pos_final;
+  }
+  
 }
 
 
-int pop(int size)
+char pop()
 {
-  return -1;//TODO pop the first size elements
+  char ret;
+  if(buffer.pos_inicial!=buffer.pos_final){
+      ret = buffer.buffer[buffer.pos_inicial];
+      buffer.pos_inicial++;
+  } 
+  buffer.pos_inicial = buffer.pos_inicial%BUFFER_SIZE;
+  return ret;
 }
 

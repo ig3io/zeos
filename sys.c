@@ -330,30 +330,22 @@ int sys_read(int fd,char * buf,int count)
     return -EINVAL;
   }
 
-  current()->pending_from_last_read = count;
+  current()->pending = count;
+  current()->mybuffer;
 
   //if one process is wait for read the new process go to the queue
   if(!list_empty(&keyboardqueue)){
     list_add_tail(&current()->list,&keyboardqueue);
-    return 0;
+    sched_next_rr();
   }
 
-  //check if the buffer have all chars that the process need 
-  else if (count <= actual_size_buffer()) 
-  {
-    int ret = copy_to_user(buffer, buf, count);
-    //TODO move all the other data at head of the buffer
-    return ret;    
+  while(current()->pending > 0){
+      if(bufferSize()==0) sched_next_rr;
+      current()->mybuffer[current()->read] = pop();
+      current()->pending--;
+      current()->read++; 
   }
-
-  else {
-    int ret = copy_to_user(buffer,buf,BUFFER_SIZE);
-    count -= BUFFER_SIZE;
-    current()-> read_from_last_read = BUFFER_SIZE;
-    current()->pending_from_last_read = count;
-    move_to_queue(&readyqueue,&keyboardqueue);
-    return ret;
-  }
+  copy_to_user(current()->mybuffer,buf,current()->read);
 }
 
 

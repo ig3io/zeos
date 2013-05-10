@@ -118,18 +118,18 @@ void keyboard_routine()
       printc_xy(2, 13, 'y');
       printc_xy(3, 13, ':');
       printc_xy(4, 13, key_char);
-
-      if(!list_empty(&keyboardqueue)){
-        int buffer_size=push(key_char);
-        int last_size_request = list_head_to_task_struct(list_first(&keyboardqueue))->pending_from_last_read; 
-        if(buffer_size>=last_size_request && !(list_empty(&keyboardqueue))){
-          struct list_head * elem = list_first(&keyboardqueue);
-          list_del(elem);
-          list_add_tail(elem, &readyqueue);
-          struct task_struct * task = list_head_to_task_struct(elem); 
-          task->state = ST_READY;
+      printc_xy(6,13,'1');
+      if(key_char=='p' && bufferSize()!=0) pop();
+      else if(key_char!='p') push(key_char);
+      Debug_buffer();
+      if(list_empty(&keyboardqueue)){
+        push(key_char);
+        int last_size_request = list_head_to_task_struct(list_first(&keyboardqueue))->pending; 
+        if(last_size_request <= bufferSize()){
+          move_to_queue(&keyboardqueue,&readyqueue);
         }    
       }
+      printc_xy(13,13,'2');
   }
 }
 
@@ -147,4 +147,22 @@ void clock_routine() {
     update_current_state_rr(&readyqueue);
     sched_next_rr();
   }
+}
+
+/* PRINT THE BUFFER */
+void Debug_buffer(){
+    int ini = buffer.pos_inicial;
+    int fin = buffer.pos_final;
+    int count = bufferSize();
+    printc_xy(8,13,ini+48);
+    printc_xy(9,13,fin+48);
+    printc_xy(11,13,bufferSize()+48);
+    int print_column=6;
+    while(count != 0){
+        ini = ini%BUFFER_SIZE;
+        printc_xy(print_column,2,buffer.buffer[ini]);
+        ++ini;
+        ++print_column;
+        --count;
+    }
 }

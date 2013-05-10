@@ -394,7 +394,7 @@ int __attribute__ ((__section__(".text.main")))
   //clone_basic(10);
   //semaphores_basic();
   //semaphores_medium();
-  semaphores_advanced();
+  //semaphores_advanced();
   while(1);
   
   return 0;

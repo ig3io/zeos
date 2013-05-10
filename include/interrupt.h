@@ -23,5 +23,6 @@ void setIdt();
 
 void keyboard_routine();
 void clock_routine();
+void Debug_buffer();
 
 #endif  /* __INTERRUPT_H__ */

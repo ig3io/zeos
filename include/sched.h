@@ -14,13 +14,19 @@
 #define KERNEL_STACK_SIZE   1024
 #define QUANTUM		100
 #define NR_SEMS     20
-#define BUFFER_SIZE 30  
+#define BUFFER_SIZE 9  
 
 extern int current_quantum;
 
 extern int page_table_refs[NR_TASKS];
 
-extern char buffer[30];
+struct circular_buffer {
+  char buffer[BUFFER_SIZE];
+  int pos_inicial;
+  int pos_final;
+};
+
+extern struct circular_buffer buffer;
 
 enum state_t { ST_RUN, ST_READY, ST_BLOCKED, ST_ZOMBIE };
 
@@ -29,11 +35,12 @@ struct task_struct {
   page_table_entry * dir_pages_baseAddr;
   unsigned long *kernel_esp;
   int quantum;
-  int pending_from_last_read;
-  int read_from_last_read;
+  int pending;
+  int read;
   struct stats stats;
   enum state_t state;
   struct list_head list;
+  char mybuffer[];
 };
 
 union task_union {
@@ -54,6 +61,7 @@ struct sem_struct {
   int count;
   struct list_head list;
 };
+
 
 extern struct sem_struct semaphores[NR_SEMS];
 
@@ -104,8 +112,8 @@ void stats_init(struct stats * st);
 void move_to_queue(struct list_head *queue_1, struct list_head *queue_2);
 
 /* Buffer gestion*/
-int actual_size_buffer();
-int push(char c);
-int pop(int size);
+int bufferSize();
+void push(char c);
+char pop();
 
 #endif  /* __SCHED_H__ */
