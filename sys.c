@@ -43,7 +43,7 @@ void ret_from_fork(){
 int check_fd(int fd, int permissions)
 {
   if (fd!=1) return -EBADF; /*EBADF*/
-  if (permissions!=ESCRIPTURA) return -EACCES; /*EACCES*/
+  if (permissions!=ESCRIPTURA && permissions!=LECTURA) return -EACCES; /*EACCES*/
   return 0;
 }
 
@@ -258,7 +258,7 @@ int sys_write(int fd, char * buffer, int size)
 {
   stats_current_user_to_system();
 
-  int ch_fd = check_fd(fd, ESCRIPTURA);
+  int ch_fd = check_fd(fd, LECTURA);
 
   if (ch_fd < 0)
   {
@@ -311,41 +311,58 @@ int sys_write(int fd, char * buffer, int size)
 int sys_read(int fd,char * buf,int count)
 {
   stats_current_user_to_system();
+  printc_xy(15,13,'1');
+  Debug_buffer();
 
-  int ch_fd = check_fd(fd, LECTURA);
+  int ch_fd =check_fd(fd, ESCRIPTURA);
 
   if (ch_fd < 0)
   {
     stats_current_system_to_user();
     return ch_fd;
   }
-  if (buf == NULL)
-  {
-    stats_current_system_to_user();
-    return -EINVAL;
-  }
   if (count < 0)
   {
     stats_current_system_to_user();
     return -EINVAL;
   }
-
+  printc_xy(16,13,'2');
   current()->pending = count;
-  current()->mybuffer;
+  current()->read=0;;
 
   //if one process is wait for read the new process go to the queue
   if(!list_empty(&keyboardqueue)){
-    list_add_tail(&current()->list,&keyboardqueue);
+    move_to_queue(&readyqueue,&keyboardqueue);
     sched_next_rr();
   }
 
+  printc_xy(17,13,current()->pending+48);  
   while(current()->pending > 0){
-      if(bufferSize()==0) sched_next_rr;
-      current()->mybuffer[current()->read] = pop();
+       //printc_xy(18,13,'3');
+      if(bufferSize()==0){
+        //printc_xy(18,13,'C');
+        move_to_queue(&readyqueue,&keyboardqueue);
+        sched_next_rr();
+      } 
+      //TODO FUCKK POINTERS, The idea is store all the chars in the buffer of the pcb mybuffer and then copy to the buf
+      // user parameter, but pointers are fucking me, bullshit!!!
+      char c = pop();
+      *current()->mybuffer  = c;
+      current()->mybuffer +=1;
+      printc_xy(19,13,'4');
       current()->pending--;
+      //printc_xy(20,13,current()->pending+48);
       current()->read++; 
   }
+  current()->mybuffer = current()->mybuffer - current()->read;
+  printc_xy(28,13,current()->read+48);
+  Debug_buffer();
+  printc_xy(23,13,*current()->mybuffer);
+  printc_xy(24,13,*current()->mybuffer+1);
+  printc_xy(25,13,*current()->mybuffer+2);
+  printc_xy(26,13,*current()->mybuffer+3);
   copy_to_user(current()->mybuffer,buf,current()->read);
+  printc_xy(20,13,'E');
 }
 
 

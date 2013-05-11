@@ -174,6 +174,7 @@ void init_sched(){
 
   INIT_LIST_HEAD(&freequeue);
   INIT_LIST_HEAD(&readyqueue);
+  INIT_LIST_HEAD(&keyboardqueue);
 
   int i = 0;
   for (i = 0; i < NR_TASKS; i++)
@@ -383,7 +384,7 @@ void push(char c)
   
   int pos = buffer.pos_final;
   if(pos==BUFFER_SIZE && buffer.pos_inicial!=0) buffer.pos_final = 0;
-  if(pos+1!=buffer.pos_inicial && pos<BUFFER_SIZE){
+  if(pos+1!=buffer.pos_inicial && buffer.pos_final<BUFFER_SIZE){
     buffer.buffer[pos] = c;
     ++buffer.pos_final;
   }
@@ -398,7 +399,7 @@ char pop()
       ret = buffer.buffer[buffer.pos_inicial];
       buffer.pos_inicial++;
   } 
-  buffer.pos_inicial = buffer.pos_inicial%BUFFER_SIZE;
+  buffer.pos_inicial = buffer.pos_inicial%(BUFFER_SIZE+1);
   return ret;
 }
 

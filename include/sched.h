@@ -14,7 +14,7 @@
 #define KERNEL_STACK_SIZE   1024
 #define QUANTUM		100
 #define NR_SEMS     20
-#define BUFFER_SIZE 9  
+#define BUFFER_SIZE 11  
 
 extern int current_quantum;
 
@@ -40,7 +40,7 @@ struct task_struct {
   struct stats stats;
   enum state_t state;
   struct list_head list;
-  char mybuffer[];
+  char *mybuffer;
 };
 
 union task_union {

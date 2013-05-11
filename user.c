@@ -387,6 +387,18 @@ void semaphores_advanced(void)
 
 }
 
+void read_easy_test(){
+  int fd = 1;
+  char *parbuf;
+  int size = 4;
+  int pid = fork();
+  if(pid==0){
+    read(fd,parbuf,size);
+    silly_print(parbuf);
+  }
+  else silly_print("padre_sale");
+}
+
 int __attribute__ ((__section__(".text.main")))
   main(void)
 {
@@ -395,6 +407,7 @@ int __attribute__ ((__section__(".text.main")))
   //semaphores_basic();
   //semaphores_medium();
   //semaphores_advanced();
+  read_easy_test();
   while(1);
   
   return 0;

@@ -119,11 +119,11 @@ void keyboard_routine()
       printc_xy(3, 13, ':');
       printc_xy(4, 13, key_char);
       printc_xy(6,13,'1');
-      if(key_char=='p' && bufferSize()!=0) pop();
-      else if(key_char!='p') push(key_char);
+      //if(key_char=='p' && bufferSize()!=0) pop();
+      //else if(key_char!='p') push(key_char);
+      push(key_char);
       Debug_buffer();
-      if(list_empty(&keyboardqueue)){
-        push(key_char);
+      if(!list_empty(&keyboardqueue)){
         int last_size_request = list_head_to_task_struct(list_first(&keyboardqueue))->pending; 
         if(last_size_request <= bufferSize()){
           move_to_queue(&keyboardqueue,&readyqueue);
