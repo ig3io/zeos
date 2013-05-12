@@ -124,10 +124,13 @@ void keyboard_routine()
       push(key_char);
       Debug_buffer();
       if(!list_empty(&keyboardqueue)){
-        int last_size_request = list_head_to_task_struct(list_first(&keyboardqueue))->pending; 
-        if(last_size_request <= buffer_size()){
-          move_to_queue(&keyboardqueue,&readyqueue);
-        }    
+        //int last_size_request = list_head_to_task_struct(list_first(&keyboardqueue))->pending; 
+        //if(last_size_request <= buffer_size()){
+          struct list_head * elem = list_first(&keyboardqueue);
+          list_del(elem);
+          list_add_tail(elem, &readyqueue);
+          //move_to_queue(&keyboardqueue,&readyqueue);
+        //}    
       }
       printc_xy(13,13,'2');
   }
