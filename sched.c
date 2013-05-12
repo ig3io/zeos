@@ -401,10 +401,10 @@ void pop(int size)
   }
   else{
     buffer.pos_inicial = (buffer.pos_inicial)+size%BUFFER_SIZE;
-    if(buffer.pos_inicial==buffer.pos_final){
+    /*if(buffer.pos_inicial==buffer.pos_final){
       buffer.pos_final=0;
       buffer.pos_inicial=0;
-    }
+    }*/
   }
 }
 
