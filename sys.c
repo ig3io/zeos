@@ -327,6 +327,7 @@ int sys_read_keyboard(char * buf, int count)
     if (buffer_size() == BUFFER_SIZE)
     {
       // TODO error detection
+      printc_xy(14,21,'E');
       if (buffer.pos_inicial > buffer.pos_final)
       {
         char * start = &buffer.buffer[buffer.pos_inicial];
@@ -344,6 +345,7 @@ int sys_read_keyboard(char * buf, int count)
       }
       else
       {
+          printc_xy(14,22,'E');
         char * start = &buffer.buffer[buffer.pos_inicial];
         copy_to_user(start, buf, buffer_size());
         pop(buffer_size());
