@@ -122,7 +122,7 @@ void keyboard_routine()
       //if(key_char=='p' && buffer_size()!=0) pop();
       //else if(key_char!='p') push(key_char);
       push(key_char);
-      Debug_buffer();
+      //Debug_buffer();
       if(!list_empty(&keyboardqueue)){
         //int last_size_request = list_head_to_task_struct(list_first(&keyboardqueue))->pending; 
         //if(last_size_request <= buffer_size()){

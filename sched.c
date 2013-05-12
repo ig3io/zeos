@@ -395,7 +395,7 @@ void push(char c)
 void pop(int size)
 {
   
-  if(size = BUFFER_SIZE){
+  if(size == BUFFER_SIZE){
     buffer.pos_final=0;
     buffer.pos_inicial=0;
   }

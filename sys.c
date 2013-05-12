@@ -332,13 +332,13 @@ int sys_read_keyboard(char * buf, int count)
       {
         char * start = &buffer.buffer[buffer.pos_inicial];
         int len_a = &buffer.buffer[BUFFER_SIZE] - start;
-        copy_to_user(start, buf, len_a);
+        copy_to_user(start, buf+current_read, len_a);
         pop(len_a);
         current_count -= len_a;
         current_read += len_a;
         int len_b = &buffer.buffer[buffer.pos_final] - &buffer.buffer[0];
         start = &buffer.buffer[0];
-        copy_to_user(start, buf + len_a, len_b);
+        copy_to_user(start, buf + len_a+current_read, len_b);
         pop(len_b);
         current_count -= len_b;
         current_read += len_b;
@@ -347,7 +347,7 @@ int sys_read_keyboard(char * buf, int count)
       {
           printc_xy(14,22,'E');
         char * start = &buffer.buffer[buffer.pos_inicial];
-        copy_to_user(start, buf, buffer_size());
+        copy_to_user(start, buf+current_read, buffer_size());
         pop(buffer_size());
         current_count -= buffer_size();
         current_read += buffer_size();
@@ -363,13 +363,13 @@ int sys_read_keyboard(char * buf, int count)
       {
         char * start = &buffer.buffer[buffer.pos_inicial];
         int len_a = &buffer.buffer[BUFFER_SIZE] - start;
-        copy_to_user(start, buf, len_a);
+        copy_to_user(start, buf+current_read, len_a);
         pop(len_a);
         current_count -= len_a;
         current_read += len_a;
         int len_b = current_count;
         start = &buffer.buffer[0];
-        copy_to_user(start, buf + len_a, len_b);
+        copy_to_user(start, buf + len_a+current_read, len_b);
         pop(len_b);
         current_count -= len_b;
         current_read += len_b;
@@ -377,7 +377,7 @@ int sys_read_keyboard(char * buf, int count)
       else
       {
         char * start = &buffer.buffer[buffer.pos_inicial];
-        copy_to_user(start, buf, count);
+        copy_to_user(start, buf+current_read, count);
         pop(count);
         current_count -= count;
         current_read += count;
@@ -390,6 +390,8 @@ int sys_read_keyboard(char * buf, int count)
       list_add_tail(elem, &keyboardqueue);
       sched_next_rr();
     }
+    printc_xy(3,22,current_count+48);
+    printc_xy(2,22,current_read+48);
   }
   return current_read;
 }
