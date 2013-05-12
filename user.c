@@ -178,7 +178,7 @@ void semaphores_basic(void)
   sem_destroy(0);
 }
 
-void semaphores_medium_function_a(void)
+void * semaphores_medium_function_a(void)
 {
   silly_print("Semaphores: Medium: Thread A: Waiting...\n");
   if (sem_wait(0) < 0)
@@ -197,7 +197,7 @@ void semaphores_medium_function_a(void)
   return (void *)0;
 }
 
-void semaphores_medium_function_b(void)
+void * semaphores_medium_function_b(void)
 {
   silly_print("Semaphores: Medium: Thread B: Waiting...\n");
   if (sem_wait(0) < 0)
@@ -389,12 +389,15 @@ void semaphores_advanced(void)
 
 void read_easy_test(){
   int fd = 1;
-  char *parbuf;
   int size = 4;
+  char parbuf[4];
   int pid = fork();
   if(pid==0){
-    read(fd,parbuf,size);
-    silly_print(parbuf);
+    while (1)
+    {
+      read(fd,parbuf,size);
+      silly_print(parbuf);
+    }
   }
   else silly_print("padre_sale");
 }
