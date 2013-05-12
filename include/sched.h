@@ -113,6 +113,6 @@ void move_to_queue(struct list_head *queue_1, struct list_head *queue_2);
 /* Buffer gestion*/
 int buffer_size();
 void push(char c);
-char pop();
+void pop(int size);
 
 #endif  /* __SCHED_H__ */

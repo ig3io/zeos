@@ -332,11 +332,13 @@ int sys_read_keyboard(char * buf, int count)
         char * start = &buffer.buffer[buffer.pos_inicial];
         int len_a = &buffer.buffer[BUFFER_SIZE] - start;
         copy_to_user(start, buf, len_a);
+        pop(len_a);
         current_count -= len_a;
         current_read += len_a;
         int len_b = &buffer.buffer[buffer.pos_final] - &buffer.buffer[0];
         start = &buffer.buffer[0];
         copy_to_user(start, buf + len_a, len_b);
+        pop(len_b);
         current_count -= len_b;
         current_read += len_b;
       }
@@ -344,6 +346,7 @@ int sys_read_keyboard(char * buf, int count)
       {
         char * start = &buffer.buffer[buffer.pos_inicial];
         copy_to_user(start, buf, buffer_size());
+        pop(buffer_size());
         current_count -= buffer_size();
         current_read += buffer_size();
       }
@@ -359,11 +362,13 @@ int sys_read_keyboard(char * buf, int count)
         char * start = &buffer.buffer[buffer.pos_inicial];
         int len_a = &buffer.buffer[BUFFER_SIZE] - start;
         copy_to_user(start, buf, len_a);
+        pop(len_a);
         current_count -= len_a;
         current_read += len_a;
         int len_b = current_count;
         start = &buffer.buffer[0];
         copy_to_user(start, buf + len_a, len_b);
+        pop(len_b);
         current_count -= len_b;
         current_read += len_b;
       }
@@ -371,6 +376,7 @@ int sys_read_keyboard(char * buf, int count)
       {
         char * start = &buffer.buffer[buffer.pos_inicial];
         copy_to_user(start, buf, count);
+        pop(count);
         current_count -= count;
         current_read += count;
       }

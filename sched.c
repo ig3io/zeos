@@ -392,14 +392,9 @@ void push(char c)
 }
 
 
-char pop()
+void pop(int size)
 {
-  char ret;
-  if(buffer.pos_inicial!=buffer.pos_final){
-      ret = buffer.buffer[buffer.pos_inicial];
-      buffer.pos_inicial++;
-  } 
-  buffer.pos_inicial = buffer.pos_inicial%(BUFFER_SIZE+1);
-  return ret;
+  
+  buffer.pos_inicial = (buffer.pos_inicial+size)%(BUFFER_SIZE+1);
 }
 
