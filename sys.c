@@ -400,7 +400,7 @@ int sys_read(int fd, char * buf,int count)
 {
   stats_current_user_to_system();
   printc_xy(15,13,'1');
-  Debug_buffer();
+  //Debug_buffer();
 
   int ch_fd =check_fd(fd, ESCRIPTURA);
 

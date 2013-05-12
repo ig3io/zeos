@@ -121,6 +121,7 @@ void keyboard_routine()
       printc_xy(6,13,'1');
       //if(key_char=='p' && buffer_size()!=0) pop();
       //else if(key_char!='p') push(key_char);
+      if(buffer_size()<BUFFER_SIZE)
       push(key_char);
       //Debug_buffer();
       if(!list_empty(&keyboardqueue)){
