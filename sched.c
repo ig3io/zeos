@@ -369,7 +369,7 @@ void move_to_queue(struct list_head *queue_1, struct list_head *queue_2)
   //task->state = ST_READY;
 }
 
-int bufferSize()
+int buffer_size()
 {
   if(buffer.pos_inicial<=buffer.pos_final){
     return buffer.pos_final-buffer.pos_inicial;

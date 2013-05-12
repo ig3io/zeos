@@ -9,7 +9,7 @@
 #include <entry.h>
 
 #define IDT_ENTRIES 256
-#define BUFFER_SIZE 30 
+//#define BUFFER_SIZE 30 
 
 extern Gate idt[IDT_ENTRIES];
 extern Register idtR;

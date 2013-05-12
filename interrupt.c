@@ -119,13 +119,13 @@ void keyboard_routine()
       printc_xy(3, 13, ':');
       printc_xy(4, 13, key_char);
       printc_xy(6,13,'1');
-      //if(key_char=='p' && bufferSize()!=0) pop();
+      //if(key_char=='p' && buffer_size()!=0) pop();
       //else if(key_char!='p') push(key_char);
       push(key_char);
       Debug_buffer();
       if(!list_empty(&keyboardqueue)){
         int last_size_request = list_head_to_task_struct(list_first(&keyboardqueue))->pending; 
-        if(last_size_request <= bufferSize()){
+        if(last_size_request <= buffer_size()){
           move_to_queue(&keyboardqueue,&readyqueue);
         }    
       }
@@ -153,10 +153,10 @@ void clock_routine() {
 void Debug_buffer(){
     int ini = buffer.pos_inicial;
     int fin = buffer.pos_final;
-    int count = bufferSize();
+    int count = buffer_size();
     printc_xy(8,13,ini+48);
     printc_xy(9,13,fin+48);
-    printc_xy(11,13,bufferSize()+48);
+    printc_xy(11,13,buffer_size()+48);
     int print_column=6;
     while(count != 0){
         ini = ini%BUFFER_SIZE;

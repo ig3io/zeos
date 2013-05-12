@@ -40,7 +40,6 @@ struct task_struct {
   struct stats stats;
   enum state_t state;
   struct list_head list;
-  char *mybuffer;
 };
 
 union task_union {
@@ -112,7 +111,7 @@ void stats_init(struct stats * st);
 void move_to_queue(struct list_head *queue_1, struct list_head *queue_2);
 
 /* Buffer gestion*/
-int bufferSize();
+int buffer_size();
 void push(char c);
 char pop();
 

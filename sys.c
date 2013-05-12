@@ -308,6 +308,88 @@ int sys_write(int fd, char * buffer, int size)
   return res;
 }
 
+int sys_read_keyboard(char * buf, int count)
+{
+
+  if (!list_empty(&keyboardqueue))
+  {
+    struct list_head * elem = &current()->list;
+    list_del(elem);
+    list_add_tail(elem, &keyboardqueue);
+    sched_next_rr();
+  }
+
+  int current_read = 0;
+  int current_count = count;
+  
+  while (current_count > 0)
+  {
+    if (buffer_size() >= count)
+    {
+      // TODO error detection
+      if (buffer.pos_inicial > buffer.pos_final)
+      {
+        char * start = &buffer.buffer[buffer.pos_inicial];
+        int len_a = &buffer.buffer[BUFFER_SIZE] - start;
+        copy_to_user(start, buf, len_a);
+        current_count -= len_a;
+        current_read += len_a;
+        int len_b = current_count;
+        start = &buffer.buffer[0];
+        copy_to_user(start, buf + len_a, len_b);
+        current_count -= len_b;
+        current_read += len_b;
+      }
+      else
+      {
+        char * start = &buffer.buffer[buffer.pos_inicial];
+        copy_to_user(start, buf, count);
+        current_count -= count;
+        current_read += count;
+      }
+    }
+
+    else if (buffer_size() == BUFFER_SIZE)
+    {
+      // TODO error detection
+      if (buffer.pos_inicial > buffer.pos_final)
+      {
+        char * start = &buffer.buffer[buffer.pos_inicial];
+        int len_a = &buffer.buffer[BUFFER_SIZE] - start;
+        copy_to_user(start, buf, len_a);
+        current_count -= len_a;
+        current_read += len_a;
+        int len_b = &buffer.buffer[buffer.pos_final] - &buffer.buffer[0];
+        start = &buffer.buffer[0];
+        copy_to_user(start, buf + len_a, len_b);
+        current_count -= len_b;
+        current_read += len_b;
+      }
+      else
+      {
+        char * start = &buffer.buffer[buffer.pos_inicial];
+        copy_to_user(start, buf, buffer_size());
+        current_count -= buffer_size();
+        current_read += buffer_size();
+      }
+
+      struct list_head * elem = &current()->list;
+      list_del(elem);
+      list_add(elem, &keyboardqueue);
+    }
+
+    else
+    {
+      struct list_head * elem = &current()->list;
+      list_del(elem);
+      list_add_tail(elem, &keyboardqueue);
+      sched_next_rr();
+    }
+  }
+
+  return current_read;
+}
+
 int sys_read(int fd,char * buf,int count)
 {
   stats_current_user_to_system();
@@ -326,20 +408,25 @@ int sys_read(int fd,char * buf,int count)
     stats_current_system_to_user();
     return -EINVAL;
   }
+
+  return sys_read_keyboard(buf, count);
+
+  /*
   printc_xy(16,13,'2');
   current()->pending = count;
-  current()->read=0;;
+  current()->read=0;
 
   //if one process is wait for read the new process go to the queue
   if(!list_empty(&keyboardqueue)){
-    move_to_queue(&readyqueue,&keyboardqueue);
+    move_to_queue(&readyqueue,&keyboardqueue);  // TODO: inspect
     sched_next_rr();
   }
 
+  char *mybuff = current()->mybuffer;
   printc_xy(17,13,current()->pending+48);  
   while(current()->pending > 0){
        //printc_xy(18,13,'3');
-      if(bufferSize()==0){
+      if(buffer_size()==0){
         //printc_xy(18,13,'C');
         move_to_queue(&readyqueue,&keyboardqueue);
         sched_next_rr();
@@ -347,22 +434,24 @@ int sys_read(int fd,char * buf,int count)
       //TODO FUCKK POINTERS, The idea is store all the chars in the buffer of the pcb mybuffer and then copy to the buf
       // user parameter, but pointers are fucking me, bullshit!!!
       char c = pop();
-      *current()->mybuffer  = c;
-      current()->mybuffer +=1;
+      *mybuff  = c;
+      mybuff +=1;
       printc_xy(19,13,'4');
       current()->pending--;
       //printc_xy(20,13,current()->pending+48);
       current()->read++; 
   }
-  current()->mybuffer = current()->mybuffer - current()->read;
+  mybuff = mybuff - current()->read;
   printc_xy(28,13,current()->read+48);
   Debug_buffer();
-  printc_xy(23,13,*current()->mybuffer);
-  printc_xy(24,13,*current()->mybuffer+1);
-  printc_xy(25,13,*current()->mybuffer+2);
-  printc_xy(26,13,*current()->mybuffer+3);
+  printc_xy(23,13,*mybuff);
+  printc_xy(24,13,*(mybuff+1));
+  printc_xy(25,13,*(mybuff+2));
+  printc_xy(26,13,*(mybuff+3));
   copy_to_user(current()->mybuffer,buf,current()->read);
   printc_xy(20,13,'E');
+
+  */
 }
 
 
