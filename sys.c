@@ -254,6 +254,10 @@ int sys_clone(void *(function) (void), void *stack)
   return PID;
 }
 
+void *sys_sbrk(int increment){
+  
+}
+
 int sys_write(int fd, char * buffer, int size)
 {
   stats_current_user_to_system();

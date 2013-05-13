@@ -164,6 +164,23 @@ int clone(void *(function) (void),void *stack)
   return rvalue;
 }
 
+void *sbrk(int increment){
+    int rvalue = 0;
+
+  __asm__ __volatile__ (
+    "int $0x80\n\t"
+    : "=a" (rvalue)
+    : "b" (increment), "a" (0x2D)
+  );
+
+  if (rvalue < 0)
+  {
+    errno = rvalue * -1;
+    rvalue = -1;
+  }
+  return rvalue;
+}
+
 
 int perror(char * msg)
 {

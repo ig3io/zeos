@@ -34,6 +34,7 @@ struct task_struct {
   int PID;			/* Process ID */
   page_table_entry * dir_pages_baseAddr;
   unsigned long *kernel_esp;
+  unsigned long *heap;
   int quantum;
   int pending;
   int read;

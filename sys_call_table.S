@@ -43,4 +43,9 @@ ENTRY (sys_call_table)
 	.long sys_ni_syscall
 	.long sys_ni_syscall
 	.long sys_ni_syscall// 40
+	.long sys_ni_syscall	
+	.long sys_ni_syscall
+	.long sys_ni_syscall
+	.long sys_ni_syscall
+	.long sys_sbrk// 45
 	
