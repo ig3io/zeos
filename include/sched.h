@@ -14,7 +14,7 @@
 #define KERNEL_STACK_SIZE   1024
 #define QUANTUM		100
 #define NR_SEMS     20
-#define BUFFER_SIZE 11  
+#define BUFFER_SIZE 40 
 
 extern int current_quantum;
 
@@ -22,8 +22,8 @@ extern int page_table_refs[NR_TASKS];
 
 struct circular_buffer {
   char buffer[BUFFER_SIZE];
-  int pos_inicial;
-  int pos_final;
+  char * start;
+  char * end;
 };
 
 extern struct circular_buffer buffer;
@@ -114,6 +114,7 @@ void move_to_queue(struct list_head *queue_1, struct list_head *queue_2);
 /* Buffer gestion*/
 int buffer_size();
 void push(char c);
-void pop(int size);
+char pop();
+void pop_i(int size);
 
 #endif  /* __SCHED_H__ */

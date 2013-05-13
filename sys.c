@@ -332,57 +332,54 @@ int sys_read_keyboard(char * buf, int count)
     {
       // TODO error detection
       printc_xy(14,21,'E');
-      if (buffer.pos_inicial > buffer.pos_final)
+      if (buffer.start > buffer.end)
       {
-        char * start = &buffer.buffer[buffer.pos_inicial];
-        int len_a = &buffer.buffer[BUFFER_SIZE] - start;
-        copy_to_user(start, buf+current_read, len_a);
-        pop(len_a);
+        int len_a = &buffer.buffer[BUFFER_SIZE] - buffer.start;
+        copy_to_user(buffer.start, buf + current_read, len_a);
+        pop_i(len_a);
         current_count -= len_a;
         current_read += len_a;
-        int len_b = &buffer.buffer[buffer.pos_final] - &buffer.buffer[0];
-        start = &buffer.buffer[0];
-        copy_to_user(start, buf + len_a+current_read, len_b);
-        pop(len_b);
+        char * start = &buffer.buffer[0];
+        int len_b = buffer.end - start;
+        copy_to_user(start, buf + len_a + current_read, len_b);
+        pop_i(len_b);
         current_count -= len_b;
         current_read += len_b;
       }
       else
       {
-          printc_xy(14,22,'E');
-        char * start = &buffer.buffer[buffer.pos_inicial];
-        copy_to_user(start, buf+current_read, buffer_size());
-        pop(buffer_size());
+        printc_xy(14,22,'E');
+        copy_to_user(buffer.start, buf + current_read, buffer_size());
+        pop_i(buffer_size());
         current_count -= buffer_size();
         current_read += buffer_size();
       }
       struct list_head * elem = &current()->list;
       list_del(elem);
       list_add(elem, &keyboardqueue);
+      sched_next_rr();
     }
     else if (buffer_size() >= count)
     {
       // TODO error detection
-      if (buffer.pos_inicial > buffer.pos_final)
+      if (buffer.start > buffer.end)
       {
-        char * start = &buffer.buffer[buffer.pos_inicial];
-        int len_a = &buffer.buffer[BUFFER_SIZE] - start;
-        copy_to_user(start, buf+current_read, len_a);
-        pop(len_a);
+        int len_a = &buffer.buffer[BUFFER_SIZE] - buffer.start;
+        copy_to_user(buffer.start, buf + current_read, len_a);
+        pop_i(len_a);
         current_count -= len_a;
         current_read += len_a;
         int len_b = current_count;
-        start = &buffer.buffer[0];
-        copy_to_user(start, buf + len_a+current_read, len_b);
-        pop(len_b);
+        char * start = &buffer.buffer[0];
+        copy_to_user(start, buf + len_a + current_read, len_b);
+        pop_i(len_b);
         current_count -= len_b;
         current_read += len_b;
       }
       else
       {
-        char * start = &buffer.buffer[buffer.pos_inicial];
-        copy_to_user(start, buf+current_read, count);
-        pop(count);
+        copy_to_user(buffer.start, buf + current_read, count);
+        pop_i(count);
         current_count -= count;
         current_read += count;
       }
