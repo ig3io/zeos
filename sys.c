@@ -255,7 +255,45 @@ int sys_clone(void *(function) (void), void *stack)
 }
 
 void *sys_sbrk(int increment){
-  
+  if(current()->heap + increment < PH_PAGE(HEAPSTART)) return -ENOMEM;
+
+  int heap_inicial = current()->heap;
+  current()-> heap += increment;//incrementamos el heap
+  int heap_actual = current()->heap;
+
+  printc_xy(2,22,'E');
+
+  if(increment>0)
+  {
+    //COLLECT FRAMES///////////////////
+    int n_frames = increment/PAGE_SIZE+1;
+    int frames[n_frames];
+    int i;
+    for (i=0;i<n_frames;++i){
+      frames[i] = alloc_frame();
+      if(frames[i]==-1){
+      while(i >=0) free_frame(frames[i--]);
+      return -ENOMEM;
+      }
+    }
+    printc_xy(2,23,'E');
+    ////////////////////////////////////
+    int j=0;
+    for(i=PH_PAGE(heap_inicial);i<PH_PAGE(heap_actual);++i){
+      set_ss_pag(get_PT(current()),i,frames[j]);
+      ++j;
+    }
+    printc_xy(2,24,'E');
+  }
+
+  else{
+    int i;
+    for(i=PH_PAGE(heap_inicial);i > PH_PAGE(heap_actual);--i){
+      free_frame(get_frame(get_PT(current()),HEAPSTART+i));
+      del_ss_pag(get_PT(current()),HEAPSTART+i);
+    }
+  }
+  return (void*) heap_actual;
 }
 
 int sys_write(int fd, char * buffer, int size)

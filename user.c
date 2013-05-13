@@ -404,6 +404,32 @@ void read_easy_test(){
   else silly_print("padre_sale");
 }
 
+void sbrk_easy_test(){
+
+  char *string =(char*) sbrk(1000);
+  string[0] = 'H';
+  string[1] = 'O';
+  string[2] = 'L';
+  string[3] = 'A';
+  string[4] = ' ';
+    //sbrk(500);
+  silly_print(string);
+  silly_print("WORKS ");
+  char *string2 = (char*) sbrk(1000);
+  string2[0] = 'A';
+  string2[1] = 'D';
+  string2[2] = 'E';
+  string2[3] = 'U';
+  string2[4] = ' ';
+  silly_print(string2);
+  silly_print("WORKS_2 ");
+
+  char * string3 = (char*) sbrk(-1000);
+  silly_print(string3);
+
+  //string2 = (char)
+}
+
 int __attribute__ ((__section__(".text.main")))
   main(void)
 {
@@ -412,7 +438,8 @@ int __attribute__ ((__section__(".text.main")))
   //semaphores_basic();
   //semaphores_medium();
   //semaphores_advanced();
-  read_easy_test();
+  //read_easy_test();
+  sbrk_easy_test();
   while(1);
   
   return 0;

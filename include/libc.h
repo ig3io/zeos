@@ -22,6 +22,8 @@ int getpid();
 
 int fork();
 
+void *sbrk(int increment);
+
 int clone(void *(function) (void), void *stack);
 
 void exit();
