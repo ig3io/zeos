@@ -117,6 +117,30 @@ int sys_fork()
   for(i=PAG_LOG_INIT_DATA_P0;i<PAG_LOG_INIT_DATA_P0+NUM_PAG_DATA;i++)//Create new Data+Stack Pages to child proces
     set_ss_pag(TP_child,i,frames[i-PAG_LOG_INIT_DATA_P0]);
 
+  int n_frames = ((unsigned long) (current()->heap)/PAGE_SIZE)-HEAPSTART;
+  if((unsigned long)current()->heap % PAGE_SIZE !=0) ++n_frames;
+  if(n_frames > 0){
+    ///////////////// COLLECTING FREE FRAMES ////////////////////////
+    int heap_frames[n_frames];
+    int i;
+    for (i=0;i<n_frames;++i){
+      heap_frames[i] = alloc_frame();
+      if(frames[i]==-1){
+       while(i >=0) free_frame(frames[i--]);
+        return -ENOMEM;
+      }
+    }
+    ///////////////////////////////////////////////////////////////////
+
+    //////////Copiando heap//////////////////////////////////////////////////
+    for(i=0;i<n_frames;++i){
+      set_ss_pag(TP_child,i+HEAPSTART,heap_frames[i]);
+      set_ss_pag(TP_father,i+HEAPSTART,heap_frames[i]);
+      copy_data((void *) ((HEAPSTART+i) * PAGE_SIZE), (void *)((HEAPSTART+i+n_frames)*PAGE_SIZE),PAGE_SIZE);
+      del_ss_pag(TP_father,HEAPSTART+i+n_frames);
+    }
+
+  }
 
   set_cr3(get_DIR(current())); //FLUSH TLB
 
