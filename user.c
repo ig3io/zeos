@@ -389,14 +389,14 @@ void semaphores_advanced(void)
 
 void read_easy_test(){
   int fd = 1;
-  int size = 4;
-  char parbuf[4];
+  int size = 1;
+  char parbuf[1];
   int pid = fork();
   if(pid==0){
     while (1)
     {
       int len = read(fd, parbuf, size);
-      if (len == 4) {
+      if (len == 1) {
         write(1, parbuf, len);
       }
     }
