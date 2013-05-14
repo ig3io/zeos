@@ -130,6 +130,8 @@ void keyboard_routine()
           struct list_head * elem = list_first(&keyboardqueue);
           list_del(elem);
           list_add_tail(elem, &readyqueue);
+          // TODO: accelerates testing
+          sched_next_rr();
           //move_to_queue(&keyboardqueue,&readyqueue);
         //}    
       }
@@ -155,8 +157,8 @@ void clock_routine() {
 
 /* PRINT THE BUFFER */
 void Debug_buffer(){
-    int ini = buffer.pos_inicial;
-    int fin = buffer.pos_final;
+    int ini = buffer.start - &buffer.buffer[0];
+    int fin = buffer.end - &buffer.buffer[0];
     int count = buffer_size();
     printc_xy(8,13,ini+48);
     printc_xy(9,13,fin+48);
