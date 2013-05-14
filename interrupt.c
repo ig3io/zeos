@@ -103,45 +103,52 @@ void keyboard_routine()
   unsigned char is_break = input >> 7;
   unsigned char scan_code = input & 0x7F;
   // Checking bit 7. It's a make (0) or a break (1)?
-  if (is_break)
+  if (!is_break)
   {
-    // Do nothing  
-  }
-  else
-  {
-    unsigned char key_char = 'C';
-      if (scan_code < 128) {
-        key_char = char_map[scan_code];
-      }
+    unsigned char key_char = ' ';
+    if (scan_code < 128)
+    {
+      key_char = char_map[scan_code];
+    }
+
+    #ifndef NO_DEBUG
+    /* Keyboard debug */
       printc_xy(0, 13, 'K');
       printc_xy(1, 13, 'e');
       printc_xy(2, 13, 'y');
       printc_xy(3, 13, ':');
       printc_xy(4, 13, key_char);
       printc_xy(6,13,'1');
-      //if(key_char=='p' && buffer_size()!=0) pop();
-      //else if(key_char!='p') push(key_char);
-      if(buffer_size()<BUFFER_SIZE)
+    /* End keyboard debug */
+    #endif
+
+    if(buffer_size() < BUFFER_SIZE)
+    {
       push(key_char);
-      //Debug_buffer();
-      if(!list_empty(&keyboardqueue)){
-        //int last_size_request = list_head_to_task_struct(list_first(&keyboardqueue))->pending; 
-        //if(last_size_request <= buffer_size()){
-          struct list_head * elem = list_first(&keyboardqueue);
-          list_del(elem);
-          list_add_tail(elem, &readyqueue);
-          // TODO: accelerates testing
-          sched_next_rr();
-          //move_to_queue(&keyboardqueue,&readyqueue);
-        //}    
-      }
-      printc_xy(13,13,'2');
+    }
+      
+    if(!list_empty(&keyboardqueue))
+    {
+      struct task_struct * to_unblock = list_head_to_task_struct(list_first(&keyboardqueue));
+      int last_size_request = to_unblock->read_pending; 
+      if(last_size_request <= buffer_size())
+      {
+        struct list_head * elem = &to_unblock->list;
+        list_del(elem);
+        list_add_tail(elem, &readyqueue);
+        to_unblock->state = ST_READY;
+        // TODO: accelerates testing
+        //sched_next_rr();
+      }    
+    }
+    //printc_xy(13,13,'2');
   }
 }
 
 unsigned int times_sched = 0;
 
-void clock_routine() {
+void clock_routine()
+{
   zeos_show_clock();
   ++zeos_ticks;
   update_sched_data_rr();
@@ -156,7 +163,8 @@ void clock_routine() {
 }
 
 /* PRINT THE BUFFER */
-void Debug_buffer(){
+void debug_buffer()
+{
     int ini = buffer.start - &buffer.buffer[0];
     int fin = buffer.end - &buffer.buffer[0];
     int count = buffer_size();
@@ -164,7 +172,8 @@ void Debug_buffer(){
     printc_xy(9,13,fin+48);
     printc_xy(11,13,buffer_size()+48);
     int print_column=6;
-    while(count != 0){
+    while(count != 0)
+    {
         ini = ini%BUFFER_SIZE;
         printc_xy(print_column,2,buffer.buffer[ini]);
         ++ini;

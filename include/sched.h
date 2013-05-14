@@ -38,8 +38,7 @@ struct task_struct {
   unsigned long *heap_top;
   unsigned long *heap_break;
   int quantum;
-  int pending;
-  int read;
+  unsigned int read_pending;
   struct stats stats;
   enum state_t state;
   struct list_head list;

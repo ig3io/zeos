@@ -420,6 +420,8 @@ int sys_write(int fd, char * buffer, int size)
 int sys_read_keyboard(char * buf, int count)
 {
 
+  current()->read_pending = count;
+
   if (!list_empty(&keyboardqueue))
   {
     struct list_head * elem = &current()->list;
@@ -429,9 +431,9 @@ int sys_read_keyboard(char * buf, int count)
   }
 
   int current_read = 0;
-  int current_count = count;
+  unsigned int * current_count = &current()->read_pending;
   
-  while (current_count > 0)
+  while (*current_count > 0)
   {
     if (buffer_size() == BUFFER_SIZE)
     {
@@ -442,13 +444,13 @@ int sys_read_keyboard(char * buf, int count)
         int len_a = &buffer.buffer[BUFFER_SIZE] - buffer.start;
         copy_to_user(buffer.start, buf + current_read, len_a);
         pop_i(len_a);
-        current_count -= len_a;
+        *current_count -= len_a;
         current_read += len_a;
         char * start = &buffer.buffer[0];
         int len_b = buffer.end - start;
         copy_to_user(start, buf + len_a + current_read, len_b);
         pop_i(len_b);
-        current_count -= len_b;
+        *current_count -= len_b;
         current_read += len_b;
       }
       else
@@ -456,7 +458,7 @@ int sys_read_keyboard(char * buf, int count)
         printc_xy(14,22,'E');
         copy_to_user(buffer.start, buf + current_read, buffer_size());
         pop_i(buffer_size());
-        current_count -= buffer_size();
+        *current_count -= buffer_size();
         current_read += buffer_size();
       }
       struct list_head * elem = &current()->list;
@@ -472,20 +474,20 @@ int sys_read_keyboard(char * buf, int count)
         int len_a = &buffer.buffer[BUFFER_SIZE] - buffer.start;
         copy_to_user(buffer.start, buf + current_read, len_a);
         pop_i(len_a);
-        current_count -= len_a;
+        *current_count -= len_a;
         current_read += len_a;
-        int len_b = current_count;
+        int len_b = *current_count;
         char * start = &buffer.buffer[0];
         copy_to_user(start, buf + len_a + current_read, len_b);
         pop_i(len_b);
-        current_count -= len_b;
+        *current_count -= len_b;
         current_read += len_b;
       }
       else
       {
         copy_to_user(buffer.start, buf + current_read, count);
         pop_i(count);
-        current_count -= count;
+        *current_count -= count;
         current_read += count;
       }
     }
@@ -496,7 +498,7 @@ int sys_read_keyboard(char * buf, int count)
       list_add_tail(elem, &keyboardqueue);
       sched_next_rr();
     }
-    printc_xy(3,22,current_count+48);
+    printc_xy(3,22,*current_count+48);
     printc_xy(2,22,current_read+48);
   }
   return current_read;

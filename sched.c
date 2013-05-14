@@ -116,6 +116,7 @@ void init_task1(void)
   task1_pcb->heap = (unsigned long *) (HEAPSTART*PAGE_SIZE);
   task1_pcb->heap_top = (unsigned long *) (HEAPSTART*PAGE_SIZE);
   task1_pcb->heap_break = (unsigned long *) (HEAPSTART*PAGE_SIZE);
+  task1_pcb->read_pending = 0;
 
   // It has to be added. The only process that is not in any queue at any
   // moment is the idle task
