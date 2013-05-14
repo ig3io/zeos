@@ -25,6 +25,7 @@
 #define WRITE_BUFFER_SIZE 4
 
 int New_pid=1;
+int counter_printer=0;
 
 int assign_pid(){
 	return ++New_pid;
@@ -286,25 +287,26 @@ void *sys_sbrk(int increment){
   int heap_inicial = current()->heap;
   current()-> heap += increment;//incrementamos el heap
   int heap_actual = current()->heap;
-  printc_xy(3,22,'I');
+
+  /*CASO BASE - HEAP no inilicializado*/
   if(heap_inicial == heap_actual && current()->heap_break == (HEAPSTART*PAGE_SIZE)){
-    printc_xy(4,22,'I');
+    printc_xy(4,20,'I');
     int frame = alloc_frame();
     if(frame==-1){
         return -ENOMEM;
     }
-    printc_xy(5,22,'I');
     set_ss_pag(get_PT(current()),PH_PAGE(heap_inicial),frame);
     current()->heap_break += PAGE_SIZE;
-    printc_xy(6,22,'I');
   }
-
-  printc_xy(2,22,'E');
+  /////////////////////////////////////////////////////////////////
 
   if(increment>0 && heap_actual > current()->heap_break)
   {
+
     //COLLECT FRAMES///////////////////
     int n_frames = increment/PAGE_SIZE+1;
+    counter_printer += n_frames;
+    printc_xy(4,20,counter_printer+48);
     int frames[n_frames];
     int i;
     for (i=0;i<n_frames;++i){
@@ -314,22 +316,32 @@ void *sys_sbrk(int increment){
       return -ENOMEM;
       }
     }
-    printc_xy(2,23,'E');
     ////////////////////////////////////
     int j=0;
     for(i=PH_PAGE(heap_inicial);i<PH_PAGE(heap_actual);++i){
       set_ss_pag(get_PT(current()),i,frames[j]);
       ++j;
     }
-    printc_xy(2,24,'E');
+    /*CASO BASE - NO INICIALIZADO EL HEAP*/
+    if(current()->heap_break==(HEAPSTART*PAGE_SIZE)){
+        current()-> heap_break += n_frames*PAGE_SIZE;
+    }
+    ////////////////////////////////////////
+    else{
+      current()->heap_top += n_frames*PAGE_SIZE;
+      current()->heap_break += n_frames*PAGE_SIZE;
+    }
   }
 
   else if(increment<0){
-    printc_xy(2,24,'N');
     int i;
-    for(i=PH_PAGE(heap_inicial);i > PH_PAGE(heap_actual);--i){
-      free_frame(get_frame(get_PT(current()),HEAPSTART+i));
-      del_ss_pag(get_PT(current()),HEAPSTART+i);
+    while(!(heap_actual>=current()->heap_top && heap_actual<=current()->heap_break)){
+        free_frame(get_frame(get_PT(current()),current()->heap_top));
+        del_ss_pag(get_PT(current()),current()->heap_top);
+        current()->heap_top -= PAGE_SIZE;
+        current()->heap_break -= PAGE_SIZE;
+        --counter_printer;
+        printc_xy(4,20,counter_printer+48);
     }
   }
   return (void*) heap_actual;

@@ -467,6 +467,24 @@ void sbrk_with_fork(){
   }
 }
 
+void sbrk_and_read_test(){
+
+  char  buf[1];
+  int fd =1;
+  int size=1;
+  int pid = fork();
+  if(pid==0){
+    while(1){
+      int len = read(fd,buf,size);
+      if(len==1){
+        if(buf[0]=='m') sbrk(2048);
+        if(buf[0]=='l') sbrk(-2048);
+      }
+    }
+  }
+
+}
+
 
 int __attribute__ ((__section__(".text.main")))
   main(void)
@@ -478,7 +496,8 @@ int __attribute__ ((__section__(".text.main")))
   //semaphores_advanced();
   //read_easy_test();
   //sbrk_easy_test();
-  sbrk_with_fork();
+  //sbrk_with_fork();
+  sbrk_and_read_test();
   while(1);
   
   return 0;
