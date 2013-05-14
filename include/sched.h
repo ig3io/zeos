@@ -35,6 +35,8 @@ struct task_struct {
   page_table_entry * dir_pages_baseAddr;
   unsigned long *kernel_esp;
   unsigned long *heap;
+  unsigned long *heap_top;
+  unsigned long *heap_break;
   int quantum;
   int pending;
   int read;

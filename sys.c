@@ -133,6 +133,7 @@ int sys_fork()
     ///////////////////////////////////////////////////////////////////
 
     //////////Copiando heap//////////////////////////////////////////////////
+
     for(i=0;i<n_frames;++i){
       set_ss_pag(TP_child,i+HEAPSTART,heap_frames[i]);
       set_ss_pag(TP_father,i+HEAPSTART,heap_frames[i]);
@@ -279,15 +280,28 @@ int sys_clone(void *(function) (void), void *stack)
 }
 
 void *sys_sbrk(int increment){
+  //printc_xy(2,24,'E');
   if(current()->heap + increment < PH_PAGE(HEAPSTART)) return -ENOMEM;
 
   int heap_inicial = current()->heap;
   current()-> heap += increment;//incrementamos el heap
   int heap_actual = current()->heap;
+  printc_xy(3,22,'I');
+  if(heap_inicial == heap_actual && current()->heap_break == (HEAPSTART*PAGE_SIZE)){
+    printc_xy(4,22,'I');
+    int frame = alloc_frame();
+    if(frame==-1){
+        return -ENOMEM;
+    }
+    printc_xy(5,22,'I');
+    set_ss_pag(get_PT(current()),PH_PAGE(heap_inicial),frame);
+    current()->heap_break += PAGE_SIZE;
+    printc_xy(6,22,'I');
+  }
 
   printc_xy(2,22,'E');
 
-  if(increment>0)
+  if(increment>0 && heap_actual > current()->heap_break)
   {
     //COLLECT FRAMES///////////////////
     int n_frames = increment/PAGE_SIZE+1;
@@ -310,7 +324,8 @@ void *sys_sbrk(int increment){
     printc_xy(2,24,'E');
   }
 
-  else{
+  else if(increment<0){
+    printc_xy(2,24,'N');
     int i;
     for(i=PH_PAGE(heap_inicial);i > PH_PAGE(heap_actual);--i){
       free_frame(get_frame(get_PT(current()),HEAPSTART+i));

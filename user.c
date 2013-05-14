@@ -424,15 +424,49 @@ void sbrk_easy_test(){
 void sbrk_with_fork(){
   char * string = (char*) sbrk(0);
   string[0] = 'F';
+  string[1] = 'U';
+  string[2] = 'C';
+  string[3] = 'K';
+  string[4] = '\n';
   int pid = fork();
   if(pid==0) {
-    char * string2 = (char*) sbrk(0);
-    string2[1] = 'E';
-    silly_print(string2);
+    char * string2 = (char*) sbrk(1);
+    string2[0] = ' ';
+    string2[1] = 'Y';
+    string2[2] = 'O';
+    string2[3] = 'U';
+    string2[4] = '\n';
+    //silly_print(string2);
   }
-  silly_print(string);
 
+  if(pid !=0){
+    silly_print("DARTH VADER : LUCK I AM YOUR FATHER\n");
+    string[0] = 'N';
+    string[1] = 'O';
+    string[2] = 'O';
+    string[3] = 'O';
+    string[4] = 'O';
+    string[5] = 'O';
+    string[6] = 'O';
+    string[7] = '\n';
+    silly_wait();
+  }
+  if(pid==0){
+    silly_print("LUCK: ");
+    silly_print(string);
+    silly_wait();
+  }
+  
+  if(pid==0){
+    silly_print("LUCK: ");
+    silly_print(string);
+  }
+  else{
+    silly_print("DARTH VADER: ");
+    silly_print(string);
+  }
 }
+
 
 int __attribute__ ((__section__(".text.main")))
   main(void)
