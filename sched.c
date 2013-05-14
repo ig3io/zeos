@@ -170,8 +170,8 @@ void task_switch(union task_union *new)
 
 void init_sched(){
   
-  buffer.pos_inicial=0;
-  buffer.pos_final=0;
+  buffer.start = &buffer.buffer[0];
+  buffer.end = &buffer.buffer[0];
 
   INIT_LIST_HEAD(&freequeue);
   INIT_LIST_HEAD(&readyqueue);
@@ -372,40 +372,69 @@ void move_to_queue(struct list_head *queue_1, struct list_head *queue_2)
 
 int buffer_size()
 {
-  if(buffer.pos_inicial<=buffer.pos_final){
-    return buffer.pos_final-buffer.pos_inicial;
+  int size = 0;
+  if (buffer.start < buffer.end)
+  {
+    size = buffer.end - buffer.start;
   }
-  else{
-    return BUFFER_SIZE - (buffer.pos_inicial-buffer.pos_final);
+  else if (buffer.start > buffer.end)
+  {
+    size = BUFFER_SIZE - (buffer.start - buffer.end);
   }
+  return size;
 }
 
 void push(char c)
 {
-  
-  int pos = buffer.pos_final;
-  if(pos==BUFFER_SIZE && buffer.pos_inicial!=0) buffer.pos_final = 0;
-  if(pos+1!=buffer.pos_inicial && buffer.pos_final<BUFFER_SIZE){
-    buffer.buffer[pos] = c;
-    ++buffer.pos_final;
+  if (buffer.end == &buffer.buffer[BUFFER_SIZE])
+  {
+    buffer.end = &buffer.buffer[0];
   }
-  
+
+  *buffer.end = c;
+
+  buffer.end++;
+
+  if (buffer.end == buffer.start)
+  {
+    // We'll loss info
+    buffer.start++;
+    if (buffer.start == &buffer.buffer[BUFFER_SIZE])
+    {
+      buffer.start = &buffer.buffer[0];
+    }
+  }
+}
+
+char pop()
+{
+  char c = NULL;
+  if (buffer_size() != 0)
+  {
+    c = *buffer.start;
+    buffer.start++;
+    if (buffer.start == &buffer.buffer[BUFFER_SIZE])
+    {
+      buffer.start = &buffer.buffer[0];
+    }
+  }
+  return c;
 }
 
 
-void pop(int size)
+void pop_i(int size)
 {
-  
-  if(size == BUFFER_SIZE){
-    buffer.pos_final=0;
-    buffer.pos_inicial=0;
-  }
-  else{
-    buffer.pos_inicial = (buffer.pos_inicial)+size%BUFFER_SIZE;
-    /*if(buffer.pos_inicial==buffer.pos_final){
-      buffer.pos_final=0;
-      buffer.pos_inicial=0;
-    }*/
+  // We assume system code will NOT call this function if the size is 0
+  // if size > buffer_size, everything will be popped
+  int remaining = size;
+  while (buffer_size() != 0 && remaining > 0)
+  {
+    buffer.start++;
+    if (buffer.start == &buffer.buffer[BUFFER_SIZE])
+    {
+      buffer.start = &buffer.buffer[0];
+    }
+    remaining--;
   }
 }
 
