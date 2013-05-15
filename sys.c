@@ -290,7 +290,8 @@ void *sys_sbrk(int increment){
         del_ss_pag(actual,PH_PAGE((int)current()->heap_top));
         current()->heap_top -= PAGE_SIZE;
         current()->heap_break -= PAGE_SIZE;
-    }*/
+    }
+    current()->heap_break -= PAGE_SIZE;*/
     return -ENOMEM;
   } 
 
