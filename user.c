@@ -494,24 +494,21 @@ void sbrk_and_read_test(){
 }
 
 void sbrk_a_full(){
-  silly_print("+1");
-  sbrk(1000);
+  silly_print("+3");
+  sbrk(8192);
   silly_wait();
-  silly_print("0");
-  sbrk(1000);
+  silly_print("-2");
+  sbrk(-10000);
+  silly_wait();
+  silly_print("+2");
+  sbrk(8192);
   silly_wait();
   silly_print("+0");
-  sbrk(1000);
+  sbrk(1);
   silly_wait();
-  silly_print("+0");
-  sbrk(1050);
-  silly_wait();
-  silly_print("+1");
+  silly_print("-2");
   sbrk(-8192);
-  silly_print("NOT POSIBLE- SEE A in screener");
-  silly_wait();
-  silly_print("NOT POSIBLE- SEE A in screener");
-  sbrk(-2048);
+
 }
 
 

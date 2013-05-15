@@ -20,6 +20,8 @@
 
 #define LECTURA 0
 #define ESCRIPTURA 1
+#define AWESOME_FEATURE 0
+#define DEBUG 0
 
 
 #define WRITE_BUFFER_SIZE 4
@@ -282,16 +284,25 @@ int sys_clone(void *(function) (void), void *stack)
 }
 
 void *sys_sbrk(int increment){
-  printc_xy(4,19,'E');
+
   if(current()->heap + increment < HEAPSTART*PAGE_SIZE){
-    
-    /*while(current()->heap_top != HEAPSTART * PAGE_SIZE){
+
+    #if AWESOME_FEATURE 
+
+    while(current()->heap_top != HEAPSTART * PAGE_SIZE){
+        page_table_entry* actual= get_PT(current());
         free_frame(get_frame(actual,PH_PAGE((int)current()->heap_top)));
         del_ss_pag(actual,PH_PAGE((int)current()->heap_top));
         current()->heap_top -= PAGE_SIZE;
         current()->heap_break -= PAGE_SIZE;
+        counter_printer=1;
+         printc_xy(4,20,counter_printer+48);
+
     }
-    current()->heap_break -= PAGE_SIZE;*/
+    current()->heap = HEAPSTART * PAGE_SIZE;
+
+    #endif
+
     return -ENOMEM;
   } 
 
@@ -301,15 +312,17 @@ void *sys_sbrk(int increment){
 
   /*CASO BASE - HEAP no inilicializado*/
   if(current()->heap_break == (HEAPSTART*PAGE_SIZE)){
-    //printc_xy(4,20,'I');
     int frame = alloc_frame();
     if(frame==-1){
         return -ENOMEM;
     }
     set_ss_pag(get_PT(current()),PH_PAGE(heap_inicial),frame);
     current()->heap_break += PAGE_SIZE;
+
+    #if DEBUG
     ++counter_printer;
     printc_xy(4,20,counter_printer+48);
+    #endif
   }
   /////////////////////////////////////////////////////////////////
 
@@ -322,16 +335,19 @@ void *sys_sbrk(int increment){
         ++n_frames;
         current()->heap_top +=PAGE_SIZE;
         current()->heap_break +=PAGE_SIZE;
-    }
+    }//Calculate number of necessary frames
 
     if(heap_actual == current()->heap_break){
       ++n_frames;
       current()->heap_top +=PAGE_SIZE;
       current()->heap_break +=PAGE_SIZE;
-    }
+    }//if the actual heap it's equal that the heap_break take one more frame
 
+    #if DEBUG
     counter_printer += n_frames;
     printc_xy(4,20,counter_printer+48);
+    #endif
+
     int frames[n_frames];
     int i;
     for (i=0;i<n_frames;++i){
@@ -355,8 +371,11 @@ void *sys_sbrk(int increment){
         del_ss_pag(actual,PH_PAGE((int)current()->heap_top));
         current()->heap_top -= PAGE_SIZE;
         current()->heap_break -= PAGE_SIZE;
+
+        #if DEBUG
         --counter_printer;
         printc_xy(4,20,counter_printer+48);
+        #endif
     }
   }
 
