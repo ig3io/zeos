@@ -284,7 +284,13 @@ int sys_clone(void *(function) (void), void *stack)
 void *sys_sbrk(int increment){
   printc_xy(4,19,'E');
   if(current()->heap + increment < HEAPSTART*PAGE_SIZE){
-    printc_xy(4,19,'A');
+    
+    /*while(current()->heap_top != HEAPSTART * PAGE_SIZE){
+        free_frame(get_frame(actual,PH_PAGE((int)current()->heap_top)));
+        del_ss_pag(actual,PH_PAGE((int)current()->heap_top));
+        current()->heap_top -= PAGE_SIZE;
+        current()->heap_break -= PAGE_SIZE;
+    }*/
     return -ENOMEM;
   } 
 

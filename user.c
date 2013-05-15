@@ -421,7 +421,7 @@ void sbrk_easy_test(){
   //expected result : 123456345634
 }
 
-void sbrk_with_fork(){
+void sbrk_with_fork_one_page(){
   char * string = (char*) sbrk(0);
   string[0] = 'F';
   string[1] = 'U';
@@ -467,6 +467,8 @@ void sbrk_with_fork(){
   }
 }
 
+//void sbrk
+
 void sbrk_and_read_test(){
 
   char  buf[1];
@@ -481,7 +483,7 @@ void sbrk_and_read_test(){
       if(len==1){
         if(buf[0]=='m'){
           //silly_print("HELLO");
-          sbrk(8192);
+          sbrk(1000);
 
         } 
         if(buf[0]=='l') sbrk(-8192);
@@ -492,24 +494,24 @@ void sbrk_and_read_test(){
 }
 
 void sbrk_a_full(){
-  silly_print("+2");
-  sbrk(4096);
+  silly_print("+1");
+  sbrk(1000);
+  silly_wait();
+  silly_print("0");
+  sbrk(1000);
   silly_wait();
   silly_print("+0");
-  sbrk(4096);
+  sbrk(1000);
   silly_wait();
-  silly_print("-0");
-  sbrk(-2048);
+  silly_print("+0");
+  sbrk(1050);
   silly_wait();
-  silly_print("+2");
-  sbrk(4096);
-  silly_wait();
-  silly_print("-2");
+  silly_print("+1");
   sbrk(-8192);
+  silly_print("NOT POSIBLE- SEE A in screener");
   silly_wait();
-  silly_print("-1");
+  silly_print("NOT POSIBLE- SEE A in screener");
   sbrk(-2048);
-  sbrk(8193);
 }
 
 
@@ -524,8 +526,8 @@ int __attribute__ ((__section__(".text.main")))
   //read_easy_test();
   //sbrk_easy_test();
   //sbrk_with_fork();
-  sbrk_and_read_test();
-  //sbrk_a_full();
+  //sbrk_and_read_test();
+  sbrk_a_full();
   while(1);
   
   return 0;
