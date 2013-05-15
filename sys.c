@@ -283,7 +283,10 @@ int sys_clone(void *(function) (void), void *stack)
 
 void *sys_sbrk(int increment){
   printc_xy(4,19,'E');
-  if(current()->heap + increment < PH_PAGE(HEAPSTART)) return -ENOMEM;
+  if(current()->heap + increment < HEAPSTART*PAGE_SIZE){
+    printc_xy(4,19,'A');
+    return -ENOMEM;
+  } 
 
   int heap_inicial = current()->heap;
   current()-> heap += increment;//incrementamos el heap
@@ -340,7 +343,7 @@ void *sys_sbrk(int increment){
     printc_xy(counter_printer2+3,20,'I');
     counter_printer2+=4;
   }
-  else if(increment<0){
+   if(increment<0 || !(heap_actual>=current()->heap_top && heap_actual<=current()->heap_break) ){
     int i;
     printc_xy(4,19,'H');
     while(!(heap_actual>=current()->heap_top && heap_actual<=current()->heap_break)){
