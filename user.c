@@ -475,14 +475,40 @@ void sbrk_and_read_test(){
   int pid = fork();
   if(pid==0){
     while(1){
+      silly_print("HELLO");
       int len = read(fd,buf,size);
+      silly_print("DEW");
       if(len==1){
-        if(buf[0]=='m') sbrk(2048);
-        if(buf[0]=='l') sbrk(-2048);
+        if(buf[0]=='m'){
+          //silly_print("HELLO");
+          sbrk(8192);
+
+        } 
+        if(buf[0]=='l') sbrk(-8192);
       }
     }
   }
 
+}
+
+void sbrk_a_full(){
+  silly_print("+2");
+  sbrk(4096);
+  silly_wait();
+  silly_print("+0");
+  sbrk(4096);
+  silly_wait();
+  silly_print("-0");
+  sbrk(-2048);
+  silly_wait();
+  silly_print("+2");
+  sbrk(4096);
+  silly_wait();
+  silly_print("-2");
+  sbrk(-8192);
+  silly_wait();
+  silly_print("+1");
+  sbrk(7000);
 }
 
 
@@ -497,7 +523,8 @@ int __attribute__ ((__section__(".text.main")))
   //read_easy_test();
   //sbrk_easy_test();
   //sbrk_with_fork();
-  sbrk_and_read_test();
+  //sbrk_and_read_test();
+  sbrk_a_full();
   while(1);
   
   return 0;
