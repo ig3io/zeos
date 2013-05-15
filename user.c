@@ -483,10 +483,9 @@ void sbrk_and_read_test(){
       if(len==1){
         if(buf[0]=='m'){
           //silly_print("HELLO");
-          sbrk(1000);
-
+          sbrk(2000);
         } 
-        if(buf[0]=='l') sbrk(-8192);
+        if(buf[0]=='l') sbrk(-2000);
       }
     }
   }
@@ -523,11 +522,11 @@ int __attribute__ ((__section__(".text.main")))
   //semaphores_basic();
   //semaphores_medium();
   //semaphores_advanced();
-  //read_easy_test();
+  read_easy_test();
   //sbrk_easy_test();
   //sbrk_with_fork();
   //sbrk_and_read_test();
-  sbrk_a_full();
+  //sbrk_a_full();
   while(1);
   
   return 0;
