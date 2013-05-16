@@ -411,7 +411,9 @@ void read_multiple_test()
   
   while (1)
   {
+    silly_print("+");
     int len = read(1, buff, 10);
+    silly_print("-");
     if (pid > 0)
     {
       silly_print("P: [ ");
