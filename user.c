@@ -404,8 +404,29 @@ void read_easy_test(){
   else silly_print("padre_sale");
 }
 
-void sbrk_easy_test(){
+void read_multiple_test()
+{
+  int pid = fork();
+  char buff[10];
+  
+  while (1)
+  {
+    int len = read(1, buff, 10);
+    if (pid > 0)
+    {
+      silly_print("P: [ ");
+    }
+    else
+    {
+      silly_print("C: [ ");
+    }
+    write(1, buff, len);
+    silly_print(" ]\n");
+  }
+}
 
+void sbrk_easy_test()
+{
   char *string =(char*) sbrk(0);
   string[0] = '1';
   string[1] = '2';
@@ -421,7 +442,8 @@ void sbrk_easy_test(){
   //expected result : 123456345634
 }
 
-void sbrk_with_fork_one_page(){
+void sbrk_with_fork_one_page()
+{
   char * string = (char*) sbrk(0);
   string[0] = 'F';
   string[1] = 'U';
@@ -519,7 +541,8 @@ int __attribute__ ((__section__(".text.main")))
   //semaphores_basic();
   //semaphores_medium();
   //semaphores_advanced();
-  read_easy_test();
+  //read_easy_test();
+  read_multiple_test();
   //sbrk_easy_test();
   //sbrk_with_fork();
   //sbrk_and_read_test();
