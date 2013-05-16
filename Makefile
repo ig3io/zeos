@@ -20,7 +20,7 @@ INCLUDEDIR = include
 # Define here flags to compile the tests if needed
 JP = 
 
-CFLAGS = -O2  -g $(JP) -ffreestanding -Wall -I$(INCLUDEDIR) -fno-stack-protector -DDEBUG
+CFLAGS = -O2  -g $(JP) -ffreestanding -Wall -I$(INCLUDEDIR) -fno-stack-protector -DDEBUG -DAWESOME_FEATURE
 ASMFLAGS = -I$(INCLUDEDIR)
 SYSLDFLAGS = -T system.lds
 USRLDFLAGS = -T user.lds
