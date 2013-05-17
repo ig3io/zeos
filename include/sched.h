@@ -14,7 +14,7 @@
 #define KERNEL_STACK_SIZE   1024
 #define QUANTUM		20
 #define NR_SEMS     20
-#define BUFFER_SIZE 10 
+#define BUFFER_SIZE 40
 
 extern int current_quantum;
 
