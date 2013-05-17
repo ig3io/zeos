@@ -561,11 +561,11 @@ int __attribute__ ((__section__(".text.main")))
   //semaphores_medium();
   //semaphores_advanced();
   //read_easy_test();
-  read_multiple_test();
+  //read_multiple_test();
   //sbrk_easy_test();
   //sbrk_with_fork();
   //sbrk_and_read_test();
-  //sbrk_a_full();
+  sbrk_a_full();
   while(1);
   
   return 0;
