@@ -435,11 +435,7 @@ void pop_i(int size)
   int remaining = size;
   while (buffer_size() != 0 && remaining > 0)
   {
-    buffer.start++;
-    if (buffer.start == &buffer.buffer[BUFFER_SIZE])
-    {
-      buffer.start = &buffer.buffer[0];
-    }
+    pop();
     remaining--;
   }
 }

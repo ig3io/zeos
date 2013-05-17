@@ -457,6 +457,7 @@ int sys_read_keyboard(char * buf, int count)
   
   while (*current_count > 0)
   {
+  /*
     if (buffer_size() == BUFFER_SIZE)
     {
       #ifdef DEBUG
@@ -498,9 +499,10 @@ int sys_read_keyboard(char * buf, int count)
       struct list_head * elem = &current()->list;
       list_del(elem);
       list_add(elem, &keyboardqueue);
-      sched_next_rr();
+      sched_next_rr(); //TODO we should preserve the queueing politic
     }
-    else if (buffer_size() >= count)
+    else
+    if (buffer_size() >= count)*/
     {
       // TODO error detection
       if (buffer.start > buffer.end)
@@ -513,7 +515,9 @@ int sys_read_keyboard(char * buf, int count)
         pop_i(len_a);
         *current_count -= len_a;
         current_read += len_a;
-        int len_b = *current_count;
+
+        //int len_b = *current_count;
+        int len_b = buffer.end - &buffer.buffer[0];
         char * start = &buffer.buffer[0];
         if (copy_to_user(start, buf + len_a + current_read, len_b) < 0)
         {
@@ -525,22 +529,27 @@ int sys_read_keyboard(char * buf, int count)
       }
       else
       {
-        if (copy_to_user(buffer.start, buf + current_read, count) < 0)
+        int size = buffer_size();
+        if (copy_to_user(buffer.start, buf + current_read, size) < 0)
         {
           return -1;
         }
-        pop_i(count);
-        *current_count -= count;
-        current_read += count;
+        pop_i(size);
+        *current_count -= size;
+        current_read += size;
       }
     }
-    else
+
+    
+    //else
+    if (*current_count > 0)
     {
       struct list_head * elem = &current()->list;
       list_del(elem);
       list_add_tail(elem, &keyboardqueue);
       sched_next_rr();
     }
+
     #ifdef DEBUG
     printc_xy(3,22,*current_count+48);
     printc_xy(2,22,current_read+48);
