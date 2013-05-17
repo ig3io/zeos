@@ -210,9 +210,10 @@ int sys_clone(void *(function) (void), void *stack)
 
   int PID=-1;
 
-  // TODO refine return code
+  // TODO maybe a fancier return code?
   if (list_empty(&freequeue))
   {
+    stats_current_system_to_user();
     return -1;
   }
 
@@ -282,6 +283,7 @@ int sys_clone(void *(function) (void), void *stack)
 
 void *sys_sbrk(int increment)
 {
+  stats_current_user_to_system();
 
   if(current()->heap + increment < HEAPSTART*PAGE_SIZE)
   {
@@ -303,6 +305,7 @@ void *sys_sbrk(int increment)
     current()->heap = HEAPSTART * PAGE_SIZE;
     #endif
 
+    stats_current_system_to_user();
     return -ENOMEM;
   } 
 
@@ -313,7 +316,9 @@ void *sys_sbrk(int increment)
   /*CASO BASE - HEAP no inilicializado*/
   if(current()->heap_break == (HEAPSTART*PAGE_SIZE)){
     int frame = alloc_frame();
-    if(frame==-1){
+    if(frame==-1)
+    {
+        stats_current_system_to_user();
         return -ENOMEM;
     }
     set_ss_pag(get_PT(current()),PH_PAGE(heap_inicial),frame);
@@ -354,6 +359,7 @@ void *sys_sbrk(int increment)
       frames[i] = alloc_frame();
       if(frames[i]==-1){
       while(i >=0) free_frame(frames[i--]);
+      stats_current_system_to_user();
       return -ENOMEM;
       }
     }
@@ -379,6 +385,7 @@ void *sys_sbrk(int increment)
     }
   }
 
+  stats_current_system_to_user();
   return (void*) heap_actual;
 }
 
@@ -438,7 +445,8 @@ int sys_write(int fd, char * buffer, int size)
 
 int sys_read_keyboard(char * buf, int count)
 {
-
+  stats_current_user_to_system();
+  
   current()->read_pending = count;
 
   if (!list_empty(&keyboardqueue))
@@ -446,6 +454,8 @@ int sys_read_keyboard(char * buf, int count)
     struct list_head * elem = &current()->list;
     list_del(elem);
     list_add_tail(elem, &keyboardqueue);
+    current()->state = ST_BLOCKED;
+    stats_current_system_to_blocked();
     sched_next_rr();
   }
 
@@ -454,55 +464,6 @@ int sys_read_keyboard(char * buf, int count)
   
   while (*current_count > 0)
   {
-  
-    /*
-    if (buffer_size() == BUFFER_SIZE)
-    {
-      #ifdef DEBUG
-      printc_xy(14,21,'E');
-      #endif
-      if (buffer.start > buffer.end)
-      {
-        int len_a = &buffer.buffer[BUFFER_SIZE] - buffer.start;
-        if (copy_to_user(buffer.start, buf + current_read, len_a) < 0)
-        {
-          return -1;
-        }
-        pop_i(len_a);
-        *current_count -= len_a;
-        current_read += len_a;
-        char * start = &buffer.buffer[0];
-        int len_b = buffer.end - start;
-        if (copy_to_user(start, buf + len_a + current_read, len_b) < 0)
-        {
-          return -1;
-        }
-        pop_i(len_b);
-        *current_count -= len_b;
-        current_read += len_b;
-      }
-      else
-      {
-        #ifdef DEBUG
-        printc_xy(14,22,'E');
-        #endif
-        if (copy_to_user(buffer.start, buf + current_read, buffer_size()) < 0)
-        {
-          return -1;
-        }
-        pop_i(buffer_size());
-        *current_count -= buffer_size();
-        current_read += buffer_size();
-      }
-      struct list_head * elem = &current()->list;
-      list_del(elem);
-      list_add(elem, &keyboardqueue);
-      sched_next_rr(); //TODO we should preserve the queueing politic
-    }
-    else
-    
-    if (buffer_size() >= count)
-    */
     {
       // TODO error detection
       if (buffer.start > buffer.end)
@@ -510,6 +471,7 @@ int sys_read_keyboard(char * buf, int count)
         int len_a = &buffer.buffer[BUFFER_SIZE] - buffer.start;
         if (copy_to_user(buffer.start, buf + current_read, len_a) < 0)
         {
+          stats_current_system_to_user();
           return -1;
         }
         //pop_i(len_a);
@@ -542,6 +504,7 @@ int sys_read_keyboard(char * buf, int count)
         char * start = &buffer.buffer[0];
         if (copy_to_user(start, buf + len_a + current_read, len_b) < 0)
         {
+          stats_current_system_to_user();
           return -1;
         }
         *current_count -= len_b;
@@ -556,6 +519,7 @@ int sys_read_keyboard(char * buf, int count)
         int size = buffer_size();
         if (copy_to_user(buffer.start, buf + current_read, size) < 0)
         {
+          stats_current_system_to_user();
           return -1;
         }
         pop_i(size);
@@ -568,12 +532,13 @@ int sys_read_keyboard(char * buf, int count)
     debug_buffer();
     #endif
     
-    //else
     if (*current_count > 0)
     {
       struct list_head * elem = &current()->list;
       list_del(elem);
       list_add_tail(elem, &keyboardqueue);
+      current()->state = ST_BLOCKED;
+      stats_current_system_to_blocked();
       sched_next_rr();
     }
 
@@ -584,6 +549,7 @@ int sys_read_keyboard(char * buf, int count)
     printc_xy(6, 22, current_read%10 + 48);
     #endif
   }
+  stats_current_system_to_user();
   return current_read;
 }
 
@@ -666,8 +632,11 @@ int sem_is_valid_number(int n_sem)
 
 int sys_sem_init(int n_sem, unsigned int value)
 {
+  stats_current_user_to_system();
+  
   if (!sem_is_valid_number(n_sem))
   {
+    stats_current_system_to_user();
     return -1;
   }
 
@@ -675,6 +644,7 @@ int sys_sem_init(int n_sem, unsigned int value)
 
   if (sem->owner != NULL)
   {
+    stats_current_system_to_user();
     return -1;
   }
 
@@ -685,6 +655,7 @@ int sys_sem_init(int n_sem, unsigned int value)
   // Ignacio: It's been initialized in init_sched!
   // But okaay, since the work.pdf says it should be initialized here...
   // list head already initialized (init_sched)
+  stats_current_system_to_user();
   return 0;
 }
 
@@ -692,6 +663,7 @@ int sys_sem_wait(int n_sem)
 {
   if (!sem_is_valid_number(n_sem))
   {
+    stats_current_system_to_user();
     return -1;
   }
 
@@ -699,6 +671,7 @@ int sys_sem_wait(int n_sem)
 
   if (sem->owner == NULL)
   {
+    stats_current_system_to_user();
     return -1;
   }
 
@@ -716,6 +689,7 @@ int sys_sem_wait(int n_sem)
     list_add_tail(&current()->list, &sem->list);
     current()->state = ST_BLOCKED;
     
+    stats_current_system_to_blocked();
     //debug = "Sem: thread moved to semaphore list\n";
     //sys_write(1, debug, 36);
 
@@ -732,16 +706,20 @@ int sys_sem_wait(int n_sem)
     //debug = "Sem: (note: it's destroyed!)\n";
     //sys_write(1, debug, 29);
 
+    stats_current_system_to_user();
     return -1;
   }
-
+  
+  stats_current_system_to_user();
   return 0;
 }
 
 int sys_sem_signal(int n_sem)
 {
+  stats_current_user_to_system();
   if (!sem_is_valid_number(n_sem))
   {
+    stats_current_system_to_user();
     return -1;
   }
 
@@ -749,6 +727,7 @@ int sys_sem_signal(int n_sem)
   
   if (sem->owner == NULL)
   {
+    stats_current_system_to_user();
     return -1;
   }
 
@@ -764,16 +743,21 @@ int sys_sem_signal(int n_sem)
     list_add_tail(elem, &readyqueue);
     struct task_struct * task = list_head_to_task_struct(elem); 
     task->state = ST_READY;
+    stats_update_blocked_to_system(&task->stats);
   }
   
+  stats_current_system_to_user();
   return 0;
 }
 
 
 int sys_sem_destroy(int n_sem)
 {
+  stats_current_user_to_system();
+
   if (!sem_is_valid_number(n_sem))
   {
+    stats_current_system_to_user();
     return -1;
   }
 
@@ -781,6 +765,7 @@ int sys_sem_destroy(int n_sem)
 
   if (sem->owner==NULL || sem->owner != current())
   {
+    stats_current_system_to_user();
   	return -1;
   }
   
@@ -794,8 +779,10 @@ int sys_sem_destroy(int n_sem)
     list_add_tail(elem, &readyqueue);
     struct task_struct * task = list_head_to_task_struct(elem); 
     task->state = ST_READY;
+    stats_update_blocked_to_system(&task->stats);
   }
   
+  stats_current_system_to_user();
   return 0;
 }
 

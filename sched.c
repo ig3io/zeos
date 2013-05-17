@@ -325,6 +325,16 @@ void stats_current_ready_to_system()
   stats_update_ready_to_system(&current()->stats);
 }
 
+void stats_current_system_to_blocked()
+{
+  stats_update_system_to_blocked(&current()->stats);
+}
+
+void stats_current_blocked_to_system()
+{
+  stats_update_blocked_to_system(&current()->stats);
+}
+
 void stats_update_user_to_system(struct stats * st)
 {
   st->user_ticks += get_ticks() - st->elapsed_total_ticks;
@@ -348,6 +358,18 @@ void stats_update_ready_to_system(struct stats * st)
   st->ready_ticks += get_ticks() - st->elapsed_total_ticks;
   st->elapsed_total_ticks = get_ticks();
   st->total_trans++;  // READY -> RUN (sys)
+}
+
+void stats_update_system_to_blocked(struct stats * st)
+{
+  st->system_ticks += get_ticks() - st->elapsed_total_ticks;
+  st->elapsed_total_ticks = get_ticks();
+}
+
+void stats_update_blocked_to_system(struct stats * st)
+{
+  st->blocked_ticks += get_ticks() - st->elapsed_total_ticks;
+  st->elapsed_total_ticks = get_ticks();
 }
 
 void stats_init(struct stats * st)

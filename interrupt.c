@@ -148,6 +148,7 @@ void keyboard_routine()
         list_del(elem);
         list_add_tail(elem, &readyqueue);
         to_unblock->state = ST_READY;
+        stats_update_blocked_to_system(&to_unblock->stats);
         // TODO: accelerates testing, but screws with mutiple readers.
         //sched_next_rr();
       }    
