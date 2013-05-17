@@ -406,21 +406,39 @@ void read_easy_test(){
 
 void read_multiple_test()
 {
-  int pid = fork();
-  char buff[10];
+  char buff[5];
+  int pid_a = fork();
+  int pid_b = 0;
+  if (pid_a != 0)
+  {
+    pid_b = fork();
+  }
+
   
+  if (pid_a != 0 && pid_b != 0)
+  {
+    while (1);
+  }
+
   while (1)
   {
     silly_print("+");
-    int len = read(1, buff, 10);
-    silly_print("-");
-    if (pid > 0)
+
+    int len = read(1, buff, 5);
+    
+    if (len < 0)
     {
-      silly_print("P: [ ");
+      silly_print("!\n");
+      continue;
+    }
+    silly_print("-");
+    if (pid_a == 0)
+    {
+      silly_print("A: [ ");
     }
     else
     {
-      silly_print("C: [ ");
+      silly_print("B: [ ");
     }
     write(1, buff, len);
     silly_print(" ]\n");
