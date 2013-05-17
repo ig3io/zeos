@@ -389,16 +389,16 @@ void semaphores_advanced(void)
 
 void read_easy_test(){
   int fd = 1;
-  int size = 1;
-  char parbuf[1];
+  int size = 15;
+  char parbuf[15];
   int pid = fork();
   if(pid==0){
     while (1)
     {
       int len = read(fd, parbuf, size);
-      if (len == 1) {
+      //if (len == 15) {
         write(1, parbuf, len);
-      }
+      //}
     }
   }
   else silly_print("padre_sale");
@@ -406,7 +406,7 @@ void read_easy_test(){
 
 void read_multiple_test()
 {
-  char buff[4];
+  char buff[15];
   int pid_a = fork();
   int pid_b = 0;
   if (pid_a != 0)
@@ -423,7 +423,7 @@ void read_multiple_test()
   while (1)
   {
     silly_print("-");
-    int len = read(1, buff, 4);
+    int len = read(1, buff, 15);
     if (len < 0)
     {
       silly_print("!\n");
@@ -560,8 +560,8 @@ int __attribute__ ((__section__(".text.main")))
   //semaphores_basic();
   //semaphores_medium();
   //semaphores_advanced();
-  //read_easy_test();
-  read_multiple_test();
+  read_easy_test();
+  //read_multiple_test();
   //sbrk_easy_test();
   //sbrk_with_fork();
   //sbrk_and_read_test();
