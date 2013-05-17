@@ -126,6 +126,10 @@ void keyboard_routine()
     {
       push(key_char);
     }
+
+    #ifdef DEBUG
+    debug_buffer();
+    #endif
       
     if(!list_empty(&keyboardqueue))
     {
@@ -168,17 +172,16 @@ void debug_buffer()
 {
     int ini = buffer.start - &buffer.buffer[0];
     int fin = buffer.end - &buffer.buffer[0];
-    int count = buffer_size();
-    printc_xy(8,13,ini+48);
-    printc_xy(9,13,fin+48);
-    printc_xy(11,13,buffer_size()+48);
+    printc_xy(8, 13,  ini/10 + 48);
+    printc_xy(9, 13,  ini%10 + 48);
+    printc_xy(11, 13, fin/10 + 48);
+    printc_xy(12, 13, fin%10 + 48);
+    printc_xy(14, 13, buffer_size()/10 + 48);
+    printc_xy(15, 13, buffer_size()%10 + 48);
     int print_column=6;
-    while(count != 0)
+    int i = 0;
+    for (i = 0; i < BUFFER_SIZE; i++)
     {
-        ini = ini%BUFFER_SIZE;
-        printc_xy(print_column,2,buffer.buffer[ini]);
-        ++ini;
-        ++print_column;
-        --count;
+        printc_xy(print_column + i, 2 , buffer.buffer[i]);
     }
 }
