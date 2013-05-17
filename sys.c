@@ -454,7 +454,8 @@ int sys_read_keyboard(char * buf, int count)
   
   while (*current_count > 0)
   {
-  /*
+  
+    /*
     if (buffer_size() == BUFFER_SIZE)
     {
       #ifdef DEBUG
@@ -499,7 +500,8 @@ int sys_read_keyboard(char * buf, int count)
       sched_next_rr(); //TODO we should preserve the queueing politic
     }
     else
-    if (buffer_size() >= count)*/
+    */
+    if (buffer_size() >= count)
     {
       // TODO error detection
       if (buffer.start > buffer.end)
@@ -512,6 +514,27 @@ int sys_read_keyboard(char * buf, int count)
         pop_i(len_a);
         *current_count -= len_a;
         current_read += len_a;
+
+        #ifdef DEBUG
+        /*
+        char ini[3] = { '\0' };
+        char end[3] = { '\0' };
+        
+        int ini_int = buffer.start - &buffer.buffer[0];
+        int end_int = buffer.end - &buffer.buffer[0];
+        
+        ini[0] = ini_int/10 + 48;
+        ini[1] = ini_int%10 + 48;
+
+        end[0] = end_int/10 + 48;
+        end[1] = end_int%10 + 48;
+        printk("ini: ");
+        printk(ini);
+        printk(" - end: ");
+        printk(end);
+        printk("\n");
+        */
+        #endif
 
         //int len_b = *current_count;
         int len_b = buffer.end - &buffer.buffer[0];
