@@ -440,7 +440,7 @@ void read_multiple_test()
       silly_print("B: ");
     }
     write(1, buff, len);
-    silly_print("!\n");
+    silly_print("\n");
   }
 }
 
