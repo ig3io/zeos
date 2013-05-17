@@ -19,5 +19,5 @@ Custom ``.bochsrc`` file
 Custom `Makefile`
 ----------------
 - `fno-stack-protector` to avoid compilation issues with large `user.c` files.
-- Optional `DEBUG_FLAG` (enables debug statements -- great overhead) and `AWESOME_FEATURE` (enables non standard `sbrk` behaviour).
+- Optional `DEBUG_FLAG` (enables debug statements -- a lot of overhead) and `AWESOME_FEATURE` (enables non standard `sbrk` behaviour).
 
