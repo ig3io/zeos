@@ -283,24 +283,27 @@ int sys_clone(void *(function) (void), void *stack)
   return PID;
 }
 
-void *sys_sbrk(int increment){
+void *sys_sbrk(int increment)
+{
 
-  if(current()->heap + increment < HEAPSTART*PAGE_SIZE){
+  if(current()->heap + increment < HEAPSTART*PAGE_SIZE)
+  {
 
-    #if AWESOME_FEATURE 
-
-    while(current()->heap_top != HEAPSTART * PAGE_SIZE){
+    #if AWESOME_FEATURE
+    while(current()->heap_top != HEAPSTART * PAGE_SIZE)
+    {
         page_table_entry* actual= get_PT(current());
         free_frame(get_frame(actual,PH_PAGE((int)current()->heap_top)));
         del_ss_pag(actual,PH_PAGE((int)current()->heap_top));
         current()->heap_top -= PAGE_SIZE;
         current()->heap_break -= PAGE_SIZE;
         counter_printer=1;
-         printc_xy(4,20,counter_printer+48);
+        #ifdef DEBUG
+        printc_xy(4,20,counter_printer+48);
+        #endif
 
     }
     current()->heap = HEAPSTART * PAGE_SIZE;
-
     #endif
 
     return -ENOMEM;
@@ -456,26 +459,38 @@ int sys_read_keyboard(char * buf, int count)
   {
     if (buffer_size() == BUFFER_SIZE)
     {
-      // TODO error detection
+      #ifdef DEBUG
       printc_xy(14,21,'E');
+      #endif
       if (buffer.start > buffer.end)
       {
         int len_a = &buffer.buffer[BUFFER_SIZE] - buffer.start;
-        copy_to_user(buffer.start, buf + current_read, len_a);
+        if (copy_to_user(buffer.start, buf + current_read, len_a) < 0)
+        {
+          return -1;
+        }
         pop_i(len_a);
         *current_count -= len_a;
         current_read += len_a;
         char * start = &buffer.buffer[0];
         int len_b = buffer.end - start;
-        copy_to_user(start, buf + len_a + current_read, len_b);
+        if (copy_to_user(start, buf + len_a + current_read, len_b) < 0)
+        {
+          return -1;
+        }
         pop_i(len_b);
         *current_count -= len_b;
         current_read += len_b;
       }
       else
       {
+        #ifdef DEBUG
         printc_xy(14,22,'E');
-        copy_to_user(buffer.start, buf + current_read, buffer_size());
+        #endif
+        if (copy_to_user(buffer.start, buf + current_read, buffer_size()) < 0)
+        {
+          return -1;
+        }
         pop_i(buffer_size());
         *current_count -= buffer_size();
         current_read += buffer_size();
@@ -491,20 +506,29 @@ int sys_read_keyboard(char * buf, int count)
       if (buffer.start > buffer.end)
       {
         int len_a = &buffer.buffer[BUFFER_SIZE] - buffer.start;
-        copy_to_user(buffer.start, buf + current_read, len_a);
+        if (copy_to_user(buffer.start, buf + current_read, len_a) < 0)
+        {
+          return -1;
+        }
         pop_i(len_a);
         *current_count -= len_a;
         current_read += len_a;
         int len_b = *current_count;
         char * start = &buffer.buffer[0];
-        copy_to_user(start, buf + len_a + current_read, len_b);
+        if (copy_to_user(start, buf + len_a + current_read, len_b) < 0)
+        {
+          return -1;
+        }
         pop_i(len_b);
         *current_count -= len_b;
         current_read += len_b;
       }
       else
       {
-        copy_to_user(buffer.start, buf + current_read, count);
+        if (copy_to_user(buffer.start, buf + current_read, count) < 0)
+        {
+          return -1;
+        }
         pop_i(count);
         *current_count -= count;
         current_read += count;
@@ -517,8 +541,10 @@ int sys_read_keyboard(char * buf, int count)
       list_add_tail(elem, &keyboardqueue);
       sched_next_rr();
     }
+    #ifdef DEBUG
     printc_xy(3,22,*current_count+48);
     printc_xy(2,22,current_read+48);
+    #endif
   }
   return current_read;
 }
@@ -526,8 +552,10 @@ int sys_read_keyboard(char * buf, int count)
 int sys_read(int fd, char * buf,int count)
 {
   stats_current_user_to_system();
+  #ifdef DEBUG
   printc_xy(15,13,'1');
   //Debug_buffer();
+  #endif
 
   int ch_fd =check_fd(fd, ESCRIPTURA);
 
@@ -554,7 +582,6 @@ int sys_gettime(){
 
 int sys_get_stats(int pid, struct stats * st)
 {
-  //printc_xy(10, 10, 'J');
   stats_current_user_to_system();
 
   if (!access_ok(VERIFY_WRITE, st, sizeof(struct stats)))
@@ -574,22 +601,17 @@ int sys_get_stats(int pid, struct stats * st)
     }
   }
 
-  //printc_xy(10, 10, 'k');
-
   if (target == NULL)
   {
     stats_current_system_to_user(); 
     return -1;
   }
 
-  //printc_xy(10, 10, 'L');
   if (copy_to_user(&target->stats, st, sizeof(struct stats) < 0))
   {
     stats_current_system_to_user();
     return -1; 
   }
-
-  //printc_xy(10, 10, 'M');
   
   stats_current_system_to_user();
   return 0;

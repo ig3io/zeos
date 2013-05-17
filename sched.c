@@ -221,8 +221,9 @@ void print_current_quantum()
 void update_sched_data_rr(void)
 {
   current_quantum--;
-  //current()->quantum--;
-  print_current_quantum();
+  #ifdef DEBUG
+    print_current_quantum();
+  #endif
 } 
 
 int needs_sched_rr(void)
@@ -280,12 +281,14 @@ void sched_next_rr(void)
     next->state = ST_RUN;
   }
 
-  printc_xy(0, 10, 'C');
-  printc_xy(1, 10, ':');
-  printc_xy(2, 10, current()->PID + 48);
-  printc_xy(0, 11, 'N');
-  printc_xy(1, 11, ':');
-  printc_xy(2, 11, next->PID + 48);
+  #ifdef DEBUG
+    printc_xy(0, 10, 'C');
+    printc_xy(1, 10, ':');
+    printc_xy(2, 10, current()->PID + 48);
+    printc_xy(0, 11, 'N');
+    printc_xy(1, 11, ':');
+    printc_xy(2, 11, next->PID + 48);
+  #endif
 
   // Restore quantum
   current_quantum = next->quantum;
