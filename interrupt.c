@@ -111,7 +111,7 @@ void keyboard_routine()
       key_char = char_map[scan_code];
     }
 
-    #ifndef NO_DEBUG
+    #ifdef DEBUG
     /* Keyboard debug */
       printc_xy(0, 13, 'K');
       printc_xy(1, 13, 'e');
@@ -141,7 +141,6 @@ void keyboard_routine()
         //sched_next_rr();
       }    
     }
-    //printc_xy(13,13,'2');
   }
 }
 
@@ -155,8 +154,10 @@ void clock_routine()
   if (needs_sched_rr())
   {
     times_sched++;
-    printc_xy(0, 8, 'S');
-    printc_xy(1, 8, times_sched + 1);
+    #ifdef DEBUG
+      printc_xy(0, 8, 'S');
+      printc_xy(1, 8, times_sched + 1);
+    #endif
     update_current_state_rr(&readyqueue);
     sched_next_rr();
   }
