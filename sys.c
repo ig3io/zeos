@@ -20,9 +20,6 @@
 
 #define LECTURA 0
 #define ESCRIPTURA 1
-#define AWESOME_FEATURE 0
-#define DEBUG 0
-
 
 #define WRITE_BUFFER_SIZE 4
 
@@ -551,8 +548,10 @@ int sys_read_keyboard(char * buf, int count)
     }
 
     #ifdef DEBUG
-    printc_xy(3,22,*current_count+48);
-    printc_xy(2,22,current_read+48);
+    printc_xy(2, 22, *current_count/10 + 48);
+    printc_xy(3, 22, *current_count%10 + 48);
+    printc_xy(5, 22, current_read/10 + 48);
+    printc_xy(6, 22, current_read%10 + 48);
     #endif
   }
   return current_read;
