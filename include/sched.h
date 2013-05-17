@@ -12,7 +12,7 @@
 
 #define NR_TASKS    10
 #define KERNEL_STACK_SIZE   1024
-#define QUANTUM		100
+#define QUANTUM		20
 #define NR_SEMS     20
 #define BUFFER_SIZE 10 
 
