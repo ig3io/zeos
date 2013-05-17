@@ -100,7 +100,6 @@ int read(int fd, char * buf, int count)
 }
 
 int gettime(){
-  
   int rvalue = 0;
   __asm__ __volatile__ (
     "int $0x80\n\t"
@@ -116,7 +115,6 @@ int gettime(){
 }
 
 int getpid(){
-  
   int rvalue = 0;
   __asm__ __volatile__ (
     "int $0x80\n\t"
@@ -165,7 +163,7 @@ int clone(void *(function) (void),void *stack)
 }
 
 void *sbrk(int increment){
-    int rvalue = 0;
+  int rvalue = 0;
 
   __asm__ __volatile__ (
     "int $0x80\n\t"
