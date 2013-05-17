@@ -135,7 +135,7 @@ void keyboard_routine()
     {
       struct task_struct * to_unblock = list_head_to_task_struct(list_first(&keyboardqueue));
       int last_size_request = to_unblock->read_pending; 
-      if (last_size_request <= buffer_size() || buffer_size() >= BUFFER_SIZE/2)
+      if (last_size_request <= buffer_size() || buffer_size() >= BUFFER_SIZE/2 || buffer.end == &buffer.buffer[BUFFER_SIZE])
       {
         struct list_head * elem = &to_unblock->list;
         list_del(elem);

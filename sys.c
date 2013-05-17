@@ -500,8 +500,9 @@ int sys_read_keyboard(char * buf, int count)
       sched_next_rr(); //TODO we should preserve the queueing politic
     }
     else
-    */
+    
     if (buffer_size() >= count)
+    */
     {
       // TODO error detection
       if (buffer.start > buffer.end)
@@ -511,7 +512,7 @@ int sys_read_keyboard(char * buf, int count)
         {
           return -1;
         }
-        pop_i(len_a);
+        //pop_i(len_a);
         *current_count -= len_a;
         current_read += len_a;
 
@@ -543,11 +544,13 @@ int sys_read_keyboard(char * buf, int count)
         {
           return -1;
         }
-        pop_i(len_b);
-        //pop_i(len_a + len_b);
         *current_count -= len_b;
         current_read += len_b;
+
+        //pop_i(len_b);
+        pop_i(len_a + len_b);
       }
+      
       else
       {
         int size = buffer_size();

@@ -560,8 +560,8 @@ int __attribute__ ((__section__(".text.main")))
   //semaphores_basic();
   //semaphores_medium();
   //semaphores_advanced();
-  read_easy_test();
-  //read_multiple_test();
+  //read_easy_test();
+  read_multiple_test();
   //sbrk_easy_test();
   //sbrk_with_fork();
   //sbrk_and_read_test();
