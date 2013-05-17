@@ -406,7 +406,7 @@ void read_easy_test(){
 
 void read_multiple_test()
 {
-  char buff[5];
+  char buff[4];
   int pid_a = fork();
   int pid_b = 0;
   if (pid_a != 0)
@@ -422,26 +422,25 @@ void read_multiple_test()
 
   while (1)
   {
-    silly_print("+");
-
-    int len = read(1, buff, 5);
-    
+    silly_print("-");
+    int len = read(1, buff, 4);
     if (len < 0)
     {
       silly_print("!\n");
       continue;
     }
-    silly_print("-");
+    silly_print("+");
+
     if (pid_a == 0)
     {
-      silly_print("A: [ ");
+      silly_print("A: ");
     }
     else
     {
-      silly_print("B: [ ");
+      silly_print("B: ");
     }
     write(1, buff, len);
-    silly_print(" ]\n");
+    silly_print("!\n");
   }
 }
 
