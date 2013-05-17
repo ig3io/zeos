@@ -385,13 +385,25 @@ int buffer_size()
   }
   else if (buffer.start > buffer.end)
   {
-    size = BUFFER_SIZE - (buffer.start - buffer.end);
+    size = &buffer.buffer[BUFFER_SIZE] - buffer.start;
+    size += buffer.end - &buffer.buffer[0];
+
+    //size = BUFFER_SIZE - (buffer.start - buffer.end);
   }
   return size;
 }
 
 void push(char c)
 {
+  if (buffer.end == &buffer.buffer[BUFFER_SIZE])
+  {
+    buffer.end = &buffer.buffer[0];
+  }
+
+  *buffer.end = c;
+  buffer.end++;
+
+/*
   if (buffer.end == &buffer.buffer[BUFFER_SIZE])
   {
     buffer.end = &buffer.buffer[0];
@@ -410,10 +422,23 @@ void push(char c)
       buffer.start = &buffer.buffer[0];
     }
   }
+*/
 }
 
 char pop()
 {
+  char c = NULL;
+  if (buffer_size() != 0)
+  {
+    if (buffer.start == &buffer.buffer[BUFFER_SIZE])
+    {
+      buffer.start = &buffer.buffer[0];
+    }
+    c = *buffer.start;
+    buffer.start++;
+  }
+
+/*
   char c = NULL;
   if (buffer_size() != 0)
   {
@@ -424,6 +449,7 @@ char pop()
       buffer.start = &buffer.buffer[0];
     }
   }
+*/
   return c;
 }
 
