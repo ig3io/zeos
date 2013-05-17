@@ -521,6 +521,7 @@ int sys_read_keyboard(char * buf, int count)
           return -1;
         }
         pop_i(len_b);
+        //pop_i(len_a + len_b);
         *current_count -= len_b;
         current_read += len_b;
       }
