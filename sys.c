@@ -538,6 +538,9 @@ int sys_read_keyboard(char * buf, int count)
       }
     }
 
+    #ifdef DEBUG
+    debug_buffer();
+    #endif
     
     //else
     if (*current_count > 0)
@@ -563,7 +566,7 @@ int sys_read(int fd, char * buf,int count)
   stats_current_user_to_system();
   #ifdef DEBUG
   printc_xy(15,13,'1');
-  //Debug_buffer();
+  debug_buffer();
   #endif
 
   int ch_fd =check_fd(fd, ESCRIPTURA);
