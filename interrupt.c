@@ -122,6 +122,8 @@ void keyboard_routine()
     /* End keyboard debug */
     #endif
 
+    // TODO implementation dependant behaviour? a la TCP receiver: drop when
+    // the buffer overflows
     if(buffer_size() < BUFFER_SIZE)
     {
       push(key_char);
@@ -134,14 +136,19 @@ void keyboard_routine()
     if(!list_empty(&keyboardqueue))
     {
       struct task_struct * to_unblock = list_head_to_task_struct(list_first(&keyboardqueue));
-      int last_size_request = to_unblock->read_pending; 
+      int last_size_request = to_unblock->read_pending;
+      /*
+      TODO there are some problems with the cycling of the buffer. This is the
+      safest approach in order to avoid illegal access. We're facing a hard
+      to find bug
+      */
       if (last_size_request <= buffer_size() || buffer_size() >= BUFFER_SIZE/2 || buffer.end == &buffer.buffer[BUFFER_SIZE])
       {
         struct list_head * elem = &to_unblock->list;
         list_del(elem);
         list_add_tail(elem, &readyqueue);
         to_unblock->state = ST_READY;
-        // TODO: accelerates testing
+        // TODO: accelerates testing, but screws with mutiple readers.
         //sched_next_rr();
       }    
     }
